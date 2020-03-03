@@ -1,4 +1,7 @@
 #include <Arduino.h>
+#include <DS3231_Simple.h>
+#include <Wire.h>
+#include <SimpleDHT.h>
 
 //pins and max / min definitions
 #define MAX_STR 12
@@ -7,22 +10,34 @@
 #define DUAL_LED_PIN2 5
 #define MIN_DELAY 100
 #define CUR_VERSION 1.0
+#define BAUD_RATE 9600
+
+//pin and setup for the DHT
+#define PINDHT22 2
+SimpleDHT22 dht22(PINDHT22);
 
 //byte [0 1 2] menu
-#define D13 50
 #define LED 51
 #define SET 52
 #define STATUS 53
 #define VERSION 54
 #define HELP 55
 #define INVALID 56
-#define ON 57
-#define OFF 58
-#define BLINK 59
+
+//led related deywords
 #define LEDS 60
 #define GREEN 61
 #define RED 62
 #define DUAL 63
+#define ON 57
+#define OFF 58
+#define BLINK 59
+#define D13 50
+
+//time related keywords
+#define WRITE 64
+#define READ 65
+#define RTC 65
 
 //input processing variables
 short arr[MAX_CMD_COUNT];
@@ -31,7 +46,7 @@ byte command_size = 0;
 byte command_count = 0;
 
 char inByte = 0;
-
+DS3231_Simple Clock;
 //timekeeping variables
 unsigned int curr_time = 0;
 unsigned int prev_time1 = 0;
@@ -48,12 +63,30 @@ byte current_color = 0;
 byte blink_color = RED;
 
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(BAUD_RATE);
+	Clock.begin();
 	command[0] = '\0';
 	pinMode(13, OUTPUT);
 	pinMode(DUAL_LED_PIN1, OUTPUT);
 	pinMode(DUAL_LED_PIN2, OUTPUT);
 	Serial.println(F("Enter commands or 'HELP'"));
+}
+
+
+void read_temp_hum() {
+	// read without samples.
+	float temperature = 0;
+  float humidity = 0;
+  int err = SimpleDHTErrSuccess;
+  if ((err = dht22.read2(&temperature, &humidity, NULL)) != SimpleDHTErrSuccess) {
+    Serial.print("Read DHT22 failed, err=");
+		Serial.println(err);
+    return;
+  }
+
+  Serial.print("Sample OK: ");
+  Serial.print((float)temperature); Serial.print(" *C, ");
+  Serial.print((float)humidity); Serial.println(" RH%");
 }
 
 //changes the color of the LED, x as the setting for the color
@@ -131,6 +164,9 @@ void set_command_flag(char command[], short arr[]) {
 		else if(strcmp(command, "LEDS") == 0) arr[command_count++] = LEDS;
 		else if(strcmp(command, "RED") == 0) arr[command_count++] = RED;
 		else if(strcmp(command, "GREEN") == 0) arr[command_count++] = GREEN;
+		else if(strcmp(command, "WRITE") == 0) arr[command_count++] = WRITE;
+		else if(strcmp(command, "READ") == 0) arr[command_count++] = READ;
+		else if(strcmp(command, "RTC") == 0) arr[command_count++] = RTC;
 		else if(is_str_positive_number(command) != -1) arr[command_count++] = is_str_positive_number(command);
 		else arr[command_count++] = INVALID;
 	}
@@ -145,7 +181,7 @@ void execute_commands() {
 	else if (arr[0] == HELP) {
     Serial.print(F("\rAvailable commands:\n\r'D13 ON' 'D13 OFF' 'D13 BLINK' control the LED on pin 13,\n\r'LED GREEN' 'LED RED' 'LED OFF' 'LED BLINK' 'LED DUAL BLINK' control the dual color LED,\n\r'SET BLINK X' set the delay to X ms, minimum "));
     Serial.print(MIN_DELAY);
-    Serial.print(F(",\n\r'STATUS LEDS'\n\r'VERSION'\n\r"));
+    Serial.print(F(",\n\r'STATUS LEDS'\n\r'WRITE RTC' 'READ RTC' for updating / reading time\n\r'VERSION'\n\r"));
   }
   else if (arr[0] == SET && arr[1] == BLINK && arr[2] >= MIN_DELAY) blink_delay = arr[2];
   else if (arr[0] == STATUS && arr[1] == LEDS) {
@@ -192,6 +228,16 @@ void execute_commands() {
 		else if (arr[1] == OFF) {
 			blinkLEDtoggle = dual_blink = false;
 			change_dual_led(0);
+		}
+	} else if (arr[1] == RTC) {
+		if (arr[0] == WRITE) {
+			Clock.promptForTimeAndDate(Serial);
+		} else if (arr[0] == READ) {
+			read_temp_hum();//TODO fix and move to correct command
+			Clock.printDateTo_YMD(Serial);
+			Serial.print(' ');
+			Clock.printTimeTo_HMS(Serial);
+			Serial.println();
 		}
 	} else {
 		Serial.println(F("Invalid command"));
