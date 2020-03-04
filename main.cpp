@@ -2,7 +2,6 @@
 #include <DS3231_Simple.h>
 #include <Wire.h>
 #include <SimpleDHT.h>
-
 //pins and max / min definitions
 #define MAX_STR 12
 #define MAX_CMD_COUNT 3
@@ -16,9 +15,11 @@
 #define PINDHT22 2
 SimpleDHT22 dht22(PINDHT22);
 
+//when adding a menu item, add in 4 places, enum, help, set_command_flag(), execute_commands()
 enum menu_items : byte {M_LED, M_SET, M_STATUS, M_VERSION,
 	M_HELP, M_INVALID, M_LEDS, M_GREEN, M_RED, M_DUAL,
-M_ON, M_OFF, M_BLINK, M_D13, M_WRITE, M_READ, M_RTC} menu_item;
+M_ON, M_OFF, M_BLINK, M_D13, M_WRITE, M_READ, M_RTC,
+M_DHT, M_CURRENT, M_SAVED, M_EXTREME};
 
 
 //input processing variables
@@ -33,7 +34,11 @@ DS3231_Simple Clock;
 unsigned int curr_time = 0;
 unsigned int prev_time1 = 0;
 unsigned int prev_time2 = 0;
+unsigned int prev_time_dht_short = 0;
+unsigned int prev_time_dht_long = 0;
 unsigned short blink_delay = 500;
+unsigned short dht_read_short_delay = 5000;
+unsigned int dht_read_long_delay = 900000;
 
 //toggles for blinking options
 bool blinkD13toggle = false;
@@ -43,6 +48,12 @@ bool dual_blink = false;
 //for keeping track fo the current color for blinking
 byte current_color = 0;
 byte blink_color = M_RED;
+
+//keeping current temp and humidity in global
+float cur_temp = 0;
+int max_temp = INT8_MIN;
+int min_temp = INT8_MAX;
+float cur_humidity = 0;
 
 void setup() {
 	Serial.begin(BAUD_RATE);
@@ -56,19 +67,22 @@ void setup() {
 
 
 void read_temp_hum() {
-	// read without samples.
-	float temperature = 0;
-  float humidity = 0;
   int err = SimpleDHTErrSuccess;
-  if ((err = dht22.read2(&temperature, &humidity, NULL)) != SimpleDHTErrSuccess) {
+  if ((err = dht22.read2(&cur_temp, &cur_humidity, NULL)) != SimpleDHTErrSuccess) {
     Serial.print("Read DHT22 failed, err=");
 		Serial.println(err);
-    return;
   }
+}
 
-  Serial.print("Sample OK: ");
-  Serial.print((float)temperature); Serial.print(" *C, ");
-  Serial.print((float)humidity); Serial.println(" RH%");
+void read_temp_hum_loop() {
+	if (curr_time - prev_time_dht_short >= dht_read_short_delay) {
+		read_temp_hum();
+    prev_time_dht_short = curr_time;
+  }
+	if (curr_time - prev_time_dht_long >= dht_read_long_delay || curr_time < prev_time_dht_long) {
+		//TODO do stuff to save the temp
+    prev_time_dht_long = curr_time;
+	}
 }
 
 //changes the color of the LED, x as the setting for the color
@@ -157,6 +171,10 @@ void set_command_flag(char command[], short arr[]) {
 		else if(!strcmp(command, "WRITE")) arr[command_count++] = M_WRITE;
 		else if(!strcmp(command, "READ")) arr[command_count++] = M_READ;
 		else if(!strcmp(command, "RTC")) arr[command_count++] = M_RTC;
+		else if(!strcmp(command, "DHT")) arr[command_count++] = M_DHT;
+		else if(!strcmp(command, "CURRENT")) arr[command_count++] = M_CURRENT;
+		else if(!strcmp(command, "SAVED")) arr[command_count++] = M_SAVED;
+		else if(!strcmp(command, "EXTREME")) arr[command_count++] = M_EXTREME;
 		else if(is_str_positive_number(command) != -1) arr[command_count++] = is_str_positive_number(command);
 		else arr[command_count++] = M_INVALID;
 	}
@@ -170,13 +188,14 @@ void execute_commands() {
 			Serial.println(CUR_VERSION);
 			break;
 		case M_HELP:
-			Serial.print(F("\r--------------------\n\rAvailable commands:\n\r"));
-			Serial.print(F("D13 ON\n\rD13 OFF\n\rD13 BLINK - control the LED on pin 13,\n\r"));
-			Serial.print(F("LED GREEN\n\rLED RED\n\rLED OFF\n\rLED BLINK\n\rLED DUAL BLINK - control the dual color LED,\n\r"));
-			Serial.print(F("SET BLINK X set the delay to X ms, minimum "));
-			Serial.print(MIN_DELAY);
-			Serial.print(F(",\n\rSTATUS LEDS - for led status\n\r"));
-			Serial.print(F("READ RTC\n\rWRITE RTC for updating / reading time\n\rVERSION for current version\n\r--------------------\n\r"));
+			Serial.println(F("\r-------------------------\n\rAvailable commands:"));
+			Serial.println(F("D13 ON | D13 OFF | D13 BLINK\n\rcontrol the LED on pin 13\n"));
+			Serial.println(F("LED GREEN | LED RED | LED OFF | LED BLINK | LED DUAL BLINK\n\rcontrol the dual color LED\n"));
+			Serial.print(F("SET BLINK X\n\rset the delay to X ms, minimum "));
+			Serial.println(MIN_DELAY);
+			Serial.println(F("\n\rSTATUS LEDS\n\rfor led status\n"));
+			Serial.println(F("DHT CURRENT | DHT SAVED | DHT EXTREME\n\rshow the current, saved, extreme temp / humidity\n"));
+			Serial.println(F("READ RTC | WRITE RTC\n\rupdate / read time\n\n\rVERSION\n\rcurrent version\n\r-------------------------"));
 			break;
 		case M_SET:
 			if (arr[1] == M_BLINK && arr[2] >= MIN_DELAY) {
@@ -200,6 +219,7 @@ void execute_commands() {
 					else Serial.println(F("LED Red"));
 				}
 			}
+			break;
 		case M_D13:
 			switch (arr[1]) {
 				case M_ON:
@@ -212,6 +232,9 @@ void execute_commands() {
 					break;
 				case M_BLINK:
 					blinkD13toggle = true;
+					break;
+				default:
+					Serial.println(F("Invalid command, type HELP"));
 			}
 			break;
 		case M_LED:
@@ -237,6 +260,9 @@ void execute_commands() {
 				case M_OFF:
 					blinkLEDtoggle = dual_blink = false;
 					change_dual_led(0);
+					break;
+				default:
+					Serial.println(F("Invalid command, type HELP"));
 			}
 			break;
 		case M_RTC:
@@ -245,12 +271,37 @@ void execute_commands() {
 					Clock.promptForTimeAndDate(Serial);
 					break;
 				case M_READ:
-					read_temp_hum();//TODO fix and move to correct command
+					read_temp_hum();
+					Serial.print("temp is");
+					Serial.println(cur_temp);//TODO fix and move to correct command
 					Clock.printDateTo_YMD(Serial);
 					Serial.print(' ');
 					Clock.printTimeTo_HMS(Serial);
 					Serial.println();
+					break;
+				default:
+					Serial.println(F("Invalid command, type HELP"));
 			}
+			break;
+		case M_DHT:
+			switch (arr[1]) {
+				case M_CURRENT:
+					Serial.print("Current temp / humidity is ");
+					Serial.print(cur_temp);
+					Serial.print("C (");
+					Serial.print(cur_temp*1.8+32);
+					Serial.print("F), ");
+					Serial.print(cur_humidity);
+					Serial.println("%");
+					break;
+				case M_SAVED://TODO
+					break;
+				case M_EXTREME://TODO
+					break;
+				default:
+					Serial.println(F("Invalid command, type HELP"));
+			}
+			break;
 		default:
 			Serial.println(F("Invalid command, type HELP"));
 	}
