@@ -1,11 +1,10 @@
 #include <Arduino.h>
+#include <EEPROM.h>
 #include <DS3231_Simple.h>
 #include <Wire.h>
 #include <SimpleDHT.h>
 
-
 #ifndef MY_GLOBALS_H
-
 
 
 #define MAX_STR 12
@@ -21,14 +20,14 @@
 
 extern void take_input();
 extern void execute_commands();
-extern void read_temp_hum();
 extern void read_temp_hum_loop();
-extern char to_farenheit(char x);
+extern void print_EEPROM_data(int x);
+extern float to_farenheit(float x);
 extern void change_dual_led(byte x);
 extern void blink_LED();
 extern void blink_d13();
-extern short is_str_positive_number(char command[]);
-extern void set_command_flag(char command[], short arr[]);
+extern int str_positive_number(char command[]);
+extern void set_command_flag(char command[], int arr[]);
 
 //when adding a menu item, add in 4 places, enum, help, set_command_flag(), execute_commands()
 typedef enum {M_LED, M_SET, M_STATUS, M_VERSION,
@@ -39,7 +38,7 @@ extern MENU_ITEMS menu_items;
 
 extern SimpleDHT22 dht22;
 //for buffer
-extern short arr[MAX_CMD_COUNT];
+extern int arr[MAX_CMD_COUNT];
 extern char command[MAX_STR+1];
 //input processing variables
 extern byte command_size;
@@ -50,7 +49,7 @@ extern char inByte;
 extern DS3231_Simple Clock;
 extern unsigned int curr_time, prev_time1, prev_time2, prev_time_dht_short, prev_time_dht_long;
 
-extern unsigned short blink_delay, dht_read_short_delay;
+extern unsigned int blink_delay, dht_read_short_delay;
 extern unsigned int dht_read_long_delay;
 
 //toggles for blinking options
@@ -60,15 +59,30 @@ extern bool blinkD13toggle, blinkLEDtoggle, dual_blink;
 extern byte current_color, blink_color;
 
 //keeping current temp and humidity in global
-extern byte cur_temp;
-extern byte cur_humidity;
-extern char max_temp;
-extern char min_temp;
-extern char max_humidity;
-extern char min_humidity;
+extern float cur_temp;
+extern float cur_humidity;
+extern float max_temp;
+extern float min_temp;
+extern float max_humidity;
+extern float min_humidity;
 
 
 
+struct Eeprom_indexes {
+	int start_i = 0;
+	int end_i = 0;
+	int curr_i = 0;
+	int stored_data_count = 0;
+};
 
+extern Eeprom_indexes rtc_dht_data_range;
+
+struct data_to_store {
+	DateTime date_time;
+	float temp;
+	float humidity;
+};
+
+extern data_to_store time_and_data;
 
 #endif

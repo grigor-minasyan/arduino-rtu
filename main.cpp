@@ -1,13 +1,12 @@
-#include <Arduino.h>
+#include "global_var.h"
+#include <EEPROM.h>
 #include <DS3231_Simple.h>
 #include <Wire.h>
 #include <SimpleDHT.h>
 
-#include "global_var.h"
-
 SimpleDHT22 dht22(PINDHT22);
 //for buffer
-short arr[MAX_CMD_COUNT];
+int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
 //input processing variables
 byte command_size = 0;
@@ -18,7 +17,7 @@ char inByte = 0;
 DS3231_Simple Clock;
 unsigned int curr_time = 0, prev_time1 = 0, prev_time2 = 0, prev_time_dht_short = 0, prev_time_dht_long = 0;
 
-unsigned short blink_delay = 500, dht_read_short_delay = 5000;
+unsigned int blink_delay = 500, dht_read_short_delay = 5000; // dont set the int delay to less than 2500
 unsigned int dht_read_long_delay = 900000;
 
 //toggles for blinking options
@@ -28,18 +27,20 @@ bool blinkD13toggle = false, blinkLEDtoggle = false, dual_blink = false;
 byte current_color = 0, blink_color = M_RED;
 
 //keeping current temp and humidity in global
-byte cur_temp = 0;
-byte cur_humidity = 0;
-char max_temp = INT8_MIN;
-char min_temp = INT8_MAX;
-char max_humidity = INT8_MIN;
-char min_humidity = INT8_MAX;
-
-
+float cur_temp = 0;
+float cur_humidity = 0;
+float max_temp = INT8_MIN;
+float min_temp = INT8_MAX;
+float max_humidity = INT8_MIN;
+float min_humidity = INT8_MAX;
 
 void setup() {
 	Serial.begin(BAUD_RATE);
 	Clock.begin();
+	// Clock.formatEEPROM();
+
+	rtc_dht_data_range.end_i = EEPROM.length()-1;
+
 	command[0] = '\0';
 	pinMode(13, OUTPUT);
 	pinMode(DUAL_LED_PIN1, OUTPUT);
@@ -50,8 +51,11 @@ void setup() {
 void loop() {
 	curr_time = millis();
 	read_temp_hum_loop();
+
 	//blink the LEDs, the functions account for the delay
 	if (blinkD13toggle) blink_d13();
 	if (blinkLEDtoggle || dual_blink) blink_LED();
+
+	//calls set flags and execute
 	take_input();
 }

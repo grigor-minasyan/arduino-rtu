@@ -14,7 +14,7 @@ void execute_commands() {
 			Serial.print(F("SET BLINK X\n\rset the delay to X ms, minimum "));
 			Serial.println(MIN_DELAY);
 			Serial.println(F("\n\rSTATUS LEDS\n\rfor led status\n"));
-			Serial.println(F("DHT CURRENT | DHT SAVED | DHT EXTREME\n\rshow the current, saved, extreme temp / humidity\n"));
+			Serial.println(F("DHT CURRENT | DHT SAVED (x) | DHT EXTREME\n\rshow the current, saved (last x records, optional, default is 10), extreme temp / humidity\n"));
 			Serial.println(F("RTC READ | RTC WRITE\n\rupdate / read time\n\n\rVERSION\n\rcurrent version\n\r-------------------------"));
 			break;
 		case M_SET:
@@ -91,9 +91,6 @@ void execute_commands() {
 					Clock.promptForTimeAndDate(Serial);
 					break;
 				case M_READ:
-					read_temp_hum();
-					Serial.print("temp is");
-					Serial.println(cur_temp);//TODO fix and move to correct command
 					Clock.printDateTo_YMD(Serial);
 					Serial.print(' ');
 					Clock.printTimeTo_HMS(Serial);
@@ -114,15 +111,23 @@ void execute_commands() {
 					Serial.print(cur_humidity);
 					Serial.println("%");
 					break;
-				case M_SAVED://TODO
+				case M_SAVED:
+					if (arr[2] > 0) print_EEPROM_data(arr[2]);
+					else print_EEPROM_data(10);//default printing lines
 					break;
 				case M_EXTREME:
-					Serial.print("Extreme temp / humidity is ");
+					Serial.print("Maximum recorded temp / humidity is ");
 					Serial.print(max_temp);
 					Serial.print("C (");
 					Serial.print(to_farenheit(max_temp));
 					Serial.print("F), ");
 					Serial.print(max_humidity);
+					Serial.print("%\n\rMimimum recorded temp / humidity is ");
+					Serial.print(min_temp);
+					Serial.print("C (");
+					Serial.print(to_farenheit(min_temp));
+					Serial.print("F), ");
+					Serial.print(min_humidity);
 					Serial.println("%");
 					break;
 				default:

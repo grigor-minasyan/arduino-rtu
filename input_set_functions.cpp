@@ -1,7 +1,7 @@
 #include "global_var.h"
 
 //checks for a non negative number from atring, returns the number or -1 if fails
-short is_str_positive_number(char command[]) {
+int str_positive_number(char command[]) {
 
 	for (byte i = 0; i < MAX_STR; i++) {
 		if (command[i] == '\0') break;
@@ -61,7 +61,7 @@ void take_input() {
 }
 
 //takes the array and sets the flags based on the command
-void set_command_flag(char command[], short arr[]) {
+void set_command_flag(char command[], int arr[]) {
 	if (command_count < MAX_CMD_COUNT) {
 		if (!strcmp(command, "D13")) arr[command_count++] = M_D13;
 		else if(!strcmp(command, "LED")) arr[command_count++] = M_LED;
@@ -83,7 +83,7 @@ void set_command_flag(char command[], short arr[]) {
 		else if(!strcmp(command, "CURRENT")) arr[command_count++] = M_CURRENT;
 		else if(!strcmp(command, "SAVED")) arr[command_count++] = M_SAVED;
 		else if(!strcmp(command, "EXTREME")) arr[command_count++] = M_EXTREME;
-		else if(is_str_positive_number(command) != -1) arr[command_count++] = is_str_positive_number(command);
+		else if(str_positive_number(command) != -1) arr[command_count++] = str_positive_number(command);
 		else arr[command_count++] = M_INVALID;
 	}
 }
