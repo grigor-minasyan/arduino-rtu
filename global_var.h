@@ -23,6 +23,7 @@ extern void take_input();
 extern void execute_commands();
 extern void read_temp_hum();
 extern void read_temp_hum_loop();
+extern char to_farenheit(char x);
 extern void change_dual_led(byte x);
 extern void blink_LED();
 extern void blink_d13();
@@ -59,10 +60,12 @@ extern bool blinkD13toggle, blinkLEDtoggle, dual_blink;
 extern byte current_color, blink_color;
 
 //keeping current temp and humidity in global
-extern float cur_temp;
-extern int max_temp;
-extern int min_temp;
-extern float cur_humidity;
+extern byte cur_temp;
+extern byte cur_humidity;
+extern char max_temp;
+extern char min_temp;
+extern char max_humidity;
+extern char min_humidity;
 
 
 

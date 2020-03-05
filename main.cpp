@@ -28,10 +28,12 @@ bool blinkD13toggle = false, blinkLEDtoggle = false, dual_blink = false;
 byte current_color = 0, blink_color = M_RED;
 
 //keeping current temp and humidity in global
-float cur_temp = 0;
-int max_temp = INT8_MIN;
-int min_temp = INT8_MAX;
-float cur_humidity = 0;
+byte cur_temp = 0;
+byte cur_humidity = 0;
+char max_temp = INT8_MIN;
+char min_temp = INT8_MAX;
+char max_humidity = INT8_MIN;
+char min_humidity = INT8_MAX;
 
 
 
@@ -47,6 +49,7 @@ void setup() {
 
 void loop() {
 	curr_time = millis();
+	read_temp_hum_loop();
 	//blink the LEDs, the functions account for the delay
 	if (blinkD13toggle) blink_d13();
 	if (blinkLEDtoggle || dual_blink) blink_LED();

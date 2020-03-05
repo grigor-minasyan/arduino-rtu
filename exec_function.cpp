@@ -109,14 +109,21 @@ void execute_commands() {
 					Serial.print("Current temp / humidity is ");
 					Serial.print(cur_temp);
 					Serial.print("C (");
-					Serial.print(cur_temp*1.8+32);
+					Serial.print(to_farenheit(cur_temp));
 					Serial.print("F), ");
 					Serial.print(cur_humidity);
 					Serial.println("%");
 					break;
 				case M_SAVED://TODO
 					break;
-				case M_EXTREME://TODO
+				case M_EXTREME:
+					Serial.print("Extreme temp / humidity is ");
+					Serial.print(max_temp);
+					Serial.print("C (");
+					Serial.print(to_farenheit(max_temp));
+					Serial.print("F), ");
+					Serial.print(max_humidity);
+					Serial.println("%");
 					break;
 				default:
 					Serial.println(F("Invalid command, type HELP"));
