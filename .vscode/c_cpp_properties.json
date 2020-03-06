@@ -3,7 +3,11 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/home/grigor/Documents/**",
+                "/home/grigor/Documents/arduino-1.8.12/libraries/**",
+                "/home/grigor/Documents/downloaded-libraries/**",
+                "/home/grigor/Documents/downloaded-libraries/FastLED-3.3.3/**"
             ],
             "defines": [
                 "_DEBUG",

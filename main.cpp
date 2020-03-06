@@ -1,9 +1,6 @@
 #include "main.h"
-#include <Arduino.h>
-#include <EEPROM.h>
-#include <DS3231_Simple.h>
-#include <Wire.h>
-#include <SimpleDHT.h>
+
+
 
 SimpleDHT22 dht22(PINDHT22);
 //for buffer

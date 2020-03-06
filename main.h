@@ -1,7 +1,6 @@
-#include <EEPROM.h>
-#include <DS3231_Simple.h>
-#include <Wire.h>
-#include <SimpleDHT.h>
+#include <Arduino.h>
+
+
 
 #ifndef MY_GLOBALS_H
 
