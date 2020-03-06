@@ -51,10 +51,7 @@ void take_input() {
 void set_command_flag(char command[], int arr[]) {
 	int num;
 	if (command_count < MAX_CMD_COUNT) {
-		if(arr[0] == M_ADD || (arr[0] == M_SET && arr[1] == M_BLINK)) {
-			if (is_str_number(command, num)) arr[command_count++] = num;
-			else arr[command_count++] = M_INVALID;
-		} else if(!strcmp(command, "LED")) arr[command_count++] = M_LED;
+		if(!strcmp(command, "LED")) arr[command_count++] = M_LED;
 		else if(!strcmp(command, "DUAL")) arr[command_count++] = M_DUAL;
 		else if(!strcmp(command, "SET")) arr[command_count++] = M_SET;
 		else if(!strcmp(command, "STATUS")) arr[command_count++] = M_STATUS;
@@ -74,7 +71,10 @@ void set_command_flag(char command[], int arr[]) {
 		else if(!strcmp(command, "SAVED")) arr[command_count++] = M_SAVED;
 		else if(!strcmp(command, "EXTREME")) arr[command_count++] = M_EXTREME;
 		else if(!strcmp(command, "ADD")) arr[command_count++] = M_ADD;
-		else if (!strcmp(command, "D13")) arr[command_count++] = M_D13;
-		else arr[command_count++] = M_INVALID;
+		else if(!strcmp(command, "D13")) arr[command_count++] = M_D13;
+		else if(!strcmp(command, "RGB")) arr[command_count++] = M_RGB;
+		else if(arr[0] == M_ADD || arr[0] == M_RGB || (arr[0] == M_SET && arr[1] == M_BLINK)) {
+			if (is_str_number(command, num)) arr[command_count++] = num;
+		}  else arr[command_count++] = M_INVALID;
 	}
 }

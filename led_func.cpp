@@ -1,34 +1,30 @@
 #include "main.h"
-//changes the color of the LED, x as the setting for the color
-void change_dual_led(byte x) {
-	//0 is off
-	if (x == 0) {
-		current_color = 0;
-		digitalWrite(DUAL_LED_PIN1, LOW);
-		digitalWrite(DUAL_LED_PIN2, LOW);
-	} else if (x == M_GREEN) {
-		current_color = blink_color = M_GREEN; // for green
-		digitalWrite(DUAL_LED_PIN1, HIGH);
-		digitalWrite(DUAL_LED_PIN2, LOW);
-	} else {
-		current_color = blink_color = M_RED; // for red
-		digitalWrite(DUAL_LED_PIN1, LOW);
-		digitalWrite(DUAL_LED_PIN2, HIGH);
+//blink the LED based on the set delay
+
+bool rgb_toggle = false;
+void blink_RGB() {
+	// Turn the LED on, then pause
+	if ((curr_time - prev_time3 >= blink_delay3)) {
+		if (rgb_toggle) {
+			leds[0] = color1;
+			FastLED.show();
+		}	else {
+			leds[0] = color2;
+			FastLED.show();
+		}
+		rgb_toggle = !rgb_toggle;
+		prev_time3 = curr_time;
 	}
 }
 
-//blink the LED based on the set delay
-void blink_LED() {
-  if ((curr_time - prev_time2 >= blink_delay)) {
-		if (dual_blink) {
-	    if (blink_color == M_RED) change_dual_led(M_GREEN);
-	    else if (blink_color == M_GREEN) change_dual_led(M_RED);
-	    prev_time2 = curr_time;
-		} else {
-	    if (current_color == blink_color) change_dual_led(0);
-	    else if (current_color == 0) change_dual_led(blink_color);
-	    prev_time2 = curr_time;
-		}
+void blink_LED(byte &x) {
+  if ((curr_time - prev_time2 >= blink_delay2)) {//fix the delay
+		x = (x << 2) | (x >> 6);
+		prev_time2 = curr_time;
+		if (x&1) digitalWrite(DUAL_LED_PIN2, HIGH);
+		else digitalWrite(DUAL_LED_PIN2, LOW);
+		if (x&2) digitalWrite(DUAL_LED_PIN1, HIGH);
+		else digitalWrite(DUAL_LED_PIN1, LOW);
   }
 }
 
