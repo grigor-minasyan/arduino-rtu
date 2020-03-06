@@ -1,6 +1,4 @@
 #include "main.h"
-
-
 SimpleDHT22 dht22(PINDHT22);
 //for buffer
 int arr[MAX_CMD_COUNT];
@@ -51,8 +49,6 @@ void setup() {
 }
 
 void loop() {
-
-
 	curr_time = millis();
 	read_temp_hum_loop();
 
