@@ -1,4 +1,4 @@
-#include "global_var.h"
+#include "main.h"
 
 void execute_commands() {
 	Serial.println();

@@ -1,4 +1,3 @@
-#include <Arduino.h>
 #include <EEPROM.h>
 #include <DS3231_Simple.h>
 #include <Wire.h>
@@ -11,7 +10,7 @@
 #define MAX_CMD_COUNT 3
 #define DUAL_LED_PIN1 4
 #define DUAL_LED_PIN2 5
-#define MIN_DELAY 100
+#define MIN_DELAY 50
 #define CUR_VERSION 2.0
 #define BAUD_RATE 9600
 
@@ -22,7 +21,7 @@ extern void take_input();
 extern void execute_commands();
 extern void read_temp_hum_loop();
 extern void print_EEPROM_data(int x);
-extern float to_farenheit(float x);
+extern int8_t to_farenheit(int8_t x);
 extern void change_dual_led(byte x);
 extern void blink_LED();
 extern void blink_d13();
@@ -38,7 +37,7 @@ extern MENU_ITEMS menu_items;
 
 extern SimpleDHT22 dht22;
 //for buffer
-extern int arr[MAX_CMD_COUNT];
+extern unsigned int arr[MAX_CMD_COUNT];
 extern char command[MAX_STR+1];
 //input processing variables
 extern byte command_size;
@@ -59,30 +58,40 @@ extern bool blinkD13toggle, blinkLEDtoggle, dual_blink;
 extern byte current_color, blink_color;
 
 //keeping current temp and humidity in global
-extern float cur_temp;
-extern float cur_humidity;
-extern float max_temp;
-extern float min_temp;
-extern float max_humidity;
-extern float min_humidity;
+extern int8_t cur_temp;
+extern int8_t cur_humidity;
+extern int8_t max_temp;
+extern int8_t min_temp;
+extern int8_t max_humidity;
+extern int8_t min_humidity;
 
 
-
-struct Eeprom_indexes {
-	int start_i = 0;
-	int end_i = 0;
-	int curr_i = 0;
-	int stored_data_count = 0;
-};
-
-extern Eeprom_indexes rtc_dht_data_range;
-
-struct data_to_store {
+class Data_To_Store {
+public:
 	DateTime date_time;
-	float temp;
-	float humidity;
+	int8_t temp;
+	int8_t humidity;
 };
 
-extern data_to_store time_and_data;
+class Eeprom_indexes {
+private:
+	int start_i;
+	int end_i;
+	int curr_i;
+	int stored_data_count;
+	int actual_start_i;
+	bool is_underflow;
+public:
+	int get_start_i();
+	int get_end_i();
+	int get_curr_i();
+	int get_stored_data_count();
+	Eeprom_indexes(int new_start_i, int new_end_i, int new_curr_i, int new_stored_data_count);
+	void store_data(Data_To_Store data_to_store);
+	void print_data(int x);
+};
+
+
+
 
 #endif

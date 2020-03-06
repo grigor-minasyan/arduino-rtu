@@ -1,4 +1,4 @@
-#include "global_var.h"
+#include "main.h"
 
 //checks for a non negative number from atring, returns the number or -1 if fails
 int str_positive_number(char command[]) {

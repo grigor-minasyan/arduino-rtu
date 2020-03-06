@@ -1,4 +1,5 @@
-#include "global_var.h"
+#include "main.h"
+#include <Arduino.h>
 #include <EEPROM.h>
 #include <DS3231_Simple.h>
 #include <Wire.h>
@@ -6,7 +7,7 @@
 
 SimpleDHT22 dht22(PINDHT22);
 //for buffer
-int arr[MAX_CMD_COUNT];
+unsigned int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
 //input processing variables
 byte command_size = 0;
@@ -18,7 +19,7 @@ DS3231_Simple Clock;
 unsigned int curr_time = 0, prev_time1 = 0, prev_time2 = 0, prev_time_dht_short = 0, prev_time_dht_long = 0;
 
 unsigned int blink_delay = 500, dht_read_short_delay = 5000; // dont set the int delay to less than 2500
-unsigned int dht_read_long_delay = 900000;
+unsigned int dht_read_long_delay = 5000;//900000;
 
 //toggles for blinking options
 bool blinkD13toggle = false, blinkLEDtoggle = false, dual_blink = false;
@@ -27,19 +28,17 @@ bool blinkD13toggle = false, blinkLEDtoggle = false, dual_blink = false;
 byte current_color = 0, blink_color = M_RED;
 
 //keeping current temp and humidity in global
-float cur_temp = 0;
-float cur_humidity = 0;
-float max_temp = INT8_MIN;
-float min_temp = INT8_MAX;
-float max_humidity = INT8_MIN;
-float min_humidity = INT8_MAX;
+int8_t cur_temp = 0;
+int8_t cur_humidity = 0;
+int8_t max_temp = INT8_MIN;
+int8_t min_temp = INT8_MAX;
+int8_t max_humidity = INT8_MIN;
+int8_t min_humidity = INT8_MAX;
 
 void setup() {
 	Serial.begin(BAUD_RATE);
 	Clock.begin();
 	// Clock.formatEEPROM();
-
-	rtc_dht_data_range.end_i = EEPROM.length()-1;
 
 	command[0] = '\0';
 	pinMode(13, OUTPUT);

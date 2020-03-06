@@ -1,4 +1,4 @@
-build-uno/led_func.cpp.o: led_func.cpp main.h \
+build-uno/Eeprom_indexes.cpp.o: Eeprom_indexes.cpp main.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/libraries/EEPROM/src/EEPROM.h \
  /home/grigor/Arduino/libraries/DS3231_Simple/DS3231_Simple.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/libraries/Wire/src/Wire.h \

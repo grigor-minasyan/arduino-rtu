@@ -1,4 +1,4 @@
-#include "global_var.h"
+#include "main.h"
 //changes the color of the LED, x as the setting for the color
 void change_dual_led(byte x) {
 	//0 is off
