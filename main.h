@@ -29,6 +29,7 @@ extern void take_input();
 extern void execute_commands();
 extern void read_temp_hum_loop();
 extern void print_EEPROM_data(int x);
+extern void reset_EEPROM_data();
 extern int8_t to_farenheit(int8_t x);
 extern void blink_LED(byte &x);
 extern void blink_d13();
@@ -40,7 +41,7 @@ extern void set_command_flag(char command[], int arr[]);
 typedef enum {M_LED = -128, M_SET, M_STATUS, M_VERSION,
 	M_HELP, M_LEDS, M_GREEN, M_RED, M_DUAL,
 M_ON, M_OFF, M_BLINK, M_D13, M_WRITE, M_READ, M_RTC,
-M_DHT, M_CURRENT, M_SAVED, M_EXTREME, M_ADD, M_RGB, M_INVALID = -32768} MENU_ITEMS;
+M_DHT, M_CURRENT, M_SAVED, M_EXTREME, M_ADD, M_RGB, M_RESET, M_INVALID = -32768} MENU_ITEMS;
 extern MENU_ITEMS menu_items;
 
 extern SimpleDHT22 dht22;
@@ -97,6 +98,7 @@ public:
 	Eeprom_indexes(int new_start_i, int new_end_i, int new_curr_i, int new_stored_data_count);
 	void store_data(Data_To_Store data_to_store);
 	void print_data(int x);
+	void init();
 };
 
 

@@ -21,7 +21,7 @@ void execute_commands() {
 
 
 */
-			Serial.print(F("├── ADD X Y\n\r├── D13\n\r│   ├── BLINK\n\r│   ├── OFF\n\r│   └── ON\n\r├── RGB\n\r│   ├── 1 R G B (RGB color 1 0-255)\n\r│   ├── 2 R G B (RGB color 2 0-255\n\r│   ├── SET BLINK X (delay in ms)\n\r├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   └── SAVED\n\r├── LED\n\r│   ├── BLINK\n\r│   │   ├── DUAL\n\r│   │   ├── GREEN\n\r│   │   └── RED\n\r│   ├── GREEN\n\r│   ├── OFF\n\r│   └── RED\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r├── SET BLINK X (sets for all LEDs, min "));
+			Serial.print(F("├── ADD X Y\n\r├── D13\n\r│   ├── BLINK\n\r│   ├── OFF\n\r│   └── ON\n\r├── RGB\n\r│   ├── 1 R G B (RGB color 1 0-255)\n\r│   ├── 2 R G B (RGB color 2 0-255\n\r│   ├── SET BLINK X (delay in ms)\n\r├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── LED\n\r│   ├── BLINK\n\r│   │   ├── DUAL\n\r│   │   ├── GREEN\n\r│   │   └── RED\n\r│   ├── GREEN\n\r│   ├── OFF\n\r│   └── RED\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r├── SET BLINK X (sets for all LEDs, min "));
 			Serial.print(MIN_DELAY);
 			Serial.println("ms)\n\r├── STATUS LEDS\n\r└── VERSION");
 			break;
@@ -126,6 +126,9 @@ void execute_commands() {
 					Serial.print("F), ");
 					Serial.print(min_humidity);
 					Serial.println("%");
+					break;
+				case M_RESET:
+					reset_EEPROM_data();
 					break;
 				default:
 					Serial.println(F("Invalid command, type HELP"));

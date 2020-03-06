@@ -73,7 +73,8 @@ void set_command_flag(char command[], int arr[]) {
 		else if(!strcmp(command, "ADD")) arr[command_count++] = M_ADD;
 		else if(!strcmp(command, "D13")) arr[command_count++] = M_D13;
 		else if(!strcmp(command, "RGB")) arr[command_count++] = M_RGB;
-		else if(arr[0] == M_ADD || arr[0] == M_RGB || (arr[0] == M_SET && arr[1] == M_BLINK)) {
+		else if(!strcmp(command, "RESET")) arr[command_count++] = M_RESET;
+		else if(arr[0] == M_ADD || arr[0] == M_RGB || (arr[0] == M_SET && arr[1] == M_BLINK) || (arr[0] == M_DHT && arr[1] == M_SAVED)) {
 			if (is_str_number(command, num)) arr[command_count++] = num;
 		}  else arr[command_count++] = M_INVALID;
 	}

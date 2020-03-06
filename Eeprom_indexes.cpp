@@ -26,11 +26,17 @@ void Eeprom_indexes::store_data(Data_To_Store data_to_store) {
   }
   curr_i += sizeof(Data_To_Store);
 
-  if (curr_i > (end_i - sizeof(Data_To_Store))) {// fixmeresets back to 0, FIXME
-    curr_i = actual_start_i;
+  if (curr_i > (end_i - sizeof(Data_To_Store))) {
+    this->init();
   }
   EEPROM.put(0, curr_i);
   EEPROM.put(2, stored_data_count);
+}
+
+void Eeprom_indexes::init() {
+  curr_i = actual_start_i;
+  stored_data_count = 0;
+  is_underflow = false;
 }
 
 void Eeprom_indexes::print_data(int x) {
@@ -39,19 +45,19 @@ void Eeprom_indexes::print_data(int x) {
     Serial.println("No data");
     return;
   }
+  Serial.print(stored_data_count);
+  Serial.println(" data points.");
+  Serial.print("Current index is ");
+  Serial.println(curr_i);
+
   if (x > stored_data_count) x = stored_data_count;
   for (int i = 0; i < x; i++) {
     Data_To_Store ret;
     read_i -= sizeof(Data_To_Store);
     //FIXME undeflow overflow
-    // if (read_i < actual_start_i) {
-    //   if (is_underflow) {
-    //     while (read_i < end_i) read_i += sizeof(Data_To_Store);
-    //   } else {
-    //     Serial.println("this should not happen");
-    //     return;
-    //   }
-    // }
+    if (read_i < actual_start_i) {
+      read_i += (int)((end_i - actual_start_i) / sizeof(Data_To_Store));
+    }
     EEPROM.get(read_i, ret);
     Serial.print(i+1);
     Serial.print("\t");

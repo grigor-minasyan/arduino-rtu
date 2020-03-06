@@ -12,6 +12,11 @@ void print_EEPROM_data(int x) {
   rtc_dht_data_range.print_data(x);
 }
 
+//reset data
+void reset_EEPROM_data() {
+  rtc_dht_data_range.init();
+}
+
 //not to be called from outside, only by the looper, limited to 0.5hz maximum
 void read_temp_hum() {
   int err = SimpleDHTErrSuccess;
