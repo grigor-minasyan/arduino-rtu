@@ -1,4 +1,10 @@
-build-uno/Eeprom_indexes.cpp.o: Eeprom_indexes.cpp main.h \
+build-uno/libs/FastLED/colorpalettes.cpp.o: \
+ /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/colorpalettes.cpp \
+ /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/FastLED.h \
+ /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/cpp_compat.h \
+ /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/fastled_config.h \
+ /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/led_sysdefs.h \
+ /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/platforms/avr/led_sysdefs_avr.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/cores/arduino/Arduino.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/cores/arduino/binary.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/cores/arduino/WCharacter.h \
@@ -10,17 +16,6 @@ build-uno/Eeprom_indexes.cpp.o: Eeprom_indexes.cpp main.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/cores/arduino/USBAPI.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/cores/arduino/Arduino.h \
  /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/variants/standard/pins_arduino.h \
- /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/libraries/EEPROM/src/EEPROM.h \
- /home/grigor/Arduino/libraries/DS3231_Simple/DS3231_Simple.h \
- /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/libraries/Wire/src/Wire.h \
- /home/grigor/Documents/arduino-1.8.12/hardware/arduino/avr/cores/arduino/Stream.h \
- /home/grigor/Arduino/libraries/SimpleDHT/SimpleDHT.h \
- /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/FastLED.h \
- /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/cpp_compat.h \
- /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/FastLED.h \
- /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/fastled_config.h \
- /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/led_sysdefs.h \
- /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/platforms/avr/led_sysdefs_avr.h \
  /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/fastled_delay.h \
  /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/bitswap.h \
  /home/grigor/Documents/arduino-1.8.12/libraries/FastLED/controller.h \
