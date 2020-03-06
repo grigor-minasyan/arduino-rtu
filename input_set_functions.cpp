@@ -5,7 +5,7 @@ int str_positive_number(char command[]) {
 
 	for (byte i = 0; i < MAX_STR; i++) {
 		if (command[i] == '\0') break;
-		else if (!isdigit(command[i])) return -1;
+		else if (!isdigit(command[i])) return -INT8_MIN;
 	}
 	return atoi(command);
 	/*
@@ -83,7 +83,7 @@ void set_command_flag(char command[], int arr[]) {
 		else if(!strcmp(command, "CURRENT")) arr[command_count++] = M_CURRENT;
 		else if(!strcmp(command, "SAVED")) arr[command_count++] = M_SAVED;
 		else if(!strcmp(command, "EXTREME")) arr[command_count++] = M_EXTREME;
-		else if(str_positive_number(command) != -1) arr[command_count++] = str_positive_number(command);
+		else if(str_positive_number(command) != -INT8_MIN) arr[command_count++] = str_positive_number(command);
 		else arr[command_count++] = M_INVALID;
 	}
 }
