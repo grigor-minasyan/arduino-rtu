@@ -18,10 +18,9 @@ void execute_commands() {
 			Serial.println(F("RTC READ | RTC WRITE\n\rupdate / read time\n\n\rVERSION\n\rcurrent version\n\r-------------------------"));
 			break;
 		case M_SET:
-			if (arr[1] == M_BLINK && arr[2] >= MIN_DELAY) {
-				blink_delay = arr[2];
-				break;
-			}
+			if (arr[1] == M_BLINK && arr[2] >= MIN_DELAY) blink_delay = arr[2];
+			else Serial.println(F("Invalid command, type HELP"));
+			break;
 		case M_STATUS:
 			if (arr[1] == M_LEDS) {
 				if (blinkD13toggle) Serial.println(F("Blinking D13"));
