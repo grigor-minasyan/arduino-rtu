@@ -9,13 +9,14 @@ void execute_commands() {
 			break;
 		case M_HELP:
 			Serial.println(F("\r-------------------------\n\rAvailable commands:"));
-			Serial.println(F("D13 ON | D13 OFF | D13 BLINK\n\rcontrol the LED on pin 13\n"));
-			Serial.println(F("LED GREEN | LED RED | LED OFF | LED BLINK | LED DUAL BLINK\n\rcontrol the dual color LED\n"));
-			Serial.print(F("SET BLINK X\n\rset the delay to X ms, minimum "));
-			Serial.println(MIN_DELAY);
-			Serial.println(F("\n\rSTATUS LEDS\n\rfor led status\n"));
-			Serial.println(F("DHT CURRENT | DHT SAVED (x) | DHT EXTREME\n\rshow the current, saved (last x records, optional, default is 10), extreme temp / humidity\n"));
-			Serial.println(F("RTC READ | RTC WRITE\n\rupdate / read time\n\n\rVERSION\n\rcurrent version\n\r-------------------------"));
+			Serial.println(F("D13 ON | D13 OFF | D13 BLINK | (control pin 13 LED)\n"));
+			Serial.println(F("LED GREEN | LED RED | LED OFF | LED BLINK | LED DUAL BLINK | (control the dual color LED)\n"));
+			Serial.print(F("SET BLINK X | (set the delay to X ms, minimum "));
+			Serial.print(MIN_DELAY);
+			Serial.println(F(")\n\n\rSTATUS LEDS | (show led status)\n"));
+			Serial.println(F("ADD X Y | (add X and Y, integers only)\n"));
+			Serial.println(F("DHT CURRENT | DHT SAVED | DHT EXTREME | (show the current, saved, extreme temp / humidity)\n"));
+			Serial.println(F("RTC READ | RTC WRITE | (update / read time)\n\n\rVERSION | (current version)\n\r-------------------------"));
 			break;
 		case M_SET:
 			if (arr[1] == M_BLINK && arr[2] >= MIN_DELAY) blink_delay = arr[2];
@@ -132,6 +133,10 @@ void execute_commands() {
 				default:
 					Serial.println(F("Invalid command, type HELP"));
 			}
+			break;
+		case M_ADD:
+			if (arr[1] != -32768 && arr[2] != -32768) Serial.println(arr[1] + arr[2]); // fixme overflow underflow
+			else Serial.println(F("Invalid command, type HELP"));
 			break;
 		default:
 			Serial.println(F("Invalid command, type HELP"));

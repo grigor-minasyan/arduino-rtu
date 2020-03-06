@@ -25,19 +25,19 @@ extern int8_t to_farenheit(int8_t x);
 extern void change_dual_led(byte x);
 extern void blink_LED();
 extern void blink_d13();
-extern int str_positive_number(char command[]);
+extern bool is_str_number(char command[], int &ret);
 extern void set_command_flag(char command[], int arr[]);
 
 //when adding a menu item, add in 4 places, enum, help, set_command_flag(), execute_commands()
 typedef enum {M_LED, M_SET, M_STATUS, M_VERSION,
-	M_HELP, M_INVALID, M_LEDS, M_GREEN, M_RED, M_DUAL,
+	M_HELP, M_LEDS, M_GREEN, M_RED, M_DUAL,
 M_ON, M_OFF, M_BLINK, M_D13, M_WRITE, M_READ, M_RTC,
-M_DHT, M_CURRENT, M_SAVED, M_EXTREME} MENU_ITEMS;
+M_DHT, M_CURRENT, M_SAVED, M_EXTREME, M_ADD, M_INVALID = -32768} MENU_ITEMS;
 extern MENU_ITEMS menu_items;
 
 extern SimpleDHT22 dht22;
 //for buffer
-extern unsigned int arr[MAX_CMD_COUNT];
+extern int arr[MAX_CMD_COUNT];
 extern char command[MAX_STR+1];
 //input processing variables
 extern byte command_size;

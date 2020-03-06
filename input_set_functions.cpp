@@ -1,28 +1,15 @@
 #include "main.h"
 
 //checks for a non negative number from atring, returns the number or -1 if fails
-int str_positive_number(char command[]) {
+bool is_str_number(char command[], int &ret) {
 
 	for (byte i = 0; i < MAX_STR; i++) {
 		if (command[i] == '\0') break;
-		else if (!isdigit(command[i])) return -INT8_MIN;
+		else if (command[0] == '-' && i == 0) continue;
+		else if (!isdigit(command[i])) return false;
 	}
-	return atoi(command);
-	/*
-	short tens = 1;
-  short retval = 0;
-  for (byte i = 0; i < MAX_STR; i++) {
-    if (command[i] == '\0') break;
-    else if (!isdigit(command[i])) return -1;
-    else tens *= 10;
-  }
-  for (byte i = 0; i < MAX_STR; i++) {
-    if (command[i] == '\0') break;
-    tens /= 10;
-    retval += (tens * (command[i] - '0'));
-  }
-  return retval;
-	*/
+	ret = atoi(command);
+	return true;
 }
 
 void take_input() {
@@ -62,9 +49,12 @@ void take_input() {
 
 //takes the array and sets the flags based on the command
 void set_command_flag(char command[], int arr[]) {
+	int num;
 	if (command_count < MAX_CMD_COUNT) {
-		if (!strcmp(command, "D13")) arr[command_count++] = M_D13;
-		else if(!strcmp(command, "LED")) arr[command_count++] = M_LED;
+		if(arr[0] == M_ADD || (arr[0] == M_SET && arr[1] == M_BLINK)) {
+			if (is_str_number(command, num)) arr[command_count++] = num;
+			else arr[command_count++] = M_INVALID;
+		} else if(!strcmp(command, "LED")) arr[command_count++] = M_LED;
 		else if(!strcmp(command, "DUAL")) arr[command_count++] = M_DUAL;
 		else if(!strcmp(command, "SET")) arr[command_count++] = M_SET;
 		else if(!strcmp(command, "STATUS")) arr[command_count++] = M_STATUS;
@@ -83,7 +73,8 @@ void set_command_flag(char command[], int arr[]) {
 		else if(!strcmp(command, "CURRENT")) arr[command_count++] = M_CURRENT;
 		else if(!strcmp(command, "SAVED")) arr[command_count++] = M_SAVED;
 		else if(!strcmp(command, "EXTREME")) arr[command_count++] = M_EXTREME;
-		else if(str_positive_number(command) != -INT8_MIN) arr[command_count++] = str_positive_number(command);
+		else if(!strcmp(command, "ADD")) arr[command_count++] = M_ADD;
+		else if (!strcmp(command, "D13")) arr[command_count++] = M_D13;
 		else arr[command_count++] = M_INVALID;
 	}
 }

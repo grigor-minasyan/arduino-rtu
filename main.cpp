@@ -7,7 +7,7 @@
 
 SimpleDHT22 dht22(PINDHT22);
 //for buffer
-unsigned int arr[MAX_CMD_COUNT];
+int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
 //input processing variables
 byte command_size = 0;
