@@ -36,9 +36,9 @@ void execute_commands() {
 					if (digitalRead(13) == LOW) Serial.println(F("D13 off"));
 					else Serial.println(F("D13 on"));
 				}
-				if (dual_led_binary == 0b00100010) Serial.println(F("Blinking green"));
-				else if (dual_led_binary == 0b00010001) Serial.println(F("Blinking red"));
-				else if (dual_led_binary == 0b01100110) Serial.println(F("Blinking both on dual LED"));
+				if (dual_led_binary == 0b00100010 || dual_led_binary == 0b10001000) Serial.println(F("Blinking green"));
+				else if (dual_led_binary == 0b00010001 || dual_led_binary == 0b01000100) Serial.println(F("Blinking red"));
+				else if (dual_led_binary == 0b01100110 || dual_led_binary == 0b10011001) Serial.println(F("Blinking both on dual LED"));
 				else if (dual_led_binary == 0b00000000) Serial.println(F("LED off"));
 				else if (dual_led_binary == 0b10101010) Serial.println(F("LED Green"));
 				else Serial.println(F("LED Red"));
