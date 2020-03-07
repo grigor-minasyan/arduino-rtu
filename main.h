@@ -14,7 +14,7 @@
 #define DUAL_LED_PIN1 4
 #define DUAL_LED_PIN2 5
 #define MIN_DELAY 50
-#define CUR_VERSION 2.0
+#define CUR_VERSION 2.3
 #define BAUD_RATE 9600
 
 //pin and setup for the DHT
