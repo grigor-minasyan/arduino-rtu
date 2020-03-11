@@ -12,6 +12,7 @@ void print_EEPROM_data(int x) {
   rtc_dht_data_range.print_data(x);
 }
 
+
 //reset data
 void reset_EEPROM_data() {
   rtc_dht_data_range.init();
@@ -39,7 +40,6 @@ void read_temp_hum_loop() {
     prev_time_dht_short = curr_time;
   }
 	if (curr_time - prev_time_dht_long >= dht_read_long_delay || curr_time < prev_time_dht_long) {
-
     // // Serial.println("debug for loop runs for delayed temperature recording inn eeprom");
     time_and_data.date_time = Clock.read();
     time_and_data.temp = cur_temp;

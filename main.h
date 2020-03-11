@@ -5,6 +5,9 @@
 #include <SimpleDHT.h>
 #include <FastLED.h>
 
+#include <Ethernet.h>
+#include <EthernetUdp.h>
+
 
 #ifndef MY_GLOBALS_H
 
@@ -16,6 +19,7 @@
 #define MIN_DELAY 50
 #define CUR_VERSION 2.3
 #define BAUD_RATE 9600
+#define UDP_LISTEN_DELAY 10
 
 //pin and setup for the DHT
 #define PINDHT22 2
@@ -26,7 +30,8 @@ extern CRGB leds[NUM_LEDS];
 extern CRGB color1, color2;
 
 extern void take_input();
-extern void execute_commands();
+extern void take_input_udp();
+extern void execute_commands(byte is_udp);
 extern void read_temp_hum_loop();
 extern void print_EEPROM_data(int x);
 extern void reset_EEPROM_data();
@@ -55,7 +60,7 @@ extern char inByte;
 
 //timekeeping variables
 extern DS3231_Simple Clock;
-extern unsigned int curr_time, prev_time1, prev_time2, prev_time3, prev_time_dht_short, prev_time_dht_long;
+extern unsigned int curr_time, prev_time1, prev_time2, prev_time3, prev_time_udp, prev_time_dht_short, prev_time_dht_long;
 
 extern unsigned int blink_delay, blink_delay2, blink_delay3, dht_read_short_delay;
 extern unsigned int dht_read_long_delay;
@@ -73,6 +78,18 @@ extern int8_t max_temp;
 extern int8_t min_temp;
 extern int8_t max_humidity;
 extern int8_t min_humidity;
+
+
+
+// The IP address will be dependent on your local network:
+extern byte mac[];
+extern IPAddress ip;
+extern unsigned int localPort;// local port to listen on
+// buffers for receiving and sending data
+extern char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming packet,
+extern char ReplyBuffer[];// a string to send back
+// An EthernetUDP instance to let us send and receive packets over UDP
+extern EthernetUDP Udp;
 
 
 class Data_To_Store {

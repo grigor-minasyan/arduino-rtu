@@ -1,6 +1,15 @@
 #include "main.h"
 
-void execute_commands() {
+void print_invalid_command(byte is_udp) {
+	Serial.println(F("Invalid command, type HELP"));
+	if (is_udp) {
+		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+		Udp.write("Invalid command");
+		Udp.endPacket();
+	}
+}
+
+void execute_commands( byte is_udp) {
 	Serial.println();
 
 	// Serial.println("debug");
@@ -9,10 +18,15 @@ void execute_commands() {
 	// 		Serial.println(arr[i]);
 	// }
 
+	if (is_udp) {
+		Serial.println(F("Executing command from UDP."));
+	}
+
 	switch (arr[0]) {
 		case M_VERSION:
 			Serial.print(F("Version: "));
 			Serial.println(CUR_VERSION);
+
 			break;
 		case M_HELP:
 
@@ -21,13 +35,20 @@ void execute_commands() {
 
 
 */
+			if (is_udp) {
+				Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+				Udp.write("DHT CURRENT | DHT EXTREME | RTC READ");
+				Udp.endPacket();
+			}
+
 			Serial.print(F("├── ADD X Y\n\r├── D13\n\r│   ├── BLINK\n\r│   ├── OFF\n\r│   └── ON\n\r├── RGB\n\r│   ├── 1 R G B (RGB color 1 0-255)\n\r│   ├── 2 R G B (RGB color 2 0-255\n\r│   └── SET BLINK X (delay in ms)\n\r├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── LED\n\r│   ├── BLINK\n\r│   │   ├── DUAL\n\r│   │   ├── GREEN\n\r│   │   └── RED\n\r│   ├── GREEN\n\r│   ├── OFF\n\r│   └── RED\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r├── SET BLINK X (sets for all LEDs, min "));
 			Serial.print(MIN_DELAY);
 			Serial.println("ms)\n\r├── STATUS LEDS\n\r└── VERSION");
+
 			break;
 		case M_SET:
 			if (arr[1] == M_BLINK && arr[2] >= MIN_DELAY) blink_delay = blink_delay2 = blink_delay3 = arr[2];
-			else Serial.println(F("Invalid command, type HELP"));
+			else print_invalid_command(is_udp);
 			break;
 		case M_STATUS:
 			if (arr[1] == M_LEDS) {
@@ -59,7 +80,7 @@ void execute_commands() {
 					blinkD13toggle = true;
 					break;
 				default:
-					Serial.println(F("Invalid command, type HELP"));
+					print_invalid_command(is_udp);
 			}
 			break;
 		case M_LED:
@@ -79,7 +100,7 @@ void execute_commands() {
 					dual_led_binary = 0b00000000;
 					break;
 				default:
-					Serial.println(F("Invalid command, type HELP"));
+					print_invalid_command(is_udp);
 			}
 			break;
 		case M_RTC:
@@ -88,18 +109,54 @@ void execute_commands() {
 					Clock.promptForTimeAndDate(Serial);
 					break;
 				case M_READ:
+					if (is_udp) {
+						char buff[5];
+						Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+						itoa(Clock.read().Year, buff, 10);
+						Udp.write(buff);
+						Udp.write("/");
+						itoa(Clock.read().Month, buff, 10);
+						Udp.write(buff);
+						Udp.write("/");
+						itoa(Clock.read().Day, buff, 10);
+						Udp.write(buff);
+						Udp.write(" ");
+						itoa(Clock.read().Hour, buff, 10);
+						Udp.write(buff);
+						Udp.write(":");
+						itoa(Clock.read().Minute, buff, 10);
+						Udp.write(buff);
+						Udp.write(":");
+						itoa(Clock.read().Second, buff, 10);
+						Udp.write(buff);
+						Udp.endPacket();
+					}
 					Clock.printDateTo_YMD(Serial);
 					Serial.print(' ');
 					Clock.printTimeTo_HMS(Serial);
 					Serial.println();
 					break;
 				default:
-					Serial.println(F("Invalid command, type HELP"));
+					print_invalid_command(is_udp);
 			}
 			break;
 		case M_DHT:
 			switch (arr[1]) {
 				case M_CURRENT:
+					if (is_udp) {
+						char buff[5];
+						Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+						itoa(cur_temp, buff, 10);
+						Udp.write(buff);
+						Udp.write("C (");
+						itoa(to_farenheit(cur_temp), buff, 10);
+						Udp.write(buff);
+						Udp.write("F), ");
+						itoa(cur_humidity, buff, 10);
+						Udp.write(buff);
+						Udp.write("%");
+						Udp.endPacket();
+					}
 					Serial.print("Current temp / humidity is ");
 					Serial.print(cur_temp);
 					Serial.print("C (");
@@ -113,13 +170,37 @@ void execute_commands() {
 					else print_EEPROM_data(10);//default printing lines
 					break;
 				case M_EXTREME:
+					if (is_udp) {
+						char buff[5];
+						Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+						Udp.write("Max temp / humidity ");
+						itoa(max_temp, buff, 10);
+						Udp.write(buff);
+						Udp.write("C (");
+						itoa(to_farenheit(max_temp), buff, 10);
+						Udp.write(buff);
+						Udp.write("F), ");
+						itoa(max_humidity, buff, 10);
+						Udp.write(buff);
+						Udp.write("%, min temp / humidity ");
+						itoa(min_temp, buff, 10);
+						Udp.write(buff);
+						Udp.write("C (");
+						itoa(to_farenheit(min_temp), buff, 10);
+						Udp.write(buff);
+						Udp.write("F), ");
+						itoa(min_humidity, buff, 10);
+						Udp.write(buff);
+						Udp.write("%");
+						Udp.endPacket();
+					}
 					Serial.print("Maximum recorded temp / humidity is ");
 					Serial.print(max_temp);
 					Serial.print("C (");
 					Serial.print(to_farenheit(max_temp));
 					Serial.print("F), ");
 					Serial.print(max_humidity);
-					Serial.print("%\n\rMimimum recorded temp / humidity is ");
+					Serial.print("%\n\rMinimum recorded temp / humidity is ");
 					Serial.print(min_temp);
 					Serial.print("C (");
 					Serial.print(to_farenheit(min_temp));
@@ -131,12 +212,12 @@ void execute_commands() {
 					reset_EEPROM_data();
 					break;
 				default:
-					Serial.println(F("Invalid command, type HELP"));
+					print_invalid_command(is_udp);
 			}
 			break;
 		case M_ADD:
 			if (arr[1] != -32768 && arr[2] != -32768) Serial.println(arr[1] + arr[2]); // fixme overflow underflow
-			else Serial.println(F("Invalid command, type HELP"));
+			else print_invalid_command(is_udp);
 			break;
 		case M_RGB:
 			switch(arr[1]) {
@@ -154,11 +235,11 @@ void execute_commands() {
 					if (arr[2] == M_BLINK && arr[3] >= MIN_DELAY) blink_delay3 = arr[3];
 					break;
 				default:
-					Serial.println(F("Invalid command, type HELP"));
+					print_invalid_command(is_udp);
 			}
 			break;
 		default:
-			Serial.println(F("Invalid command, type HELP"));
+			print_invalid_command(is_udp);
 	}
 	//reset the commands and counter
 	for (int i = 0; i < MAX_CMD_COUNT; i++) arr[i] = 0;

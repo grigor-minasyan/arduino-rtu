@@ -38,11 +38,71 @@ void take_input() {
 			command_size = 0;
 
 			//if enter key is pressed
-			if (inByte == 13) execute_commands();
+			if (inByte == 13) execute_commands(0);
 
 		} else if (command_size < MAX_STR) {
 			command[command_size++] = inByte;
 			command[command_size] = '\0';
+		}
+	}
+}
+
+
+void take_input_udp() {
+	if ((curr_time - prev_time_udp > UDP_LISTEN_DELAY)) {
+		prev_time_udp = curr_time;
+		int packetSize = Udp.parsePacket();
+		if (packetSize) {
+
+			/*
+			Serial.print("Received packet of size ");
+			Serial.println(packetSize);
+			Serial.print("From ");
+			IPAddress remote = Udp.remoteIP();
+			for (int i=0; i < 4; i++) {
+				Serial.print(remote[i], DEC);
+				if (i < 3) {
+					Serial.print(".");
+				}
+			}
+			Serial.print(", port ");
+			Serial.println(Udp.remotePort());
+			*/
+
+			// read the packet into packetBufffer
+			Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
+			Serial.println(F("Contents:"));
+			Serial.println(packetBuffer);
+			for (byte i = 0; i < packetSize; i++) {
+				packetBuffer[i] = toupper(packetBuffer[i]);
+				//when space is entered before anything else ignore
+				if (packetBuffer[i] == ' ' && command_size == 0) continue;
+		    //when enter or space, add the command to the array
+				if (packetBuffer[i] == ' ') {
+					command[command_size] = '\0';
+					set_command_flag(command, arr);
+					//resetting for the next command
+					command[0] = '\0';
+					command_size = 0;
+				} else if (command_size < MAX_STR) {
+					command[command_size++] = packetBuffer[i];
+					command[command_size] = '\0';
+				}
+			}
+
+
+			command[command_size] = '\0';
+			set_command_flag(command, arr);
+			//resetting for the next command
+			command[0] = '\0';
+			command_size = 0;
+			execute_commands(1);
+
+
+			// send a reply to the IP address and port that sent us the packet we received
+			Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+			Udp.write(ReplyBuffer);
+			Udp.endPacket();
 		}
 	}
 }
