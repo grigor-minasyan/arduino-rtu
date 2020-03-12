@@ -18,22 +18,25 @@
 #define DUAL_LED_PIN2 5
 #define MIN_DELAY 50
 #define CUR_VERSION 2.3
+#define CUR_YEAR 20
 #define BAUD_RATE 9600
-#define UDP_LISTEN_DELAY 10
+#define UDP_LISTEN_DELAY 50
 
 //pin and setup for the DHT
 #define PINDHT22 2
 #define NUM_LEDS 1
 #define RGB_DATA_PIN 6
+#define RGB_DATA_PIN_TEMP 7
 
 extern CRGB leds[NUM_LEDS];
-extern CRGB color1, color2;
+extern CRGB leds_temp[NUM_LEDS];
+extern CRGB color1, color2, color_maj_und, color_min_und, color_comfortable, color_min_ovr, color_maj_ovr;
 
 extern void take_input();
 extern void take_input_udp();
 extern void execute_commands(byte is_udp);
 extern void read_temp_hum_loop();
-extern void print_EEPROM_data(int x);
+extern void print_EEPROM_data(int x, int8_t is_udp);
 extern void reset_EEPROM_data();
 extern int8_t to_farenheit(int8_t x);
 extern void blink_LED(byte &x);
@@ -96,10 +99,14 @@ extern EthernetUDP Udp;
 
 
 class Data_To_Store {
-public:
-	DateTime date_time;
-	int8_t temp;
+private:
+	unsigned long date_time_temp;
 	int8_t humidity;
+public:
+	void write_everything(byte shift_to_left, byte size_in_bits, unsigned long num);
+	unsigned long read_everything(byte shift_to_left, byte size_in_bits);
+	void set_hum(int8_t h);
+	int8_t get_hum();
 };
 
 class Eeprom_indexes {
@@ -117,7 +124,7 @@ public:
 	int get_stored_data_count();
 	Eeprom_indexes(int new_start_i, int new_end_i, int new_curr_i, int new_stored_data_count);
 	void store_data(Data_To_Store data_to_store);
-	void print_data(int x);
+	void print_data(int x, int8_t is_udp);
 	void init();
 };
 

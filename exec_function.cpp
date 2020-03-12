@@ -3,7 +3,7 @@
 void print_invalid_command(byte is_udp) {
 	Serial.println(F("Invalid command, type HELP"));
 	if (is_udp) {
-		Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+		Udp.beginPacket(ip_remote, remotePort);
 		Udp.write("Invalid command");
 		Udp.endPacket();
 	}
@@ -36,14 +36,14 @@ void execute_commands( byte is_udp) {
 
 */
 			if (is_udp) {
-				Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-				Udp.write("DHT CURRENT | DHT EXTREME | RTC READ");
+				Udp.beginPacket(ip_remote, remotePort);
+				Udp.write("DHT CURRENT | DHT EXTREME | DHT SAVED | RTC READ");
 				Udp.endPacket();
 			}
 
 			Serial.print(F("├── ADD X Y\n\r├── RGB\n\r│   ├── 1 R G B (RGB color 1 0-255)\n\r│   ├── 2 R G B (RGB color 2 0-255\n\r│   └── SET BLINK X (delay in ms)\n\r├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── LED\n\r│   ├── BLINK\n\r│   │   ├── DUAL\n\r│   │   ├── GREEN\n\r│   │   └── RED\n\r│   ├── GREEN\n\r│   ├── OFF\n\r│   └── RED\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r├── SET BLINK X (sets for all LEDs, min "));
 			Serial.print(MIN_DELAY);
-			Serial.println("ms)\n\r├── STATUS LEDS\n\r└── VERSION");
+			Serial.println(F("ms)\n\r├── STATUS LEDS\n\r└── VERSION"));
 
 			break;
 		case M_SET:
@@ -89,7 +89,7 @@ void execute_commands( byte is_udp) {
 				case M_READ:
 					if (is_udp) {
 						char buff[5];
-						Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+						Udp.beginPacket(ip_remote, remotePort);
 						itoa(Clock.read().Year, buff, 10);
 						Udp.write(buff);
 						Udp.write("/");
@@ -123,7 +123,7 @@ void execute_commands( byte is_udp) {
 				case M_CURRENT:
 					if (is_udp) {
 						char buff[5];
-						Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+						Udp.beginPacket(ip_remote, remotePort);
 						itoa(cur_temp, buff, 10);
 						Udp.write(buff);
 						Udp.write("C (");
@@ -135,22 +135,22 @@ void execute_commands( byte is_udp) {
 						Udp.write("%");
 						Udp.endPacket();
 					}
-					Serial.print("Current temp / humidity is ");
+					Serial.print(("Current temp / humidity is "));
 					Serial.print(cur_temp);
-					Serial.print("C (");
+					Serial.print(("C ("));
 					Serial.print(to_farenheit(cur_temp));
-					Serial.print("F), ");
+					Serial.print(("F), "));
 					Serial.print(cur_humidity);
-					Serial.println("%");
+					Serial.println(("%"));
 					break;
 				case M_SAVED:
-					if (arr[2] > 0) print_EEPROM_data(arr[2]);
-					else print_EEPROM_data(10);//default printing lines
+					if (arr[2] > 0) print_EEPROM_data(arr[2], is_udp);
+					else print_EEPROM_data(10, is_udp);//default printing lines
 					break;
 				case M_EXTREME:
 					if (is_udp) {
 						char buff[5];
-						Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+						Udp.beginPacket(ip_remote, remotePort);
 						Udp.write("Max temp / humidity ");
 						itoa(max_temp, buff, 10);
 						Udp.write(buff);
@@ -172,19 +172,19 @@ void execute_commands( byte is_udp) {
 						Udp.write("%");
 						Udp.endPacket();
 					}
-					Serial.print("Maximum recorded temp / humidity is ");
+					Serial.print(F("Maximum recorded temp / humidity is "));
 					Serial.print(max_temp);
-					Serial.print("C (");
+					Serial.print(F("C ("));
 					Serial.print(to_farenheit(max_temp));
-					Serial.print("F), ");
+					Serial.print(F("F), "));
 					Serial.print(max_humidity);
-					Serial.print("%\n\rMinimum recorded temp / humidity is ");
+					Serial.print(F("%\n\rMinimum recorded temp / humidity is "));
 					Serial.print(min_temp);
-					Serial.print("C (");
+					Serial.print(F("C ("));
 					Serial.print(to_farenheit(min_temp));
-					Serial.print("F), ");
+					Serial.print(F("F), "));
 					Serial.print(min_humidity);
-					Serial.println("%");
+					Serial.println(F("%"));
 					break;
 				case M_RESET:
 					reset_EEPROM_data();

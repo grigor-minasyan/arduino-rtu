@@ -8,8 +8,8 @@ Eeprom_indexes rtc_dht_data_range(0, EEPROM.length()-1, 0, 0);
 Data_To_Store time_and_data;
 
 //x is the number of data to print
-void print_EEPROM_data(int x) {
-  rtc_dht_data_range.print_data(x);
+void print_EEPROM_data(int x, int8_t is_udp) {
+  rtc_dht_data_range.print_data(x, is_udp);
 }
 
 
@@ -30,7 +30,7 @@ int8_t get_threshold(int8_t t) {
 void read_temp_hum() {
   int err = SimpleDHTErrSuccess;
   if ((err = dht22.read(&cur_temp, &cur_humidity, NULL)) != SimpleDHTErrSuccess) {
-    Serial.print("Read DHT22 failed, err=");
+    Serial.print(F("Read DHT22 failed, err="));
 		Serial.println(err);
   }
   if (cur_temp > 127) cur_temp -= 256;
@@ -54,21 +54,49 @@ void read_temp_hum_loop() {
       Serial.println(F(" for temperature change"));
       current_threshold = get_threshold(cur_temp);
       Udp.beginPacket(ip_remote, remotePort);
-      Udp.write("ALARM! Temp threshold changed to ");
-      if (current_threshold == 0) Udp.write("major under");
-      else if (current_threshold == 1) Udp.write("minor under");
-      else if (current_threshold == 2) Udp.write("comfortable");
-      else if (current_threshold == 3) Udp.write("minor over");
-      else  Udp.write("major over");
+      Udp.write("ALARM! Temp changed to ");
+      if (current_threshold == 0) {
+        leds_temp[0] = color_maj_und;
+        Udp.write("major under");
+      } else if (current_threshold == 1) {
+        leds_temp[0] = color_min_und;
+        Udp.write("minor under");
+      } else if (current_threshold == 2) {
+        leds_temp[0] = color_comfortable;
+        Udp.write("comfortable");
+      } else if (current_threshold == 3) {
+        leds_temp[0] = color_min_ovr;
+        Udp.write("minor over");
+      } else {
+        leds_temp[0] = color_maj_ovr;
+        Udp.write("major over");
+      }
+
+      Udp.write(", ");
+      char buff[5];
+      itoa(cur_temp, buff, 10);
+      Udp.write(buff);
+      Udp.write("C (");
+      itoa(to_farenheit(cur_temp), buff, 10);
+      Udp.write(buff);
+      Udp.write("F)");
+
+      FastLED.show();
       Udp.endPacket();
     }
 
   }
 	if (curr_time - prev_time_dht_long >= dht_read_long_delay || curr_time < prev_time_dht_long) {
-    // // Serial.println("debug for loop runs for delayed temperature recording inn eeprom");
-    time_and_data.date_time = Clock.read();
-    time_and_data.temp = cur_temp;
-    time_and_data.humidity = cur_humidity;
+    // Serial.println("debug for loop runs for delayed temperature recording inn eeprom");
+    //FIXME fix the time storage
+    time_and_data.write_everything(31, 1, Clock.read().Year - CUR_YEAR);
+    time_and_data.write_everything(27, 4, Clock.read().Month);
+    time_and_data.write_everything(22, 5, Clock.read().Day);
+    time_and_data.write_everything(17, 5, Clock.read().Hour);
+    time_and_data.write_everything(11, 6, Clock.read().Minute);
+    time_and_data.write_everything(9, 2, Clock.read().Second / 15);
+    time_and_data.write_everything(1, 8, cur_temp);
+    time_and_data.set_hum(cur_humidity);
     rtc_dht_data_range.store_data(time_and_data);
     prev_time_dht_long = curr_time;
 	}

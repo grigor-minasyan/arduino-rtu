@@ -71,8 +71,8 @@ void take_input_udp() {
 
 			// read the packet into packetBufffer
 			Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-			Serial.println(F("Contents:"));
-			Serial.println(packetBuffer);
+			// Serial.println(F("Contents:"));
+			// Serial.println(packetBuffer);
 			for (byte i = 0; i < packetSize; i++) {
 				packetBuffer[i] = toupper(packetBuffer[i]);
 				//when space is entered before anything else ignore
@@ -100,7 +100,7 @@ void take_input_udp() {
 
 
 			// send a reply to the IP address and port that sent us the packet we received
-			Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+			Udp.beginPacket(ip_remote, remotePort);
 			Udp.write(ReplyBuffer);
 			Udp.endPacket();
 		}
