@@ -18,6 +18,14 @@ void reset_EEPROM_data() {
   rtc_dht_data_range.init();
 }
 
+int8_t get_threshold(int8_t t) {
+  if (t < temp_threshold_1) return 0;
+  if (t < temp_threshold_2) return 1;
+  if (t < temp_threshold_3) return 2;
+  if (t < temp_threshold_4) return 3;
+  return 4;
+}
+
 //not to be called from outside, only by the looper, limited to 0.5hz maximum
 void read_temp_hum() {
   int err = SimpleDHTErrSuccess;
@@ -31,13 +39,30 @@ void read_temp_hum() {
 
 void read_temp_hum_loop() {
 	if (curr_time - prev_time_dht_short >= dht_read_short_delay) {
+    prev_time_dht_short = curr_time;
 		read_temp_hum();
         //setting the max and min values
     if (cur_temp <  min_temp) min_temp = cur_temp;
     if (cur_temp > max_temp) max_temp = cur_temp;
     if (cur_humidity <  min_humidity) min_humidity = cur_humidity;
     if (cur_humidity > max_humidity) max_humidity = cur_humidity;
-    prev_time_dht_short = curr_time;
+
+    //check if threshold changed
+    if (current_threshold != get_threshold(cur_temp)) {
+      Serial.print(F("Sending an alarm packet to "));
+      Serial.print(ip_remote);
+      Serial.println(F(" for temperature change"));
+      current_threshold = get_threshold(cur_temp);
+      Udp.beginPacket(ip_remote, remotePort);
+      Udp.write("ALARM! Temp threshold changed to ");
+      if (current_threshold == 0) Udp.write("major under");
+      else if (current_threshold == 1) Udp.write("minor under");
+      else if (current_threshold == 2) Udp.write("comfortable");
+      else if (current_threshold == 3) Udp.write("minor over");
+      else  Udp.write("major over");
+      Udp.endPacket();
+    }
+
   }
 	if (curr_time - prev_time_dht_long >= dht_read_long_delay || curr_time < prev_time_dht_long) {
     // // Serial.println("debug for loop runs for delayed temperature recording inn eeprom");

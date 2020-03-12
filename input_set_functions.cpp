@@ -117,7 +117,6 @@ void set_command_flag(char command[], int arr[]) {
 		else if(!strcmp(command, "STATUS")) arr[command_count++] = M_STATUS;
 		else if(!strcmp(command, "VERSION")) arr[command_count++] = M_VERSION;
 		else if(!strcmp(command, "HELP")) arr[command_count++] = M_HELP;
-		else if(!strcmp(command, "ON")) arr[command_count++] = M_ON;
 		else if(!strcmp(command, "OFF")) arr[command_count++] = M_OFF;
 		else if(!strcmp(command, "BLINK")) arr[command_count++] = M_BLINK;
 		else if(!strcmp(command, "LEDS")) arr[command_count++] = M_LEDS;
@@ -131,7 +130,6 @@ void set_command_flag(char command[], int arr[]) {
 		else if(!strcmp(command, "SAVED")) arr[command_count++] = M_SAVED;
 		else if(!strcmp(command, "EXTREME")) arr[command_count++] = M_EXTREME;
 		else if(!strcmp(command, "ADD")) arr[command_count++] = M_ADD;
-		else if(!strcmp(command, "D13")) arr[command_count++] = M_D13;
 		else if(!strcmp(command, "RGB")) arr[command_count++] = M_RGB;
 		else if(!strcmp(command, "RESET")) arr[command_count++] = M_RESET;
 		else if(arr[0] == M_ADD || arr[0] == M_RGB || (arr[0] == M_SET && arr[1] == M_BLINK) || (arr[0] == M_DHT && arr[1] == M_SAVED)) {

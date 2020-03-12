@@ -14,13 +14,13 @@ char inByte = 0;
 
 //timekeeping variables
 DS3231_Simple Clock;
-unsigned int curr_time = 0, prev_time1 = 0, prev_time2 = 0, prev_time3 = 0, prev_time_udp = 0, prev_time_dht_short = 0, prev_time_dht_long = 0;
+unsigned int curr_time = 0, /*prev_time1 = 0,*/ prev_time2 = 0, prev_time3 = 0, prev_time_udp = 0, prev_time_dht_short = 0, prev_time_dht_long = 0;
 
 unsigned int blink_delay = 500, blink_delay2 = 500, blink_delay3 = 500, dht_read_short_delay = 5000; // dont set the int delay to less than 2500
 unsigned int dht_read_long_delay = 5000;//900000;
 
 //toggles for blinking options
-bool blinkD13toggle = false;
+// bool blinkD13toggle = false;
 
 //for keeping track fo the current color for blinking
 byte dual_led_binary = 0b00000000;
@@ -31,11 +31,13 @@ int8_t max_temp = INT8_MIN;
 int8_t min_temp = INT8_MAX;
 int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
-
+int8_t temp_threshold_1 = 10, temp_threshold_2 = 15, temp_threshold_3 = 20, temp_threshold_4 = 22, current_threshold = 2;
 
 // The IP address will be dependent on your local network:
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 1, 177);
+IPAddress ip_remote(192, 168, 1, 111);
+unsigned int remotePort = 54211;
 unsigned int localPort = 8888;      // local port to listen on
 
 // buffers for receiving and sending data
@@ -76,7 +78,6 @@ void loop() {
 	read_temp_hum_loop();
 
 	//blink the LEDs, the functions account for the delay
-	if (blinkD13toggle) blink_d13();
 	blink_LED(dual_led_binary);
 	blink_RGB();
 

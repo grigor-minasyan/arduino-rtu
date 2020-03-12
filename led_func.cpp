@@ -27,12 +27,3 @@ void blink_LED(byte &x) {
 		else digitalWrite(DUAL_LED_PIN1, LOW);
   }
 }
-
-//blink the d13 led based on the delay set
-void blink_d13() {
-  if (curr_time - prev_time1 > blink_delay) {
-    if (digitalRead(13) == LOW) digitalWrite(13, HIGH);
-    else if (digitalRead(13) == HIGH) digitalWrite(13, LOW);
-    prev_time1 = curr_time;
-  }
-}

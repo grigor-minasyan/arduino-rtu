@@ -41,22 +41,17 @@ void execute_commands( byte is_udp) {
 				Udp.endPacket();
 			}
 
-			Serial.print(F("├── ADD X Y\n\r├── D13\n\r│   ├── BLINK\n\r│   ├── OFF\n\r│   └── ON\n\r├── RGB\n\r│   ├── 1 R G B (RGB color 1 0-255)\n\r│   ├── 2 R G B (RGB color 2 0-255\n\r│   └── SET BLINK X (delay in ms)\n\r├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── LED\n\r│   ├── BLINK\n\r│   │   ├── DUAL\n\r│   │   ├── GREEN\n\r│   │   └── RED\n\r│   ├── GREEN\n\r│   ├── OFF\n\r│   └── RED\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r├── SET BLINK X (sets for all LEDs, min "));
+			Serial.print(F("├── ADD X Y\n\r├── RGB\n\r│   ├── 1 R G B (RGB color 1 0-255)\n\r│   ├── 2 R G B (RGB color 2 0-255\n\r│   └── SET BLINK X (delay in ms)\n\r├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── LED\n\r│   ├── BLINK\n\r│   │   ├── DUAL\n\r│   │   ├── GREEN\n\r│   │   └── RED\n\r│   ├── GREEN\n\r│   ├── OFF\n\r│   └── RED\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r├── SET BLINK X (sets for all LEDs, min "));
 			Serial.print(MIN_DELAY);
 			Serial.println("ms)\n\r├── STATUS LEDS\n\r└── VERSION");
 
 			break;
 		case M_SET:
-			if (arr[1] == M_BLINK && arr[2] >= MIN_DELAY) blink_delay = blink_delay2 = blink_delay3 = arr[2];
+			if (arr[1] == M_BLINK && arr[2] >= MIN_DELAY) blink_delay2 = blink_delay3 = arr[2];
 			else print_invalid_command(is_udp);
 			break;
 		case M_STATUS:
 			if (arr[1] == M_LEDS) {
-				if (blinkD13toggle) Serial.println(F("Blinking D13"));
-				else {
-					if (digitalRead(13) == LOW) Serial.println(F("D13 off"));
-					else Serial.println(F("D13 on"));
-				}
 				if (dual_led_binary == 0b00100010 || dual_led_binary == 0b10001000) Serial.println(F("Blinking green"));
 				else if (dual_led_binary == 0b00010001 || dual_led_binary == 0b01000100) Serial.println(F("Blinking red"));
 				else if (dual_led_binary == 0b01100110 || dual_led_binary == 0b10011001) Serial.println(F("Blinking both on dual LED"));
@@ -64,23 +59,6 @@ void execute_commands( byte is_udp) {
 				else if (dual_led_binary == 0b10101010) Serial.println(F("LED Green"));
 				else Serial.println(F("LED Red"));
 
-			}
-			break;
-		case M_D13:
-			switch (arr[1]) {
-				case M_ON:
-					blinkD13toggle = false;
-					digitalWrite(13, HIGH);
-					break;
-				case M_OFF:
-					blinkD13toggle = false;
-					digitalWrite(13, LOW);
-					break;
-				case M_BLINK:
-					blinkD13toggle = true;
-					break;
-				default:
-					print_invalid_command(is_udp);
 			}
 			break;
 		case M_LED:
