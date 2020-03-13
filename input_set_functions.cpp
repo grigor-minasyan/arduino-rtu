@@ -50,29 +50,24 @@ void take_input() {
 
 void take_input_udp() {
 	if ((curr_time - prev_time_udp > UDP_LISTEN_DELAY)) {
+		if (curr_time - prev_time_udp_checker > UDP_CHECKER_DELAY) {
+			link_status = false;
+			leds_link[0] = CRGB(30, 0, 0);
+			FastLED.show();
+			prev_time_udp_checker = curr_time;
+		}
 		prev_time_udp = curr_time;
 		int packetSize = Udp.parsePacket();
 		if (packetSize) {
-
-			/*
-			Serial.print("Received packet of size ");
-			Serial.println(packetSize);
-			Serial.print("From ");
-			IPAddress remote = Udp.remoteIP();
-			for (int i=0; i < 4; i++) {
-				Serial.print(remote[i], DEC);
-				if (i < 3) {
-					Serial.print(".");
-				}
-			}
-			Serial.print(", port ");
-			Serial.println(Udp.remotePort());
-			*/
-
 			// read the packet into packetBufffer
 			Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
-			// Serial.println(F("Contents:"));
-			// Serial.println(packetBuffer);
+			if(packetSize == 2 && packetBuffer[0] == 'y') {
+				link_status = true;
+				leds_link[0] = CRGB(0, 30, 0);
+				FastLED.show();
+				prev_time_udp_checker = curr_time;
+				return;
+			}
 			for (byte i = 0; i < packetSize; i++) {
 				packetBuffer[i] = toupper(packetBuffer[i]);
 				//when space is entered before anything else ignore
@@ -89,8 +84,6 @@ void take_input_udp() {
 					command[command_size] = '\0';
 				}
 			}
-
-
 			command[command_size] = '\0';
 			set_command_flag(command, arr);
 			//resetting for the next command
@@ -111,17 +104,11 @@ void take_input_udp() {
 void set_command_flag(char command[], int arr[]) {
 	int num;
 	if (command_count < MAX_CMD_COUNT) {
-		if(!strcmp(command, "LED")) arr[command_count++] = M_LED;
-		else if(!strcmp(command, "DUAL")) arr[command_count++] = M_DUAL;
-		else if(!strcmp(command, "SET")) arr[command_count++] = M_SET;
-		else if(!strcmp(command, "STATUS")) arr[command_count++] = M_STATUS;
+		if(!strcmp(command, "SET")) arr[command_count++] = M_SET;
 		else if(!strcmp(command, "VERSION")) arr[command_count++] = M_VERSION;
 		else if(!strcmp(command, "HELP")) arr[command_count++] = M_HELP;
 		else if(!strcmp(command, "OFF")) arr[command_count++] = M_OFF;
 		else if(!strcmp(command, "BLINK")) arr[command_count++] = M_BLINK;
-		else if(!strcmp(command, "LEDS")) arr[command_count++] = M_LEDS;
-		else if(!strcmp(command, "RED")) arr[command_count++] = M_RED;
-		else if(!strcmp(command, "GREEN")) arr[command_count++] = M_GREEN;
 		else if(!strcmp(command, "WRITE")) arr[command_count++] = M_WRITE;
 		else if(!strcmp(command, "READ")) arr[command_count++] = M_READ;
 		else if(!strcmp(command, "RTC")) arr[command_count++] = M_RTC;

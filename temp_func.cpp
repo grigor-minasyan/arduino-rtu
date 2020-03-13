@@ -5,7 +5,8 @@ int8_t to_farenheit(int8_t x)  {
 
 //this keeps track of the data and does the storing in EEPROM
 Eeprom_indexes rtc_dht_data_range(0, EEPROM.length()-1, 0, 0);
-Data_To_Store time_and_data;
+// Eeprom_indexes rtc_dht_data_range(0, 50, 0, 0); // for testing purposes
+
 
 //x is the number of data to print
 void print_EEPROM_data(int x, int8_t is_udp) {
@@ -49,7 +50,7 @@ void read_temp_hum_loop() {
 
     //check if threshold changed
     if (current_threshold != get_threshold(cur_temp)) {
-      Serial.print(F("Sending an alarm packet to "));
+      Serial.print(F("\n\rSending an alarm packet to "));
       Serial.print(ip_remote);
       Serial.println(F(" for temperature change"));
       current_threshold = get_threshold(cur_temp);
@@ -86,17 +87,18 @@ void read_temp_hum_loop() {
     }
 
   }
-	if (curr_time - prev_time_dht_long >= dht_read_long_delay || curr_time < prev_time_dht_long) {
-    // Serial.println("debug for loop runs for delayed temperature recording inn eeprom");
-    //FIXME fix the time storage
-    time_and_data.write_everything(31, 1, Clock.read().Year - CUR_YEAR);
-    time_and_data.write_everything(27, 4, Clock.read().Month);
-    time_and_data.write_everything(22, 5, Clock.read().Day);
-    time_and_data.write_everything(17, 5, Clock.read().Hour);
-    time_and_data.write_everything(11, 6, Clock.read().Minute);
-    time_and_data.write_everything(9, 2, Clock.read().Second / 15);
-    time_and_data.write_everything(1, 8, cur_temp);
+	if (((curr_time - prev_time_dht_long) >= dht_read_long_delay) || curr_time < prev_time_dht_long) {
+
+    Data_To_Store time_and_data;
+    time_and_data.write_everything(26, 6, (byte)(Clock.read().Year));
+    time_and_data.write_everything(22, 4, (byte)Clock.read().Month);
+    time_and_data.write_everything(17, 5, (byte)Clock.read().Day);
+    time_and_data.write_everything(12, 5, (byte)Clock.read().Hour);
+    time_and_data.write_everything(6, 6, (byte)Clock.read().Minute);
+    time_and_data.write_everything(0, 6, (byte)Clock.read().Second);
     time_and_data.set_hum(cur_humidity);
+    time_and_data.set_temp(cur_temp);
+
     rtc_dht_data_range.store_data(time_and_data);
     prev_time_dht_long = curr_time;
 	}

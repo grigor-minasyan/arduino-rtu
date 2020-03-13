@@ -1,29 +1,31 @@
 #include "main.h"
 
 
-void Data_To_Store::write_everything(byte shift_to_left, byte size_in_bits, unsigned long num) {
+void Data_To_Store::write_everything(byte shift_to_left, byte size_in_bits, byte num) {
 
-  //flag for makig sure the size is smaller than the size in bits specified
-  int8_t flag = 1 << size_in_bits;
+  // flag for makig sure the size is smaller than the size in bits specified
+  byte flag = 1 << size_in_bits;
   flag--;
   num = (num & flag);
-  num = num << shift_to_left;
-  date_time_temp = date_time_temp | num;
+  unsigned long num_copy = num;
+  num_copy = num_copy << shift_to_left;
+  //storing the num in the date time
+  date_time_temp = date_time_temp | num_copy;
 }
 
-unsigned long Data_To_Store::read_everything(byte shift_to_left, byte size_in_bits) {
+byte Data_To_Store::read_everything(byte shift_to_left, byte size_in_bits) {
   //bitwise operations to get the data from the unsigned long
   unsigned long retval = date_time_temp;
-  unsigned long flag = 1 << size_in_bits;
+  byte flag = (1 << size_in_bits);
   flag--;
-  flag = flag << shift_to_left;
-  retval = retval & flag;
   retval = retval >> shift_to_left;
+  retval = retval & flag;
   return retval;
 }
 void Data_To_Store::set_hum(int8_t h) {humidity = h;}
 int8_t Data_To_Store::get_hum() {return humidity;}
-
+void Data_To_Store::set_temp(int8_t t) {temp = t;}
+int8_t Data_To_Store::get_temp() {return temp;}
 
 
 int Eeprom_indexes::get_start_i(){return start_i;}
@@ -34,13 +36,14 @@ int Eeprom_indexes::get_stored_data_count(){return stored_data_count;}
 Eeprom_indexes::Eeprom_indexes(int new_start_i, int new_end_i, int new_curr_i, int new_stored_data_count) :
 start_i(new_start_i),	end_i(new_end_i), curr_i(new_curr_i), stored_data_count(new_stored_data_count) {
   short cur, num;
+  //get current index and the count of data points
   EEPROM.get(0, cur);
   EEPROM.get(2, num);
   curr_i = cur;
   stored_data_count = num;
 
   is_underflow = false;
-  actual_start_i = (start_i + (3*sizeof(short)));
+  actual_start_i = (start_i + (2*sizeof(short)));
   if (curr_i < actual_start_i) curr_i = actual_start_i;
 }
 
@@ -53,13 +56,15 @@ void Eeprom_indexes::store_data(Data_To_Store data_to_store) {
   curr_i += sizeof(Data_To_Store);
 
   if (curr_i > (end_i - sizeof(Data_To_Store))) {
-    this->init();//fixme todo fix the underflow
+    curr_i = actual_start_i;
+    is_underflow = true;
   }
   EEPROM.put(0, curr_i);
   EEPROM.put(2, stored_data_count);
 }
 
 void Eeprom_indexes::init() {
+  //initialize the class
   curr_i = actual_start_i;
   stored_data_count = 0;
   is_underflow = false;
@@ -82,22 +87,22 @@ void Eeprom_indexes::print_data(int x, int8_t is_udp) {
   for (int i = 0; i < x; i++) {
     Data_To_Store ret;
     read_i -= sizeof(Data_To_Store);
-    //FIXME undeflow overflow
+    //if underflows, jump to the end of the eeprom
     if (read_i < actual_start_i) {
-      read_i += (int)((end_i - actual_start_i) / sizeof(Data_To_Store));
+      read_i += sizeof(Data_To_Store)*(int)((end_i - actual_start_i) / sizeof(Data_To_Store));
     }
 
     EEPROM.get(read_i, ret);
 
 
     //getting the numbers from the bitwise
-    byte ret_year = CUR_YEAR + ret.read_everything(31, 1);
-    byte ret_month = ret.read_everything(27, 4);
-    byte ret_day = ret.read_everything(22, 5);
-    byte ret_hour = ret.read_everything(17, 5);
-    byte ret_minute = ret.read_everything(11, 6);
-    byte ret_second = 15 * ret.read_everything(9, 2);
-    int8_t ret_temp = ret.read_everything(1, 8);
+    byte ret_year = ret.read_everything(26, 6);
+    byte ret_month = ret.read_everything(22, 4);
+    byte ret_day = ret.read_everything(17, 5);
+    byte ret_hour = ret.read_everything(12, 5);
+    byte ret_minute = ret.read_everything(6, 6);
+    byte ret_second = ret.read_everything(0, 6);
+    int8_t ret_temp = ret.get_temp();
     byte ret_hum = ret.get_hum();
     //
 
