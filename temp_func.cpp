@@ -4,8 +4,8 @@ int8_t to_farenheit(int8_t x)  {
 }
 
 //this keeps track of the data and does the storing in EEPROM
-Eeprom_indexes rtc_dht_data_range(0, EEPROM.length()-1, 0, 0);
-// Eeprom_indexes rtc_dht_data_range(0, 50, 0, 0); // for testing purposes
+Eeprom_indexes rtc_dht_data_range(0, EEPROM.length()-1);
+// Eeprom_indexes rtc_dht_data_range(0, 60); // for testing purposes
 
 
 //x is the number of data to print

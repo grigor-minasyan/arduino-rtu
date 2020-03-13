@@ -33,17 +33,18 @@ int Eeprom_indexes::get_end_i(){return end_i;}
 int Eeprom_indexes::get_curr_i(){return curr_i;}
 int Eeprom_indexes::get_stored_data_count(){return stored_data_count;}
 
-Eeprom_indexes::Eeprom_indexes(int new_start_i, int new_end_i, int new_curr_i, int new_stored_data_count) :
-start_i(new_start_i),	end_i(new_end_i), curr_i(new_curr_i), stored_data_count(new_stored_data_count) {
+Eeprom_indexes::Eeprom_indexes(int new_start_i, int new_end_i) {
+  start_i = new_start_i;
+  end_i = new_end_i;
   short cur, num;
   //get current index and the count of data points
-  EEPROM.get(0, cur);
-  EEPROM.get(2, num);
+  EEPROM.get(new_start_i, cur);
+  EEPROM.get(new_start_i+sizeof(short), num);
   curr_i = cur;
   stored_data_count = num;
 
   is_underflow = false;
-  actual_start_i = (start_i + (2*sizeof(short)));
+  actual_start_i = (new_start_i + (2*sizeof(short)));
   if (curr_i < actual_start_i) curr_i = actual_start_i;
 }
 

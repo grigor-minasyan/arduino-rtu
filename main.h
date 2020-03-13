@@ -32,10 +32,10 @@
 #define dht_read_short_delay 5000
 #define dht_read_long_delay 15000
 
-#define temp_threshold_1 -5
-#define temp_threshold_2 10
-#define temp_threshold_3 20
-#define temp_threshold_4 25
+#define temp_threshold_1 16
+#define temp_threshold_2 21
+#define temp_threshold_3 27
+#define temp_threshold_4 32
 
 #define remotePort 54211
 #define localPort 8888
@@ -132,7 +132,7 @@ public:
 	int get_end_i();
 	int get_curr_i();
 	int get_stored_data_count();
-	Eeprom_indexes(int new_start_i, int new_end_i, int new_curr_i, int new_stored_data_count);
+	Eeprom_indexes(int new_start_i, int new_end_i);
 	void store_data(Data_To_Store data_to_store);
 	void print_data(int x, int8_t is_udp);
 	void init();
