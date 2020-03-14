@@ -52,8 +52,8 @@ void take_input_udp() {
 	if ((curr_time - prev_time_udp > UDP_LISTEN_DELAY)) {
 		if (curr_time - prev_time_udp_checker > UDP_CHECKER_DELAY) {
 			link_status = false;
-			leds_link[0] = CRGB(30, 0, 0);
-			FastLED.show();
+			leds_link.setPixelColor(0, 0x1e0000);
+			leds_link.show();
 			prev_time_udp_checker = curr_time;
 		}
 		prev_time_udp = curr_time;
@@ -63,8 +63,8 @@ void take_input_udp() {
 			Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
 			if(packetSize == 2 && packetBuffer[0] == 'y') {
 				link_status = true;
-				leds_link[0] = CRGB(0, 30, 0);
-				FastLED.show();
+				leds_link.setPixelColor(0, 0x001e00);
+				leds_link.show();
 				prev_time_udp_checker = curr_time;
 				return;
 			}

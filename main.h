@@ -3,7 +3,7 @@
 #include <DS3231_Simple.h>
 #include <Wire.h>
 #include <SimpleDHT.h>
-#include <FastLED.h>
+#include <Adafruit_NeoPixel.h>
 
 #include <Ethernet.h>
 #include <EthernetUdp.h>
@@ -41,10 +41,14 @@
 #define localPort 8888
 
 
-extern CRGB leds[NUM_LEDS];
-extern CRGB leds_temp[NUM_LEDS];
-extern CRGB leds_link[NUM_LEDS];
-extern CRGB color1, color2, color_maj_und, color_min_und, color_comfortable, color_min_ovr, color_maj_ovr;
+
+extern Adafruit_NeoPixel leds;
+extern Adafruit_NeoPixel leds_temp;
+extern Adafruit_NeoPixel leds_link;
+
+extern uint32_t color1, color2, color_maj_und, color_min_und, color_comfortable, color_min_ovr, color_maj_ovr;
+
+
 
 extern void take_input();
 extern void take_input_udp();
@@ -79,8 +83,6 @@ extern bool link_status;
 
 extern unsigned int blink_delay3;
 
-//for keeping track fo the current color for blinking
-extern byte dual_led_binary;
 
 //keeping current temp and humidity in global
 extern int8_t cur_temp;

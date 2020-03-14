@@ -57,19 +57,19 @@ void read_temp_hum_loop() {
       Udp.beginPacket(ip_remote, remotePort);
       Udp.write("ALARM! Temp changed to ");
       if (current_threshold == 0) {
-        leds_temp[0] = color_maj_und;
+        leds_temp.setPixelColor(0, color_maj_und);
         Udp.write("major under");
       } else if (current_threshold == 1) {
-        leds_temp[0] = color_min_und;
+        leds_temp.setPixelColor(0, color_min_und);
         Udp.write("minor under");
       } else if (current_threshold == 2) {
-        leds_temp[0] = color_comfortable;
+        leds_temp.setPixelColor(0, color_comfortable);
         Udp.write("comfortable");
       } else if (current_threshold == 3) {
-        leds_temp[0] = color_min_ovr;
+        leds_temp.setPixelColor(0, color_min_ovr);
         Udp.write("minor over");
       } else {
-        leds_temp[0] = color_maj_ovr;
+        leds_temp.setPixelColor(0, color_maj_ovr);
         Udp.write("major over");
       }
 
@@ -82,7 +82,7 @@ void read_temp_hum_loop() {
       Udp.write(buff);
       Udp.write("F)");
 
-      FastLED.show();
+      leds_temp.show();
       Udp.endPacket();
     }
 

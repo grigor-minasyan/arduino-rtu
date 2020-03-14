@@ -3,17 +3,18 @@ SimpleDHT22 dht22(PINDHT22);
 //for buffer
 int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
-CRGB leds[NUM_LEDS];
-CRGB leds_temp[NUM_LEDS];
-CRGB leds_link[NUM_LEDS];
 
-CRGB color1 = CRGB(0, 0, 50);
-CRGB color2 = CRGB::Black;
-CRGB color_maj_und = CRGB(128, 0, 128);//purple
-CRGB color_min_und = CRGB(0, 0, 128);//blue
-CRGB color_comfortable = CRGB(0, 128, 0);//green
-CRGB color_min_ovr = CRGB(200, 120, 0);//orange
-CRGB color_maj_ovr = CRGB(200, 0, 0);//red
+Adafruit_NeoPixel leds(NUM_LEDS, RGB_DATA_PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel leds_temp(NUM_LEDS, RGB_DATA_PIN_TEMP, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel leds_link(NUM_LEDS, RGB_DATA_PIN_LINK, NEO_GRB + NEO_KHZ800);
+
+uint32_t color1 = 0x000032;
+uint32_t color2 = 0x000000;
+uint32_t color_maj_und = 0x800080;//purple
+uint32_t color_min_und = 0x000080;//blue
+uint32_t color_comfortable = 0x008000;//green
+uint32_t color_min_ovr = 0xc87800;//orange
+uint32_t color_maj_ovr = 0xc80000;//red
 //input processing variables
 byte command_size = 0;
 byte command_count = 0;
@@ -60,12 +61,14 @@ void setup() {
 
 
 	Clock.begin();
-	FastLED.addLeds<NEOPIXEL, RGB_DATA_PIN>(leds, NUM_LEDS);
-	FastLED.addLeds<NEOPIXEL, RGB_DATA_PIN_TEMP>(leds_temp, NUM_LEDS);
-	FastLED.addLeds<NEOPIXEL, RGB_DATA_PIN_LINK>(leds_link, NUM_LEDS);
-	leds[0] = color1;
-	leds_temp[0] = color_comfortable;
-	FastLED.show();
+
+	leds.begin();
+	leds_temp.begin();
+	leds_link.begin();
+	leds.setPixelColor(0, color1);
+	leds.show();
+	leds_temp.setPixelColor(0, color_comfortable);
+	leds_temp.show();
 	command[0] = '\0';
 
 	pinMode(13, OUTPUT);
