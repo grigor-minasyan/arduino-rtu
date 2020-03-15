@@ -22,7 +22,6 @@ char inByte = 0;
 
 //timekeeping variables
 DS3231_Simple Clock;
-unsigned int curr_time = 0, prev_time3 = 0, prev_time_udp = 0, prev_time_udp_checker = 0, prev_time_dht_short = 0, prev_time_dht_long = 0;
 bool link_status = false;
 
 unsigned int  blink_delay3 = 500;
@@ -83,9 +82,8 @@ void setup() {
 }
 
 void loop() {
-	curr_time = millis();
 	read_temp_hum_loop();
-
+	five_button_read();
 	//blink the LEDs, the functions account for the delay
 	blink_RGB();
 

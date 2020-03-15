@@ -3,8 +3,9 @@
 
 bool rgb_toggle = false;
 void blink_RGB() {
+	static unsigned long prev_time3;
 	// Turn the LED on, then pause
-	if ((curr_time - prev_time3 > blink_delay3)) {
+	if ((millis() - prev_time3 > blink_delay3)) {
 		if (rgb_toggle) {
 			leds.setPixelColor(0, color1);
 			leds.show();
@@ -13,6 +14,6 @@ void blink_RGB() {
 			leds.show();
 		}
 		rgb_toggle = !rgb_toggle;
-		prev_time3 = curr_time;
+		prev_time3 = millis();
 	}
 }

@@ -30,7 +30,7 @@
 #define RGB_DATA_PIN_LINK 8
 
 #define dht_read_short_delay 5000
-#define dht_read_long_delay 15000
+#define dht_read_long_delay 600000
 
 #define temp_threshold_1 16
 #define temp_threshold_2 21
@@ -50,6 +50,7 @@ extern uint32_t color1, color2, color_maj_und, color_min_und, color_comfortable,
 
 
 
+extern void five_button_read();
 extern void take_input();
 extern void take_input_udp();
 extern void execute_commands(byte is_udp);
@@ -78,7 +79,6 @@ extern char inByte;
 
 //timekeeping variables
 extern DS3231_Simple Clock;
-extern unsigned int curr_time, prev_time3, prev_time_udp, prev_time_udp_checker, prev_time_dht_short, prev_time_dht_long;
 extern bool link_status;
 
 extern unsigned int blink_delay3;

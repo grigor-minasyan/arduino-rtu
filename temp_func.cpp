@@ -39,8 +39,9 @@ void read_temp_hum() {
 }
 
 void read_temp_hum_loop() {
-	if (curr_time - prev_time_dht_short >= dht_read_short_delay) {
-    prev_time_dht_short = curr_time;
+  static unsigned long prev_time_dht_short, prev_time_dht_long;
+	if (millis() - prev_time_dht_short >= dht_read_short_delay) {
+    prev_time_dht_short = millis();
 		read_temp_hum();
         //setting the max and min values
     if (cur_temp <  min_temp) min_temp = cur_temp;
@@ -87,7 +88,7 @@ void read_temp_hum_loop() {
     }
 
   }
-	if (((curr_time - prev_time_dht_long) >= dht_read_long_delay) || curr_time < prev_time_dht_long) {
+	if (((millis() - prev_time_dht_long) >= dht_read_long_delay) || millis() < prev_time_dht_long) {
 
     Data_To_Store time_and_data;
     time_and_data.write_everything(26, 6, (byte)(Clock.read().Year));
@@ -100,6 +101,6 @@ void read_temp_hum_loop() {
     time_and_data.set_temp(cur_temp);
 
     rtc_dht_data_range.store_data(time_and_data);
-    prev_time_dht_long = curr_time;
+    prev_time_dht_long = millis();
 	}
 }

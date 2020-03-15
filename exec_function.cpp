@@ -150,10 +150,10 @@ void execute_commands( byte is_udp) {
 		case M_RGB:
 			switch(arr[1]) {
 				case 1: // fixme does not show the red one
-					color1 = (((byte)arr[2]) << 16 | ((byte)arr[3]) << 8 | ((byte)arr[4]));
+					color1 = (((uint32_t)arr[2]) << 16 | ((uint32_t)arr[3]) << 8 | ((uint32_t)arr[4]));
 					break;
 				case 2:
-					color2 = (((byte)arr[2]) << 16 | ((byte)arr[3]) << 8 | ((byte)arr[4]));
+					color2 = (((uint32_t)arr[2]) << 16 | ((uint32_t)arr[3]) << 8 | ((uint32_t)arr[4]));
 					break;
 				case M_SET:
 					if (arr[2] == M_BLINK && arr[3] >= MIN_DELAY) blink_delay3 = arr[3];

@@ -49,14 +49,15 @@ void take_input() {
 
 
 void take_input_udp() {
-	if ((curr_time - prev_time_udp > UDP_LISTEN_DELAY)) {
-		if (curr_time - prev_time_udp_checker > UDP_CHECKER_DELAY) {
+	static unsigned long prev_time_udp, prev_time_udp_checker;
+	if ((millis() - prev_time_udp > UDP_LISTEN_DELAY)) {
+		if (millis() - prev_time_udp_checker > UDP_CHECKER_DELAY) {
 			link_status = false;
 			leds_link.setPixelColor(0, 0x1e0000);
 			leds_link.show();
-			prev_time_udp_checker = curr_time;
+			prev_time_udp_checker = millis();
 		}
-		prev_time_udp = curr_time;
+		prev_time_udp = millis();
 		int packetSize = Udp.parsePacket();
 		if (packetSize) {
 			// read the packet into packetBufffer
@@ -65,7 +66,7 @@ void take_input_udp() {
 				link_status = true;
 				leds_link.setPixelColor(0, 0x001e00);
 				leds_link.show();
-				prev_time_udp_checker = curr_time;
+				prev_time_udp_checker = millis();
 				return;
 			}
 			for (byte i = 0; i < packetSize; i++) {
