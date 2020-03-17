@@ -8,6 +8,7 @@
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
+#include <LiquidCrystal.h>
 
 #ifndef MY_GLOBALS_H
 
@@ -65,6 +66,17 @@ typedef enum {M_SET = -128, M_VERSION,
 M_DHT, M_CURRENT, M_SAVED, M_EXTREME, M_RESET, M_INVALID} MENU_ITEMS;
 extern MENU_ITEMS menu_items;
 
+
+typedef enum  {LCD_HOME = 0, LCD_HISTORY_OUT, LCD_HISTORY_IN, LCD_PACKETS, LCD_SETTINGS_OUT,
+  LCD_SETTINGS_IP_OUT, LCD_SETTINGS_IP_IN,
+  LCD_SETTINGS_GATE_OUT, LCD_SETTINGS_GATE_IN,
+  LCD_SETTINGS_SUB_OUT, LCD_SETTINGS_SUB_IN,
+  LCD_SETTINGS_THRESHOLD_OUT, LCD_SETTINGS_THRESHOLD_IN,
+  LCD_SETTINGS_ERASE_OUT, LCD_SETTINGS_ERASE_IN,
+  } LCD_SCREEN_MENU;
+extern LCD_SCREEN_MENU lcd_screen_menu;
+
+
 extern SimpleDHT22 dht22;
 //for buffer
 extern int arr[MAX_CMD_COUNT];
@@ -92,6 +104,7 @@ extern int8_t min_humidity;
 extern int8_t current_threshold;
 
 
+//Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
 extern byte mac[];
 extern IPAddress ip;
@@ -102,6 +115,7 @@ extern char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming pac
 extern char ReplyBuffer[];// a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 extern EthernetUDP Udp;
+//end Ethernet declarations-------------------------------------------
 
 
 class Data_To_Store {
@@ -136,5 +150,9 @@ public:
 	void print_data(int x, int8_t is_udp);
 	void init();
 };
+
+extern LiquidCrystal lcd;
+extern void show_lcd_menu(byte x);
+extern byte curr_lcd_menu;
 
 #endif

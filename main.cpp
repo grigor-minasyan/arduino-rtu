@@ -32,20 +32,27 @@ int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
 int8_t current_threshold = 2;
 
+//Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 IPAddress ip(192, 168, 1, 177);
 IPAddress ip_remote(192, 168, 1, 111);   // local port to listen on
-
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
 char ReplyBuffer[] = "acknowledged";        // a string to send back
-
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
+//end Ethernet declarations-------------------------------------------
 
+
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+byte curr_lcd_menu = LCD_HOME;
 
 void setup() {
+  lcd.begin(16, 2);
+	show_lcd_menu(LCD_HOME);
+
+
 	Ethernet.init(10);
 	Ethernet.begin(mac, ip);
 

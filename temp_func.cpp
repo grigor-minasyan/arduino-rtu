@@ -43,6 +43,7 @@ void read_temp_hum_loop() {
 	if (millis() - prev_time_dht_short >= dht_read_short_delay) {
     prev_time_dht_short = millis();
 		read_temp_hum();
+    if (curr_lcd_menu == LCD_HOME) show_lcd_menu(LCD_HOME);
         //setting the max and min values
     if (cur_temp <  min_temp) min_temp = cur_temp;
     if (cur_temp > max_temp) max_temp = cur_temp;

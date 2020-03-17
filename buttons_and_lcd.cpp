@@ -1,5 +1,22 @@
 #include "main.h"
 #define FIVE_BUTTON_PIN A3
+
+void show_lcd_menu(byte x) {
+  curr_lcd_menu = x;
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  if (x == LCD_HOME) {
+    //fixme does not update the lcd
+    Serial.println("show lcd called");
+    Serial.println(cur_temp);
+    lcd.print("Temp:");
+    lcd.print(cur_temp);
+    lcd.print("C(");
+    lcd.print(to_farenheit(cur_temp));
+    lcd.print("F)");
+  }
+}
+
 void sw1func() {
   Serial.println("button 1 pressed");
 }
