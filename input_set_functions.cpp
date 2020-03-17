@@ -105,11 +105,9 @@ void take_input_udp() {
 void set_command_flag(char command[], int arr[]) {
 	int num;
 	if (command_count < MAX_CMD_COUNT) {
-		if(!strcmp(command, "SET")) arr[command_count++] = M_SET;
-		else if(!strcmp(command, "VERSION")) arr[command_count++] = M_VERSION;
+		if(!strcmp(command, "VERSION")) arr[command_count++] = M_VERSION;
 		else if(!strcmp(command, "HELP")) arr[command_count++] = M_HELP;
 		else if(!strcmp(command, "OFF")) arr[command_count++] = M_OFF;
-		else if(!strcmp(command, "BLINK")) arr[command_count++] = M_BLINK;
 		else if(!strcmp(command, "WRITE")) arr[command_count++] = M_WRITE;
 		else if(!strcmp(command, "READ")) arr[command_count++] = M_READ;
 		else if(!strcmp(command, "RTC")) arr[command_count++] = M_RTC;
@@ -117,11 +115,10 @@ void set_command_flag(char command[], int arr[]) {
 		else if(!strcmp(command, "CURRENT")) arr[command_count++] = M_CURRENT;
 		else if(!strcmp(command, "SAVED")) arr[command_count++] = M_SAVED;
 		else if(!strcmp(command, "EXTREME")) arr[command_count++] = M_EXTREME;
-		else if(!strcmp(command, "ADD")) arr[command_count++] = M_ADD;
-		else if(!strcmp(command, "RGB")) arr[command_count++] = M_RGB;
 		else if(!strcmp(command, "RESET")) arr[command_count++] = M_RESET;
-		else if(arr[0] == M_ADD || arr[0] == M_RGB || (arr[0] == M_SET && arr[1] == M_BLINK) || (arr[0] == M_DHT && arr[1] == M_SAVED)) {
+		else if(arr[0] == M_DHT && arr[1] == M_SAVED) {
 			if (is_str_number(command, num)) arr[command_count++] = num;
+			else arr[command_count++] = M_INVALID;
 		}  else arr[command_count++] = M_INVALID;
 	}
 }

@@ -10,7 +10,7 @@ void print_invalid_command(byte is_udp) {
 	}
 }
 
-void execute_commands( byte is_udp) {
+void execute_commands(byte is_udp) {
 	Serial.println();
 
 
@@ -29,7 +29,7 @@ void execute_commands( byte is_udp) {
 				Udp.write("DHT CURRENT | DHT EXTREME | DHT SAVED | RTC READ");
 				Udp.endPacket();
 			}
-			Serial.print(F("├── ADD X Y\n\r├── RGB\n\r│   ├── 1 R G B (RGB color 1 0-255)\n\r│   ├── 2 R G B (RGB color 2 0-255\n\r│   └── SET BLINK X (delay in ms)\n\r├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r└── VERSION\n\r"));
+			Serial.print(F("├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r└── VERSION\n\r"));
 			break;
 		case M_RTC:
 			switch (arr[1]) {
@@ -138,25 +138,6 @@ void execute_commands( byte is_udp) {
 					break;
 				case M_RESET:
 					reset_EEPROM_data();
-					break;
-				default:
-					print_invalid_command(is_udp);
-			}
-			break;
-		case M_ADD:
-			if (arr[1] != M_INVALID && arr[2] != M_INVALID) Serial.println(arr[1] + arr[2]);
-			else print_invalid_command(is_udp);
-			break;
-		case M_RGB:
-			switch(arr[1]) {
-				case 1: // fixme does not show the red one
-					color1 = (((uint32_t)arr[2]) << 16 | ((uint32_t)arr[3]) << 8 | ((uint32_t)arr[4]));
-					break;
-				case 2:
-					color2 = (((uint32_t)arr[2]) << 16 | ((uint32_t)arr[3]) << 8 | ((uint32_t)arr[4]));
-					break;
-				case M_SET:
-					if (arr[2] == M_BLINK && arr[3] >= MIN_DELAY) blink_delay3 = arr[3];
 					break;
 				default:
 					print_invalid_command(is_udp);

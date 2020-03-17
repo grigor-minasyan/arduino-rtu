@@ -14,8 +14,6 @@
 
 #define MAX_STR 12
 #define MAX_CMD_COUNT 5
-#define DUAL_LED_PIN1 4
-#define DUAL_LED_PIN2 5
 #define MIN_DELAY 50
 #define CUR_VERSION 2.3
 #define BAUD_RATE 9600
@@ -23,11 +21,11 @@
 #define UDP_CHECKER_DELAY 2111
 
 //pin and setup for the DHT
-#define PINDHT22 2
+#define PINDHT22 8
 #define NUM_LEDS 1
-#define RGB_DATA_PIN 6
+
 #define RGB_DATA_PIN_TEMP 7
-#define RGB_DATA_PIN_LINK 8
+#define RGB_DATA_PIN_LINK 6
 
 #define dht_read_short_delay 5000
 #define dht_read_long_delay 600000
@@ -42,11 +40,10 @@
 
 
 
-extern Adafruit_NeoPixel leds;
 extern Adafruit_NeoPixel leds_temp;
 extern Adafruit_NeoPixel leds_link;
 
-extern uint32_t color1, color2, color_maj_und, color_min_und, color_comfortable, color_min_ovr, color_maj_ovr;
+extern uint32_t color_maj_und, color_min_und, color_comfortable, color_min_ovr, color_maj_ovr;
 
 
 
@@ -65,7 +62,7 @@ extern void set_command_flag(char command[], int arr[]);
 //when adding a menu item, add in 4 places, enum, help, set_command_flag(), execute_commands()
 typedef enum {M_SET = -128, M_VERSION,
 	M_HELP, M_OFF, M_BLINK, M_WRITE, M_READ, M_RTC,
-M_DHT, M_CURRENT, M_SAVED, M_EXTREME, M_ADD, M_RGB, M_RESET, M_INVALID = -32768} MENU_ITEMS;
+M_DHT, M_CURRENT, M_SAVED, M_EXTREME, M_RESET, M_INVALID} MENU_ITEMS;
 extern MENU_ITEMS menu_items;
 
 extern SimpleDHT22 dht22;

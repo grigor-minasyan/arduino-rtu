@@ -4,12 +4,9 @@ SimpleDHT22 dht22(PINDHT22);
 int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
 
-Adafruit_NeoPixel leds(NUM_LEDS, RGB_DATA_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel leds_temp(NUM_LEDS, RGB_DATA_PIN_TEMP, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel leds_link(NUM_LEDS, RGB_DATA_PIN_LINK, NEO_GRB + NEO_KHZ800);
 
-uint32_t color1 = 0x000032;
-uint32_t color2 = 0x000000;
 uint32_t color_maj_und = 0x800080;//purple
 uint32_t color_min_und = 0x000080;//blue
 uint32_t color_comfortable = 0x008000;//green
@@ -61,22 +58,13 @@ void setup() {
 
 	Clock.begin();
 
-	leds.begin();
 	leds_temp.begin();
 	leds_link.begin();
-	leds.setPixelColor(0, color1);
-	leds.show();
 	leds_temp.setPixelColor(0, color_comfortable);
 	leds_temp.show();
 	command[0] = '\0';
 
 	pinMode(13, OUTPUT);
-
-	//power on led
-	pinMode(DUAL_LED_PIN1, OUTPUT);
-	pinMode(DUAL_LED_PIN2, OUTPUT);
-	digitalWrite(DUAL_LED_PIN1, HIGH);
-	digitalWrite(DUAL_LED_PIN2, LOW);
 
 	Serial.println(F("Enter commands or 'HELP'"));
 }
@@ -84,8 +72,7 @@ void setup() {
 void loop() {
 	read_temp_hum_loop();
 	five_button_read();
-	//blink the LEDs, the functions account for the delay
-	blink_RGB();
+
 
 	//calls set flags and execute
 	take_input();
