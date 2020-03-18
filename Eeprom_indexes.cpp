@@ -28,10 +28,30 @@ void Data_To_Store::set_temp(int8_t t) {temp = t;}
 int8_t Data_To_Store::get_temp() {return temp;}
 
 
+
+byte Data_To_Store::get_year(){return read_everything(26, 6);}
+byte Data_To_Store::get_month(){return read_everything(22, 4);}
+byte Data_To_Store::get_day(){return read_everything(17, 5);}
+byte Data_To_Store::get_hour(){return read_everything(12, 5);}
+byte Data_To_Store::get_minute(){return read_everything(6, 6);}
+byte Data_To_Store::get_second(){return read_everything(0, 6);}
+void Data_To_Store::set_year(byte num){write_everything(26, 6, num);}
+void Data_To_Store::set_month(byte num){write_everything(22, 4, num);}
+void Data_To_Store::set_day(byte num){write_everything(17, 5, num);}
+void Data_To_Store::set_hour(byte num){write_everything(12, 5, num);}
+void Data_To_Store::set_minute(byte num){write_everything(6, 6, num);}
+void Data_To_Store::set_second(byte num){write_everything(0, 6, num);}
+
+
+
+
+
+
 int Eeprom_indexes::get_start_i(){return start_i;}
 int Eeprom_indexes::get_end_i(){return end_i;}
 int Eeprom_indexes::get_curr_i(){return curr_i;}
 int Eeprom_indexes::get_stored_data_count(){return stored_data_count;}
+
 
 Eeprom_indexes::Eeprom_indexes(int new_start_i, int new_end_i) {
   start_i = new_start_i;
@@ -60,8 +80,8 @@ void Eeprom_indexes::store_data(Data_To_Store data_to_store) {
     curr_i = actual_start_i;
     is_underflow = true;
   }
-  EEPROM.put(0, curr_i);
-  EEPROM.put(2, stored_data_count);
+  EEPROM.put(start_i, curr_i);
+  EEPROM.put(start_i+sizeof(int), stored_data_count);
 }
 
 void Eeprom_indexes::init() {
@@ -69,6 +89,22 @@ void Eeprom_indexes::init() {
   curr_i = actual_start_i;
   stored_data_count = 0;
   is_underflow = false;
+}
+
+
+Data_To_Store Eeprom_indexes::get_ith_data(int x) {
+  if (stored_data_count == 0) return Data_To_Store();
+  if (x > stored_data_count) x = stored_data_count;
+  if (x < 0) x = 0;
+
+  Data_To_Store ret;
+  int read_i = curr_i;
+  read_i -= (x*sizeof(Data_To_Store));
+  if (read_i < actual_start_i) {
+    read_i += sizeof(Data_To_Store)*(int)((end_i - actual_start_i) / sizeof(Data_To_Store));
+  }
+  EEPROM.get(read_i, ret);
+  return ret;
 }
 
 void Eeprom_indexes::print_data(int x, int8_t is_udp) {
@@ -86,25 +122,15 @@ void Eeprom_indexes::print_data(int x, int8_t is_udp) {
 
   if (x > stored_data_count) x = stored_data_count;
   for (int i = 0; i < x; i++) {
-    Data_To_Store ret;
-    read_i -= sizeof(Data_To_Store);
-    //if underflows, jump to the end of the eeprom
-    if (read_i < actual_start_i) {
-      read_i += sizeof(Data_To_Store)*(int)((end_i - actual_start_i) / sizeof(Data_To_Store));
-    }
-
-    EEPROM.get(read_i, ret);
-
-
     //getting the numbers from the bitwise
-    byte ret_year = ret.read_everything(26, 6);
-    byte ret_month = ret.read_everything(22, 4);
-    byte ret_day = ret.read_everything(17, 5);
-    byte ret_hour = ret.read_everything(12, 5);
-    byte ret_minute = ret.read_everything(6, 6);
-    byte ret_second = ret.read_everything(0, 6);
-    int8_t ret_temp = ret.get_temp();
-    byte ret_hum = ret.get_hum();
+    byte ret_year = get_ith_data(i).get_year();
+    byte ret_month = get_ith_data(i).get_month();
+    byte ret_day = get_ith_data(i).get_day();
+    byte ret_hour = get_ith_data(i).get_hour();
+    byte ret_minute = get_ith_data(i).get_minute();
+    byte ret_second = get_ith_data(i).get_second();
+    int8_t ret_temp = get_ith_data(i).get_temp();
+    byte ret_hum = get_ith_data(i).get_hum();
     //
 
 
@@ -159,6 +185,7 @@ void Eeprom_indexes::print_data(int x, int8_t is_udp) {
       itoa(ret_hum, buff, 10);
       Udp.write(buff);
       Udp.write("%");
+      udp_packets_out_counter++;
       Udp.endPacket();
     }
 

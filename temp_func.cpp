@@ -4,8 +4,9 @@ int8_t to_farenheit(int8_t x)  {
 }
 
 //this keeps track of the data and does the storing in EEPROM
-Eeprom_indexes rtc_dht_data_range(0, EEPROM.length()-1);
-// Eeprom_indexes rtc_dht_data_range(0, 60); // for testing purposes
+
+Eeprom_indexes rtc_dht_data_range(17, EEPROM.length()-1);
+// Eeprom_indexes rtc_dht_data_range(17, 60); // for testing purposes
 
 
 //x is the number of data to print
@@ -43,7 +44,6 @@ void read_temp_hum_loop() {
 	if (millis() - prev_time_dht_short >= dht_read_short_delay) {
     prev_time_dht_short = millis();
 		read_temp_hum();
-    if (curr_lcd_menu == LCD_HOME) show_lcd_menu(LCD_HOME);
         //setting the max and min values
     if (cur_temp <  min_temp) min_temp = cur_temp;
     if (cur_temp > max_temp) max_temp = cur_temp;
@@ -59,19 +59,19 @@ void read_temp_hum_loop() {
       Udp.beginPacket(ip_remote, remotePort);
       Udp.write("ALARM! Temp changed to ");
       if (current_threshold == 0) {
-        leds_temp.setPixelColor(0, color_maj_und);
+        leds_all.setPixelColor(0, color_maj_und);
         Udp.write("major under");
       } else if (current_threshold == 1) {
-        leds_temp.setPixelColor(0, color_min_und);
+        leds_all.setPixelColor(0, color_min_und);
         Udp.write("minor under");
       } else if (current_threshold == 2) {
-        leds_temp.setPixelColor(0, color_comfortable);
+        leds_all.setPixelColor(0, color_comfortable);
         Udp.write("comfortable");
       } else if (current_threshold == 3) {
-        leds_temp.setPixelColor(0, color_min_ovr);
+        leds_all.setPixelColor(0, color_min_ovr);
         Udp.write("minor over");
       } else {
-        leds_temp.setPixelColor(0, color_maj_ovr);
+        leds_all.setPixelColor(0, color_maj_ovr);
         Udp.write("major over");
       }
 
@@ -84,22 +84,26 @@ void read_temp_hum_loop() {
       Udp.write(buff);
       Udp.write("F)");
 
-      leds_temp.show();
+      leds_all.show();
       Udp.endPacket();
+  		udp_packets_out_counter++;
     }
 
   }
 	if (((millis() - prev_time_dht_long) >= dht_read_long_delay) || millis() < prev_time_dht_long) {
 
+
     Data_To_Store time_and_data;
-    time_and_data.write_everything(26, 6, (byte)(Clock.read().Year));
-    time_and_data.write_everything(22, 4, (byte)Clock.read().Month);
-    time_and_data.write_everything(17, 5, (byte)Clock.read().Day);
-    time_and_data.write_everything(12, 5, (byte)Clock.read().Hour);
-    time_and_data.write_everything(6, 6, (byte)Clock.read().Minute);
-    time_and_data.write_everything(0, 6, (byte)Clock.read().Second);
+    time_and_data.set_year((byte)Clock.read().Year);
+    time_and_data.set_month((byte)Clock.read().Month);
+    time_and_data.set_day((byte)Clock.read().Day);
+    time_and_data.set_hour((byte)Clock.read().Hour);
+    time_and_data.set_minute((byte)Clock.read().Minute);
+    time_and_data.set_second((byte)Clock.read().Second);
+
     time_and_data.set_hum(cur_humidity);
     time_and_data.set_temp(cur_temp);
+
 
     rtc_dht_data_range.store_data(time_and_data);
     prev_time_dht_long = millis();

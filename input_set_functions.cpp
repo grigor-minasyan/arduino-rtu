@@ -53,8 +53,8 @@ void take_input_udp() {
 	if ((millis() - prev_time_udp > UDP_LISTEN_DELAY)) {
 		if (millis() - prev_time_udp_checker > UDP_CHECKER_DELAY) {
 			link_status = false;
-			leds_link.setPixelColor(0, 0x1e0000);
-			leds_link.show();
+			leds_all.setPixelColor(1, 0x1e0000);
+			leds_all.show();
 			prev_time_udp_checker = millis();
 		}
 		prev_time_udp = millis();
@@ -64,11 +64,12 @@ void take_input_udp() {
 			Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
 			if(packetSize == 2 && packetBuffer[0] == 'y') {
 				link_status = true;
-				leds_link.setPixelColor(0, 0x001e00);
-				leds_link.show();
+				leds_all.setPixelColor(1, 0x001e00);
+				leds_all.show();
 				prev_time_udp_checker = millis();
 				return;
 			}
+			udp_packets_in_counter++;
 			for (byte i = 0; i < packetSize; i++) {
 				packetBuffer[i] = toupper(packetBuffer[i]);
 				//when space is entered before anything else ignore
@@ -93,10 +94,11 @@ void take_input_udp() {
 			execute_commands(1);
 
 
-			// send a reply to the IP address and port that sent us the packet we received
-			Udp.beginPacket(ip_remote, remotePort);
-			Udp.write(ReplyBuffer);
-			Udp.endPacket();
+			// // send a reply to the IP address and port that sent us the packet we received
+			// Udp.beginPacket(ip_remote, remotePort);
+			// Udp.write(ReplyBuffer);
+			// Udp.endPacket();
+			// udp_packets_out_counter++;
 		}
 	}
 }

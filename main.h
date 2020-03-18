@@ -23,30 +23,26 @@
 
 //pin and setup for the DHT
 #define PINDHT22 8
-#define NUM_LEDS 1
+#define NUM_LEDS 2
 
 #define RGB_DATA_PIN_TEMP 7
 #define RGB_DATA_PIN_LINK 6
+#define RGB_DATA_PIN_ALL 6
 
 #define dht_read_short_delay 5000
-#define dht_read_long_delay 600000
+#define dht_read_long_delay 5000//600000
 
-#define temp_threshold_1 16
-#define temp_threshold_2 21
-#define temp_threshold_3 27
-#define temp_threshold_4 32
 
 #define remotePort 54211
 #define localPort 8888
 
 
-
-extern Adafruit_NeoPixel leds_temp;
-extern Adafruit_NeoPixel leds_link;
+extern Adafruit_NeoPixel leds_all;
 
 extern uint32_t color_maj_und, color_min_und, color_comfortable, color_min_ovr, color_maj_ovr;
 
 
+extern int8_t temp_threshold_1, temp_threshold_2, temp_threshold_3, temp_threshold_4;
 
 extern void five_button_read();
 extern void take_input();
@@ -115,6 +111,7 @@ extern char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming pac
 extern char ReplyBuffer[];// a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 extern EthernetUDP Udp;
+extern int udp_packets_in_counter, udp_packets_out_counter;
 //end Ethernet declarations-------------------------------------------
 
 
@@ -123,9 +120,21 @@ private:
 	unsigned long date_time_temp;
 	int8_t humidity;
 	int8_t temp;
-public:
 	void write_everything(byte shift_to_left, byte size_in_bits, byte num);
 	byte read_everything(byte shift_to_left, byte size_in_bits);
+public:
+	byte get_year();
+	byte get_month();
+	byte get_day();
+	byte get_hour();
+	byte get_minute();
+	byte get_second();
+	void set_year(byte num);
+	void set_month(byte num);
+	void set_day(byte num);
+	void set_hour(byte num);
+	void set_minute(byte num);
+	void set_second(byte num);
 	void set_hum(int8_t h);
 	int8_t get_hum();
 	void set_temp(int8_t t);
@@ -148,8 +157,10 @@ public:
 	Eeprom_indexes(int new_start_i, int new_end_i);
 	void store_data(Data_To_Store data_to_store);
 	void print_data(int x, int8_t is_udp);
+	Data_To_Store get_ith_data(int x);
 	void init();
 };
+extern Eeprom_indexes rtc_dht_data_range;
 
 extern LiquidCrystal lcd;
 extern void show_lcd_menu(byte x);

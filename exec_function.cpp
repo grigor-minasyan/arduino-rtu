@@ -7,6 +7,7 @@ void print_invalid_command(byte is_udp) {
 		Udp.beginPacket(ip_remote, remotePort);
 		Udp.write("Invalid command");
 		Udp.endPacket();
+		udp_packets_out_counter++;
 	}
 }
 
@@ -20,6 +21,12 @@ void execute_commands(byte is_udp) {
 
 	switch (arr[0]) {
 		case M_VERSION:
+			if (is_udp) {
+				Udp.beginPacket(ip_remote, remotePort);
+				Udp.write(CUR_VERSION);
+				Udp.endPacket();
+				udp_packets_out_counter++;
+			}
 			Serial.print(F("Version: "));
 			Serial.println(CUR_VERSION);
 			break;
@@ -28,13 +35,15 @@ void execute_commands(byte is_udp) {
 				Udp.beginPacket(ip_remote, remotePort);
 				Udp.write("DHT CURRENT | DHT EXTREME | DHT SAVED | RTC READ");
 				Udp.endPacket();
+	      udp_packets_out_counter++;
 			}
 			Serial.print(F("├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r└── VERSION\n\r"));
 			break;
 		case M_RTC:
 			switch (arr[1]) {
 				case M_WRITE:
-					Clock.promptForTimeAndDate(Serial);
+					if (!is_udp) Clock.promptForTimeAndDate(Serial);
+					else print_invalid_command(is_udp);
 					break;
 				case M_READ:
 					if (is_udp) {
@@ -58,6 +67,7 @@ void execute_commands(byte is_udp) {
 						itoa(Clock.read().Second, buff, 10);
 						Udp.write(buff);
 						Udp.endPacket();
+			      udp_packets_out_counter++;
 					}
 					Clock.printDateTo_YMD(Serial);
 					Serial.print(' ');
@@ -84,6 +94,7 @@ void execute_commands(byte is_udp) {
 						Udp.write(buff);
 						Udp.write("%");
 						Udp.endPacket();
+			      udp_packets_out_counter++;
 					}
 					Serial.print(F("Current temp / humidity is "));
 					Serial.print(cur_temp);
@@ -121,6 +132,7 @@ void execute_commands(byte is_udp) {
 						Udp.write(buff);
 						Udp.write("%");
 						Udp.endPacket();
+			      udp_packets_out_counter++;
 					}
 					Serial.print(F("Maximum recorded temp / humidity is "));
 					Serial.print(max_temp);
@@ -137,6 +149,13 @@ void execute_commands(byte is_udp) {
 					Serial.println(F("%"));
 					break;
 				case M_RESET:
+					if (is_udp) {
+						Udp.beginPacket(ip_remote, remotePort);
+						Udp.write("DHT reset");
+						Udp.endPacket();
+						udp_packets_out_counter++;
+					}
+					Serial.println(F("DHT reset"));
 					reset_EEPROM_data();
 					break;
 				default:

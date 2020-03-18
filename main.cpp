@@ -4,8 +4,7 @@ SimpleDHT22 dht22(PINDHT22);
 int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
 
-Adafruit_NeoPixel leds_temp(NUM_LEDS, RGB_DATA_PIN_TEMP, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel leds_link(NUM_LEDS, RGB_DATA_PIN_LINK, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel leds_all(NUM_LEDS, RGB_DATA_PIN_LINK, NEO_GRB + NEO_KHZ800);
 
 uint32_t color_maj_und = 0x800080;//purple
 uint32_t color_min_und = 0x000080;//blue
@@ -31,7 +30,7 @@ int8_t min_temp = INT8_MAX;
 int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
 int8_t current_threshold = 2;
-
+int8_t temp_threshold_1 = 16, temp_threshold_2 = 21, temp_threshold_3 = 27, temp_threshold_4 = 32;
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
@@ -42,19 +41,21 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
 char ReplyBuffer[] = "acknowledged";        // a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
+int udp_packets_in_counter = 0, udp_packets_out_counter = 0;
 //end Ethernet declarations-------------------------------------------
 
 
-LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+LiquidCrystal lcd(9, 7, 5, 4, 3, 2);
 byte curr_lcd_menu = LCD_HOME;
 
 void setup() {
   lcd.begin(16, 2);
-	show_lcd_menu(LCD_HOME);
-
+  show_lcd_menu(LCD_HOME);
 
 	Ethernet.init(10);
 	Ethernet.begin(mac, ip);
+
+
 
 	Serial.begin(BAUD_RATE);
 	 // wait for serial port to connect. Needed for native USB port only
@@ -65,21 +66,21 @@ void setup() {
 
 	Clock.begin();
 
-	leds_temp.begin();
-	leds_link.begin();
-	leds_temp.setPixelColor(0, color_comfortable);
-	leds_temp.show();
+  leds_all.begin();
+	leds_all.setPixelColor(0, color_comfortable);
+	leds_all.show();
 	command[0] = '\0';
 
 	pinMode(13, OUTPUT);
 
 	Serial.println(F("Enter commands or 'HELP'"));
+
 }
 
 void loop() {
 	read_temp_hum_loop();
 	five_button_read();
-
+  show_lcd_menu(curr_lcd_menu);
 
 	//calls set flags and execute
 	take_input();
