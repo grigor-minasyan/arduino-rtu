@@ -135,19 +135,19 @@ void five_button_read() {
       is_released = true;
       prev_time_2 = millis();
     } else if(is_released || millis() - prev_time_2 > hold_timeout) {
-      if (val > 700) {
+      if (val > 700 && val < 760) {
         is_released = false;
         sw5func();
-      } else if (val > 450) {
+      } else if (val > 470 && val < 530) {
         is_released = false;
         sw4func();
-      } else if (val > 300) {
+      } else if (val > 310 && val < 350) {
         is_released = false;
         sw3func();
-      } else if (val > 100) {
+      } else if (val > 130 && val < 160) {
         is_released = false;
         sw2func();
-      } else {
+      } else if (val < 30) {
         is_released = false;
         sw1func();
       }
