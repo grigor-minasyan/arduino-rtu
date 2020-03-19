@@ -1,14 +1,16 @@
 #include <Arduino.h>
-#include <EEPROM.h>
 #include <DS3231_Simple.h>
 #include <Wire.h>
 #include <SimpleDHT.h>
 #include <Adafruit_NeoPixel.h>
-
+#include <EEPROM.h>
 #include <Ethernet.h>
 #include <EthernetUdp.h>
 
 #include <LiquidCrystal.h>
+#include "Data_To_Store.hpp"
+#include "Eeprom_indexes.hpp"
+
 
 #ifndef MY_GLOBALS_H
 
@@ -115,69 +117,6 @@ extern int udp_packets_in_counter, udp_packets_out_counter;
 //end Ethernet declarations-------------------------------------------
 
 
-class Data_To_Store {
-private:
-	unsigned long date_time_temp;
-	int8_t humidity;
-	int8_t temp;
-	void write_everything(byte shift_to_left, byte size_in_bits, byte num);
-	byte read_everything(byte shift_to_left, byte size_in_bits);
-public:
-	byte get_year();
-	byte get_month();
-	byte get_day();
-	byte get_hour();
-	byte get_minute();
-	byte get_second();
-	void set_year(byte num);
-	void set_month(byte num);
-	void set_day(byte num);
-	void set_hour(byte num);
-	void set_minute(byte num);
-	void set_second(byte num);
-	void set_hum(int8_t h);
-	int8_t get_hum();
-	void set_temp(int8_t t);
-	int8_t get_temp();
-};
-
-void Data_To_Store::write_everything(byte shift_to_left, byte size_in_bits, byte num) {
-  // flag for makig sure the size is smaller than the size in bits specified
-  byte flag = 1 << size_in_bits;
-  flag--;
-  num = (num & flag);
-  unsigned long num_copy = num;
-  num_copy = num_copy << shift_to_left;
-  //storing the num in the date time
-  date_time_temp = date_time_temp | num_copy;
-}
-byte Data_To_Store::read_everything(byte shift_to_left, byte size_in_bits) {
-  //bitwise operations to get the data from the unsigned long
-  unsigned long retval = date_time_temp;
-  byte flag = (1 << size_in_bits);
-  flag--;
-  retval = retval >> shift_to_left;
-  retval = retval & flag;
-  return retval;
-}
-void Data_To_Store::set_hum(int8_t h) {humidity = h;}
-int8_t Data_To_Store::get_hum() {return humidity;}
-void Data_To_Store::set_temp(int8_t t) {temp = t;}
-int8_t Data_To_Store::get_temp() {return temp;}
-byte Data_To_Store::get_year(){return read_everything(26, 6);}
-byte Data_To_Store::get_month(){return read_everything(22, 4);}
-byte Data_To_Store::get_day(){return read_everything(17, 5);}
-byte Data_To_Store::get_hour(){return read_everything(12, 5);}
-byte Data_To_Store::get_minute(){return read_everything(6, 6);}
-byte Data_To_Store::get_second(){return read_everything(0, 6);}
-void Data_To_Store::set_year(byte num){write_everything(26, 6, num);}
-void Data_To_Store::set_month(byte num){write_everything(22, 4, num);}
-void Data_To_Store::set_day(byte num){write_everything(17, 5, num);}
-void Data_To_Store::set_hour(byte num){write_everything(12, 5, num);}
-void Data_To_Store::set_minute(byte num){write_everything(6, 6, num);}
-void Data_To_Store::set_second(byte num){write_everything(0, 6, num);}
-
-
 
 
 extern LiquidCrystal lcd;
@@ -185,26 +124,6 @@ extern void show_lcd_menu(byte x);
 extern byte curr_lcd_menu;
 
 
-template <class T>
-class Eeprom_indexes {
-private:
-	int start_i;
-	int end_i;
-	int curr_i;
-	int stored_data_count;
-	int actual_start_i;
-	bool is_underflow;
-public:
-	int get_start_i();
-	int get_end_i();
-	int get_curr_i();
-	int get_stored_data_count();
-	Eeprom_indexes<T>(int new_start_i, int new_end_i);
-	void store_data(T data_to_store);
-	void print_data(int x, int8_t is_udp);
-	T get_ith_data(int x);
-	void init();
-};
 
 template <class T>
 int Eeprom_indexes<T>::get_start_i(){return start_i;}
@@ -231,6 +150,7 @@ Eeprom_indexes<T>::Eeprom_indexes(int new_start_i, int new_end_i) {
   actual_start_i = (new_start_i + (2*sizeof(short)));
   if (curr_i < actual_start_i) curr_i = actual_start_i;
 }
+
 
 template <class T>
 void Eeprom_indexes<T>::store_data(T data_to_store) {
@@ -360,6 +280,7 @@ void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
   }
 
 }
+
 
 extern Eeprom_indexes<Data_To_Store> rtc_dht_data_range;
 
