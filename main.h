@@ -126,28 +126,28 @@ extern byte curr_lcd_menu;
 
 
 template <class T>
-int Eeprom_indexes<T>::get_start_i(){return start_i;}
+uint16_t Eeprom_indexes<T>::get_start_i(){return start_i;}
 template <class T>
-int Eeprom_indexes<T>::get_end_i(){return end_i;}
+uint16_t Eeprom_indexes<T>::get_end_i(){return end_i;}
 template <class T>
-int Eeprom_indexes<T>::get_curr_i(){return curr_i;}
+uint16_t Eeprom_indexes<T>::get_curr_i(){return curr_i;}
 template <class T>
-int Eeprom_indexes<T>::get_stored_data_count(){return stored_data_count;}
+uint16_t Eeprom_indexes<T>::get_stored_data_count(){return stored_data_count;}
 
 
 template <class T>
-Eeprom_indexes<T>::Eeprom_indexes(int new_start_i, int new_end_i) {
+Eeprom_indexes<T>::Eeprom_indexes(uint16_t new_start_i, uint16_t new_end_i) {
   start_i = new_start_i;
   end_i = new_end_i;
-  short cur, num;
+  uint16_t cur, num;
   //get current index and the count of data points
   EEPROM.get(new_start_i, cur);
-  EEPROM.get(new_start_i+sizeof(short), num);
+  EEPROM.get(new_start_i+sizeof(uint16_t), num);
   curr_i = cur;
   stored_data_count = num;
 
   is_underflow = false;
-  actual_start_i = (new_start_i + (2*sizeof(short)));
+  actual_start_i = (new_start_i + (2*sizeof(uint16_t)));
   if (curr_i < actual_start_i) curr_i = actual_start_i;
 }
 
@@ -178,14 +178,14 @@ void Eeprom_indexes<T>::init() {
 }
 
 
-template <class T>
-T Eeprom_indexes<T>::get_ith_data(int x) {
+template <class T>//fixme gets the item from the back, define the get_ith_data
+T Eeprom_indexes<T>::get_ith_data_from_back(uint8_t x) {
   if (stored_data_count == 0) return T();
   if (x >= stored_data_count) x = stored_data_count - 1;
   if (x < 0) x = 0;
 
   T ret;
-  int read_i = curr_i;
+  uint8_t read_i = curr_i;
   read_i -= ((x+1)*sizeof(T));
   if (read_i < actual_start_i) {
     read_i += sizeof(T)*(int)((end_i - actual_start_i) / sizeof(T));
@@ -195,7 +195,21 @@ T Eeprom_indexes<T>::get_ith_data(int x) {
 }
 
 template <class T>
-void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
+T Eeprom_indexes<T>::get_ith_data(uint8_t x) {
+	T ret;
+	if (x < 0 || x > (int)((end_i-actual_start_i)/sizeof(T))) return T();
+	EEPROM.get(actual_start_i+(sizeof(T)*x), ret);
+	return ret;
+}
+
+template <class T>
+void Eeprom_indexes<T>::set_ith_data(uint8_t x, T data) {
+	if (x < 0 || x > (int)((end_i-actual_start_i)/sizeof(T))) return;
+	EEPROM.put(actual_start_i+(sizeof(T)*x), data);
+}
+
+template <class T>
+void Eeprom_indexes<T>::print_data(uint8_t x, int8_t is_udp) {
   int read_i = curr_i;
   if (stored_data_count == 0) {
     Serial.println("No data");
@@ -211,14 +225,14 @@ void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
   if (x > stored_data_count) x = stored_data_count;
   for (int i = 0; i < x; i++) {
     //getting the numbers from the bitwise
-    byte ret_year = get_ith_data(i).get_year();
-    byte ret_month = get_ith_data(i).get_month();
-    byte ret_day = get_ith_data(i).get_day();
-    byte ret_hour = get_ith_data(i).get_hour();
-    byte ret_minute = get_ith_data(i).get_minute();
-    byte ret_second = get_ith_data(i).get_second();
-    int8_t ret_temp = get_ith_data(i).get_temp();
-    byte ret_hum = get_ith_data(i).get_hum();
+    byte ret_year = get_ith_data_from_back(i).get_year();
+    byte ret_month = get_ith_data_from_back(i).get_month();
+    byte ret_day = get_ith_data_from_back(i).get_day();
+    byte ret_hour = get_ith_data_from_back(i).get_hour();
+    byte ret_minute = get_ith_data_from_back(i).get_minute();
+    byte ret_second = get_ith_data_from_back(i).get_second();
+    int8_t ret_temp = get_ith_data_from_back(i).get_temp();
+    byte ret_hum = get_ith_data_from_back(i).get_hum();
     //
 
 
@@ -283,6 +297,8 @@ void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
 
 
 extern Eeprom_indexes<Data_To_Store> rtc_dht_data_range;
+extern Eeprom_indexes<byte> ip_sub_gate;
+extern Eeprom_indexes<int8_t> temp_thresholds;
 
 
 #endif

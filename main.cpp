@@ -42,11 +42,18 @@ char ReplyBuffer[] = "acknowledged";        // a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
 int udp_packets_in_counter = 0, udp_packets_out_counter = 0;
+//can hold 12 bytes, for ip sub gateway
+Eeprom_indexes<byte> ip_sub_gate(0, 18);
+
+//can hold 4 int8_t for thresholds
+Eeprom_indexes<int8_t> temp_thresholds(20, 30);
 //end Ethernet declarations-------------------------------------------
 
 
 LiquidCrystal lcd(9, 7, 5, 4, 3, 2);
 byte curr_lcd_menu = LCD_HOME;
+
+
 
 void setup() {
   lcd.begin(16, 2);
@@ -73,7 +80,22 @@ void setup() {
 
 	pinMode(13, OUTPUT);
 
-	Serial.println(F("Enter commands or 'HELP'"));
+  Serial.println(F("Enter commands or 'HELP'"));
+
+  for (int i = 0; i < 12; i++) ip_sub_gate.set_ith_data(i, 2);
+  for (int i = 0; i < 4; i++) temp_thresholds.set_ith_data(i, 2);
+  Serial.println(F("-------------"));
+  for (int i = 0; i < 12; i++) {
+    Serial.print(ip_sub_gate.get_ith_data_from_back(i));
+    Serial.print(" ");
+  }
+  Serial.println(F("\n\r-------------"));
+
+  for (int i = 0; i < 4; i++) {
+    Serial.print(temp_thresholds.get_ith_data_from_back(i));
+    Serial.print(" ");
+  }
+  Serial.println(F("\n\r-------------"));
 
 }
 

@@ -27,15 +27,15 @@ void show_lcd_menu(byte x) {
       lcd.print(rtc_dht_data_range.get_stored_data_count());
       lcd.print(F(")"));
     } else if (x == LCD_HISTORY_IN) {
-      lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_month()); lcd.print("/");
-      lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_day()); lcd.print(" ");
-      lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_hour()); lcd.print(":");
-      lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_minute()); lcd.print(":");
-      lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_second());
+      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_month()); lcd.print("/");
+      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_day()); lcd.print(" ");
+      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_hour()); lcd.print(":");
+      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_minute()); lcd.print(":");
+      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_second());
       lcd.setCursor(0, 1);
-      lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_temp()); lcd.print("C (");
-      lcd.print(to_farenheit(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_temp())); lcd.print("F) ");
-      lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_hum()); lcd.print("%");
+      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_temp()); lcd.print("C (");
+      lcd.print(to_farenheit(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_temp())); lcd.print("F) ");
+      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_hum()); lcd.print("%");
     } else if (x == LCD_PACKETS) {
       lcd.print(F("Rx: "));
       lcd.print(udp_packets_in_counter);

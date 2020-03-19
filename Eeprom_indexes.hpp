@@ -2,20 +2,22 @@
 template <class T>
 class Eeprom_indexes {
 private:
-	int start_i;
-	int end_i;
-	int curr_i;
-	int stored_data_count;
-	int actual_start_i;
+	uint16_t start_i;
+	uint16_t end_i;
+	uint16_t curr_i;
+	uint16_t stored_data_count;
+	uint16_t actual_start_i;
 	bool is_underflow;
 public:
-	int get_start_i();
-	int get_end_i();
-	int get_curr_i();
-	int get_stored_data_count();
-	Eeprom_indexes<T>(int new_start_i, int new_end_i);
+	uint16_t get_start_i();
+	uint16_t get_end_i();
+	uint16_t get_curr_i();
+	uint16_t get_stored_data_count();
+	Eeprom_indexes<T>(uint16_t new_start_i, uint16_t new_end_i);
 	void store_data(T data_to_store);
-	void print_data(int x, int8_t is_udp);
-	T get_ith_data(int x);
+	void print_data(uint8_t x, int8_t is_udp);
+	T get_ith_data_from_back(uint8_t x);
+	T get_ith_data(uint8_t x);
+	void set_ith_data(uint8_t x, T data);
 	void init();
 };
