@@ -23,7 +23,9 @@ void show_lcd_menu(byte x) {
     } else if (x == LCD_HISTORY_OUT) {
       lcd.print(F("Temp humidity"));
       lcd.setCursor(0, 1);
-      lcd.print(F("history"));
+      lcd.print(F("history ("));
+      lcd.print(rtc_dht_data_range.get_stored_data_count());
+      lcd.print(F(")"));
     } else if (x == LCD_HISTORY_IN) {
       lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_month()); lcd.print("/");
       lcd.print(rtc_dht_data_range.get_ith_data(temp_history_ith_element).get_day()); lcd.print(" ");
@@ -41,16 +43,16 @@ void show_lcd_menu(byte x) {
       lcd.print(F("Tx: "));
       lcd.print(udp_packets_out_counter);
     } else if (x == LCD_SETTINGS_OUT) lcd.print(F("Settings"));
-    else if (x == LCD_HISTORY_IN) {
-      lcd.print(F("03/03/20 15:15"));
-      lcd.setCursor(0, 1);
-      lcd.print(F("03/03/20 15:15"));
-    } else if (x == LCD_SETTINGS_IP_OUT) lcd.print(F("Change IP"));
+    else if (x == LCD_SETTINGS_IP_OUT) lcd.print(F("Change IP"));
     else if (x == LCD_SETTINGS_SUB_OUT) lcd.print(F("Change subnet"));
     else if (x == LCD_SETTINGS_GATE_OUT) lcd.print(F("Change gateway"));
     else if (x == LCD_SETTINGS_THRESHOLD_OUT) lcd.print(F("Thresholds"));
     else if (x == LCD_SETTINGS_ERASE_OUT) lcd.print(F("Erase temp/hum"));
-
+    else if (x == LCD_SETTINGS_ERASE_IN) {
+      lcd.print(F("Erase? back(no)"));
+      lcd.setCursor(0, 1);
+      lcd.print(F("enter(yes)"));
+    }
   }
 }
 
@@ -61,6 +63,7 @@ void sw1func() {//left
     curr_lcd_menu ==  LCD_SETTINGS_GATE_OUT ||
     curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT ||
     curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
 }
 void sw2func() {//up
   //------------------------------------------------------
@@ -78,8 +81,7 @@ void sw2func() {//up
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
     temp_history_ith_element++;
-    if (temp_history_ith_element < 0) temp_history_ith_element = 0;
-    if (temp_history_ith_element > rtc_dht_data_range.get_stored_data_count()) temp_history_ith_element = rtc_dht_data_range.get_stored_data_count();
+    if (temp_history_ith_element >= rtc_dht_data_range.get_stored_data_count()) temp_history_ith_element = rtc_dht_data_range.get_stored_data_count() - 1;
     show_lcd_menu(LCD_HISTORY_IN);
   }
   //------------------------------------------------------
@@ -100,7 +102,7 @@ void sw3func() { // down
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
     temp_history_ith_element--;
-    if (temp_history_ith_element < 0) temp_history_ith_element = 0;
+    if (temp_history_ith_element < 1) temp_history_ith_element = 1;
     show_lcd_menu(LCD_HISTORY_IN);
   }
   //------------------------------------------------------
@@ -108,36 +110,47 @@ void sw3func() { // down
 void sw4func() {//right
   if (curr_lcd_menu == LCD_HISTORY_OUT) show_lcd_menu(LCD_HISTORY_IN);
   else if (curr_lcd_menu == LCD_SETTINGS_OUT) show_lcd_menu(LCD_SETTINGS_IP_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_ERASE_IN);
 }
 void sw5func() {//enter
   if (curr_lcd_menu == LCD_HISTORY_OUT) show_lcd_menu(LCD_HISTORY_IN);
   else if (curr_lcd_menu == LCD_SETTINGS_OUT) show_lcd_menu(LCD_SETTINGS_IP_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_ERASE_IN);
+  else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) {
+    rtc_dht_data_range.init();
+    show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
+  }
 }
 
 void five_button_read() {
   static unsigned long prev_time = 0;
+  static unsigned long prev_time_2 = 0;
+  const int hold_timeout = 300;
   static int val;
   static bool is_released;
-  if (millis() - prev_time > 10) {
+  if (millis() - prev_time > 20) {
     prev_time = millis();
     val = analogRead(FIVE_BUTTON_PIN);
     if (val > 1000) {
       is_released = true;
-    } else if (val > 700 && is_released) {
-      is_released = false;
-      sw5func();
-    } else if (val > 450 && is_released) {
-      is_released = false;
-      sw4func();
-    } else if (val > 300 && is_released) {
-      is_released = false;
-      sw3func();
-    } else if (val > 100 && is_released) {
-      is_released = false;
-      sw2func();
-    } else if (is_released) {
-      is_released = false;
-      sw1func();
+      prev_time_2 = millis();
+    } else if(is_released || millis() - prev_time_2 > hold_timeout) {
+      if (val > 700) {
+        is_released = false;
+        sw5func();
+      } else if (val > 450) {
+        is_released = false;
+        sw4func();
+      } else if (val > 300) {
+        is_released = false;
+        sw3func();
+      } else if (val > 100) {
+        is_released = false;
+        sw2func();
+      } else {
+        is_released = false;
+        sw1func();
+      }
     }
   }
 }

@@ -94,12 +94,12 @@ void Eeprom_indexes::init() {
 
 Data_To_Store Eeprom_indexes::get_ith_data(int x) {
   if (stored_data_count == 0) return Data_To_Store();
-  if (x > stored_data_count) x = stored_data_count;
+  if (x >= stored_data_count) x = stored_data_count - 1;
   if (x < 0) x = 0;
 
   Data_To_Store ret;
   int read_i = curr_i;
-  read_i -= (x*sizeof(Data_To_Store));
+  read_i -= ((x+1)*sizeof(Data_To_Store));
   if (read_i < actual_start_i) {
     read_i += sizeof(Data_To_Store)*(int)((end_i - actual_start_i) / sizeof(Data_To_Store));
   }

@@ -29,8 +29,8 @@
 #define RGB_DATA_PIN_LINK 6
 #define RGB_DATA_PIN_ALL 6
 
-#define dht_read_short_delay 5000
-#define dht_read_long_delay 5000//600000
+#define dht_read_short_delay 3000
+#define dht_read_long_delay 60000//600000
 
 
 #define remotePort 54211
