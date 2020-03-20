@@ -1,7 +1,7 @@
 #include "main.h"
 #define FIVE_BUTTON_PIN A3
 
-extern byte temp_history_ith_element;
+extern int temp_history_ith_element;
 extern int8_t temporaryint8_t1, temporaryint8_t2, temporaryint8_t3, temporaryint8_t4;
 extern byte temporarybyte1, temporarybyte2, temporarybyte3, temporarybyte4;
 extern byte cursor_loc;
@@ -41,7 +41,7 @@ void sw2func() {//up
   //------------------------------------------------------
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
-    if (temp_history_ith_element < rtc_dht_data_range.get_stored_data_count()-1) temp_history_ith_element++;
+    if (temp_history_ith_element > 0) temp_history_ith_element--;
     show_lcd_menu(LCD_HISTORY_IN);
   }
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
@@ -67,7 +67,7 @@ void sw3func() { // down
   //------------------------------------------------------
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
-    if (temp_history_ith_element > 0) temp_history_ith_element--;
+    if (temp_history_ith_element < rtc_dht_data_range.get_stored_data_count()-1) temp_history_ith_element++;
     show_lcd_menu(LCD_HISTORY_IN);
   }
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {

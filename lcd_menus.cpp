@@ -4,7 +4,7 @@ int8_t temporaryint8_t1, temporaryint8_t2, temporaryint8_t3, temporaryint8_t4;
 byte temporarybyte1, temporarybyte2, temporarybyte3, temporarybyte4;
 byte cursor_loc = 1;
 
-byte temp_history_ith_element;
+int temp_history_ith_element;
 void show_lcd_menu(byte x) {
   //fixme does not update the lcd
   static unsigned long prev_time;
@@ -50,7 +50,11 @@ void show_lcd_menu(byte x) {
     else if (x == LCD_SETTINGS_SUB_OUT) lcd.print(F("Change subnet"));
     else if (x == LCD_SETTINGS_GATE_OUT) lcd.print(F("Change gateway"));
     else if (x == LCD_SETTINGS_THRESHOLD_OUT) lcd.print(F("Thresholds"));
-    else if (x == LCD_SETTINGS_ERASE_OUT) lcd.print(F("Erase temp/hum"));
+    else if (x == LCD_SETTINGS_ERASE_OUT) {
+      lcd.print(F("Erase temp/hum"));
+      lcd.setCursor(0, 1);
+      lcd.print(F("history"));
+    }
     else if (x == LCD_SETTINGS_ERASE_IN) {
       lcd.print(F("Erase? back(no)"));
       lcd.setCursor(0, 1);
