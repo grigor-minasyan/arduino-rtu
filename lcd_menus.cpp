@@ -62,43 +62,14 @@ void show_lcd_menu(byte x) {
     } else if (x == LCD_SETTINGS_THRESHOLD_IN) {
       lcd.print(F("Enter to save"));
       lcd.setCursor(0, 1);
-      if (cursor_loc == 1) {
-        lcd.print(">");
-        lcd.print(temporaryint8_t1);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t2);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t3);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t4);
-      } else if (cursor_loc == 2) {
-        lcd.print(temporaryint8_t1);
-        lcd.print(" ");
-        lcd.print(">");
-        lcd.print(temporaryint8_t2);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t3);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t4);
-      } else if (cursor_loc == 3) {
-        lcd.print(temporaryint8_t1);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t2);
-        lcd.print(" ");
-        lcd.print(">");
-        lcd.print(temporaryint8_t3);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t4);
-      } else if (cursor_loc == 4) {
-        lcd.print(temporaryint8_t1);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t2);
-        lcd.print(" ");
-        lcd.print(temporaryint8_t3);
-        lcd.print(" ");
-        lcd.print(">");
-        lcd.print(temporaryint8_t4);
-      }
+      lcd.print((cursor_loc == 1 ? ">" : ""));
+      lcd.print(temporaryint8_t1);
+      lcd.print((cursor_loc == 2 ? " >" : " "));
+      lcd.print(temporaryint8_t2);
+      lcd.print((cursor_loc == 3 ? " >" : " "));
+      lcd.print(temporaryint8_t3);
+      lcd.print((cursor_loc == 4 ? " >" : " "));
+      lcd.print(temporaryint8_t4);
     }
   }
 }
