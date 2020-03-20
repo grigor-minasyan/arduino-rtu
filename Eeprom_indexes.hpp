@@ -16,8 +16,8 @@ public:
 	Eeprom_indexes<T>(uint16_t new_start_i, uint16_t new_end_i);
 	void store_data(T data_to_store);
 	void print_data(uint8_t x, int8_t is_udp);
-	T get_ith_data_from_back(uint8_t x);
-	T get_ith_data(uint8_t x);
-	void set_ith_data(uint8_t x, T data);
+	T get_ith_data_from_curr(uint8_t x);
+	T get_ith(uint8_t x);
+	void set_ith(uint8_t x, T data);
 	void init();
 };

@@ -4,21 +4,8 @@ int8_t to_farenheit(int8_t x)  {
 }
 
 //this keeps track of the data and does the storing in EEPROM
-
-Eeprom_indexes<Data_To_Store> rtc_dht_data_range(32, EEPROM.length()-1);
-// Eeprom_indexes rtc_dht_data_range(17, 60); // for testing purposes
-
-
-//x is the number of data to print
-void print_EEPROM_data(int x, int8_t is_udp) {
-  rtc_dht_data_range.print_data(x, is_udp);
-}
-
-
-//reset data
-void reset_EEPROM_data() {
-  rtc_dht_data_range.init();
-}
+Eeprom_indexes<Data_To_Store> rtc_dht_data_range(26, EEPROM.length()-1);
+// Eeprom_indexes rtc_dht_data_range(21, 60); // for testing purposes
 
 int8_t get_threshold(int8_t t) {
   if (t < temp_threshold_1) return 0;

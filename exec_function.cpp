@@ -105,8 +105,8 @@ void execute_commands(byte is_udp) {
 					Serial.println(F("%"));
 					break;
 				case M_SAVED:
-					if (arr[2] > 0) print_EEPROM_data(arr[2], is_udp);
-					else print_EEPROM_data(10, is_udp);//default printing lines
+					if (arr[2] > 0) rtc_dht_data_range.print_data(arr[2], is_udp);
+					else rtc_dht_data_range.print_data(10, is_udp);//default printing lines
 					break;
 				case M_EXTREME:
 					if (is_udp) {
@@ -156,7 +156,7 @@ void execute_commands(byte is_udp) {
 						udp_packets_out_counter++;
 					}
 					Serial.println(F("DHT reset"));
-					reset_EEPROM_data();
+					rtc_dht_data_range.init();
 					break;
 				default:
 					print_invalid_command(is_udp);

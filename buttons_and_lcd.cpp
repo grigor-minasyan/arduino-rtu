@@ -1,70 +1,31 @@
 #include "main.h"
 #define FIVE_BUTTON_PIN A3
 
-byte temp_history_ith_element;
-void show_lcd_menu(byte x) {
-  //fixme does not update the lcd
-  static unsigned long prev_time;
-  if (millis() - prev_time >= 500 || curr_lcd_menu != x) {
-    prev_time = millis();
-    curr_lcd_menu = x;
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    if (x == LCD_HOME) {
-      lcd.print(F("Temp:"));
-      lcd.print(cur_temp);
-      lcd.print(F("C("));
-      lcd.print(to_farenheit(cur_temp));
-      lcd.print(F("F)"));
-      lcd.setCursor(0, 1);
-      lcd.print(F("Humidity:"));
-      lcd.print(cur_humidity);
-      lcd.print(F("%"));
-    } else if (x == LCD_HISTORY_OUT) {
-      lcd.print(F("Temp humidity"));
-      lcd.setCursor(0, 1);
-      lcd.print(F("history ("));
-      lcd.print(rtc_dht_data_range.get_stored_data_count());
-      lcd.print(F(")"));
-    } else if (x == LCD_HISTORY_IN) {
-      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_month()); lcd.print("/");
-      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_day()); lcd.print(" ");
-      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_hour()); lcd.print(":");
-      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_minute()); lcd.print(":");
-      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_second());
-      lcd.setCursor(0, 1);
-      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_temp()); lcd.print("C (");
-      lcd.print(to_farenheit(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_temp())); lcd.print("F) ");
-      lcd.print(rtc_dht_data_range.get_ith_data_from_back(temp_history_ith_element).get_hum()); lcd.print("%");
-    } else if (x == LCD_PACKETS) {
-      lcd.print(F("Rx: "));
-      lcd.print(udp_packets_in_counter);
-      lcd.setCursor(0, 1);
-      lcd.print(F("Tx: "));
-      lcd.print(udp_packets_out_counter);
-    } else if (x == LCD_SETTINGS_OUT) lcd.print(F("Settings"));
-    else if (x == LCD_SETTINGS_IP_OUT) lcd.print(F("Change IP"));
-    else if (x == LCD_SETTINGS_SUB_OUT) lcd.print(F("Change subnet"));
-    else if (x == LCD_SETTINGS_GATE_OUT) lcd.print(F("Change gateway"));
-    else if (x == LCD_SETTINGS_THRESHOLD_OUT) lcd.print(F("Thresholds"));
-    else if (x == LCD_SETTINGS_ERASE_OUT) lcd.print(F("Erase temp/hum"));
-    else if (x == LCD_SETTINGS_ERASE_IN) {
-      lcd.print(F("Erase? back(no)"));
-      lcd.setCursor(0, 1);
-      lcd.print(F("enter(yes)"));
-    }
-  }
-}
+extern byte temp_history_ith_element;
+extern int8_t temporaryint8_t1, temporaryint8_t2, temporaryint8_t3, temporaryint8_t4;
+extern byte temporarybyte1, temporarybyte2, temporarybyte3, temporarybyte4;
+extern byte cursor_loc;
+
 
 void sw1func() {//left
   if (curr_lcd_menu == LCD_HISTORY_IN) show_lcd_menu(LCD_HISTORY_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_IP_OUT ||
-    curr_lcd_menu ==  LCD_SETTINGS_SUB_OUT ||
-    curr_lcd_menu ==  LCD_SETTINGS_GATE_OUT ||
-    curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT ||
-    curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_OUT);
+            curr_lcd_menu ==  LCD_SETTINGS_SUB_OUT ||
+            curr_lcd_menu ==  LCD_SETTINGS_GATE_OUT ||
+            curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT ||
+            curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
+    if (cursor_loc > 1) cursor_loc--;
+  };
 }
+
+void sw4func() {//right
+  if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
+    if (cursor_loc < 4) cursor_loc++;
+  };
+}
+
 void sw2func() {//up
   //------------------------------------------------------
   //main level 1 menu
@@ -83,6 +44,12 @@ void sw2func() {//up
     if (temp_history_ith_element < rtc_dht_data_range.get_stored_data_count()-1) temp_history_ith_element++;
     show_lcd_menu(LCD_HISTORY_IN);
   }
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
+    if (cursor_loc == 1 && temporaryint8_t1 < temporaryint8_t2-1) temporaryint8_t1++;
+    else if (cursor_loc == 2 && temporaryint8_t2 < temporaryint8_t3-1) temporaryint8_t2++;
+    else if (cursor_loc == 3 && temporaryint8_t3 < temporaryint8_t4-1) temporaryint8_t3++;
+    else if (cursor_loc == 4 && temporaryint8_t4 < 127) temporaryint8_t4++;
+  }
   //------------------------------------------------------
 }
 void sw3func() { // down
@@ -100,16 +67,16 @@ void sw3func() { // down
   //------------------------------------------------------
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
-
     if (temp_history_ith_element > 0) temp_history_ith_element--;
     show_lcd_menu(LCD_HISTORY_IN);
   }
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
+    if (cursor_loc == 1 && temporaryint8_t1 > -128) temporaryint8_t1--;
+    else if (cursor_loc == 2 && temporaryint8_t2 > temporaryint8_t1+1) temporaryint8_t2--;
+    else if (cursor_loc == 3 && temporaryint8_t3 > temporaryint8_t2+1) temporaryint8_t3--;
+    else if (cursor_loc == 4 && temporaryint8_t4 > temporaryint8_t3+1) temporaryint8_t4--;
+  }
   //------------------------------------------------------
-}
-void sw4func() {//right
-  if (curr_lcd_menu == LCD_HISTORY_OUT) show_lcd_menu(LCD_HISTORY_IN);
-  else if (curr_lcd_menu == LCD_SETTINGS_OUT) show_lcd_menu(LCD_SETTINGS_IP_OUT);
-  else if (curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_ERASE_IN);
 }
 void sw5func() {//enter
   if (curr_lcd_menu == LCD_HISTORY_OUT) show_lcd_menu(LCD_HISTORY_IN);
@@ -118,22 +85,41 @@ void sw5func() {//enter
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) {
     rtc_dht_data_range.init();
     show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
+  } else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT) {
+    temporaryint8_t1 = temp_threshold_1;
+    temporaryint8_t2 = temp_threshold_2;
+    temporaryint8_t3 = temp_threshold_3;
+    temporaryint8_t4 = temp_threshold_4;
+    cursor_loc = 1;
+    show_lcd_menu(LCD_SETTINGS_THRESHOLD_IN);
+  } else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
+    temp_threshold_1 = temporaryint8_t1;
+    temp_threshold_2 = temporaryint8_t2;
+    temp_threshold_3 = temporaryint8_t3;
+    temp_threshold_4 = temporaryint8_t4;
+    thresholds_config.set_ith(0, temp_threshold_1);
+    thresholds_config.set_ith(1, temp_threshold_2);
+    thresholds_config.set_ith(2, temp_threshold_3);
+    thresholds_config.set_ith(3, temp_threshold_4);
+    cursor_loc = 1;
+    show_lcd_menu(LCD_SETTINGS_THRESHOLD_OUT);
   }
 }
 
 void five_button_read() {
   static unsigned long prev_time = 0;
   static unsigned long prev_time_2 = 0;
-  const int hold_timeout = 300;
+  const int hold_timeout_1 = 100;
+  const int hold_timeout_2 = 400;
   static int val;
   static bool is_released;
-  if (millis() - prev_time > 20) {
+  if ((millis() - prev_time > 20 && is_released) || millis() - prev_time > hold_timeout_1) {
     prev_time = millis();
     val = analogRead(FIVE_BUTTON_PIN);
     if (val > 1000) {
       is_released = true;
       prev_time_2 = millis();
-    } else if(is_released || millis() - prev_time_2 > hold_timeout) {
+    } else if(is_released || millis() - prev_time_2 > hold_timeout_2) {
       if (val > 700 && val < 760) {
         is_released = false;
         sw5func();

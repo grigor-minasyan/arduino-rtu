@@ -49,8 +49,6 @@ extern void take_input();
 extern void take_input_udp();
 extern void execute_commands(byte is_udp);
 extern void read_temp_hum_loop();
-extern void print_EEPROM_data(int x, int8_t is_udp);
-extern void reset_EEPROM_data();
 extern int8_t to_farenheit(int8_t x);
 extern void blink_RGB();
 extern bool is_str_number(char command[], int &ret);
@@ -104,6 +102,8 @@ extern int8_t current_threshold;
 // The IP address will be dependent on your local network:
 extern byte mac[];
 extern IPAddress ip;
+extern IPAddress subnet;
+extern IPAddress gateway;
 extern IPAddress ip_remote;
 // local port to listen on
 // buffers for receiving and sending data
@@ -177,7 +177,7 @@ void Eeprom_indexes<T>::init() {
 
 
 template <class T>//fixme gets the item from the back, define the get_ith_data
-T Eeprom_indexes<T>::get_ith_data_from_back(uint8_t x) {
+T Eeprom_indexes<T>::get_ith_data_from_curr(uint8_t x) {
   if (stored_data_count == 0) return T();
   if (x >= stored_data_count) x = stored_data_count - 1;
   if (x < 0) x = 0;
@@ -193,7 +193,7 @@ T Eeprom_indexes<T>::get_ith_data_from_back(uint8_t x) {
 }
 
 template <class T>
-T Eeprom_indexes<T>::get_ith_data(uint8_t x) {
+T Eeprom_indexes<T>::get_ith(uint8_t x) {
 	T ret;
 	if (x < 0 || x > (int)((end_i-actual_start_i)/sizeof(T))) return T();
 	EEPROM.get(actual_start_i+(sizeof(T)*x), ret);
@@ -201,7 +201,7 @@ T Eeprom_indexes<T>::get_ith_data(uint8_t x) {
 }
 
 template <class T>
-void Eeprom_indexes<T>::set_ith_data(uint8_t x, T data) {
+void Eeprom_indexes<T>::set_ith(uint8_t x, T data) {
 	if (x < 0 || x > (int)((end_i-actual_start_i)/sizeof(T))) return;
 	EEPROM.put(actual_start_i+(sizeof(T)*x), data);
 }
@@ -223,14 +223,14 @@ void Eeprom_indexes<T>::print_data(uint8_t x, int8_t is_udp) {
   if (x > stored_data_count) x = stored_data_count;
   for (int i = 0; i < x; i++) {
     //getting the numbers from the bitwise
-    byte ret_year = get_ith_data_from_back(i).get_year();
-    byte ret_month = get_ith_data_from_back(i).get_month();
-    byte ret_day = get_ith_data_from_back(i).get_day();
-    byte ret_hour = get_ith_data_from_back(i).get_hour();
-    byte ret_minute = get_ith_data_from_back(i).get_minute();
-    byte ret_second = get_ith_data_from_back(i).get_second();
-    int8_t ret_temp = get_ith_data_from_back(i).get_temp();
-    byte ret_hum = get_ith_data_from_back(i).get_hum();
+    byte ret_year = get_ith_data_from_curr(i).get_year();
+    byte ret_month = get_ith_data_from_curr(i).get_month();
+    byte ret_day = get_ith_data_from_curr(i).get_day();
+    byte ret_hour = get_ith_data_from_curr(i).get_hour();
+    byte ret_minute = get_ith_data_from_curr(i).get_minute();
+    byte ret_second = get_ith_data_from_curr(i).get_second();
+    int8_t ret_temp = get_ith_data_from_curr(i).get_temp();
+    byte ret_hum = get_ith_data_from_curr(i).get_hum();
     //
 
 
@@ -295,8 +295,8 @@ void Eeprom_indexes<T>::print_data(uint8_t x, int8_t is_udp) {
 
 
 extern Eeprom_indexes<Data_To_Store> rtc_dht_data_range;
-extern Eeprom_indexes<byte> ip_sub_gate;
-extern Eeprom_indexes<int8_t> temp_thresholds;
+extern Eeprom_indexes<byte> ip_sub_gate_config;
+extern Eeprom_indexes<int8_t> thresholds_config;
 
 
 #endif

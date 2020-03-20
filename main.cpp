@@ -30,11 +30,12 @@ int8_t min_temp = INT8_MAX;
 int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
 int8_t current_threshold = 2;
-int8_t temp_threshold_1 = 16, temp_threshold_2 = 21, temp_threshold_3 = 27, temp_threshold_4 = 32;
+int8_t temp_threshold_1, temp_threshold_2, temp_threshold_3, temp_threshold_4;
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-IPAddress ip(192, 168, 1, 177);
+IPAddress ip, subnet, gateway;
+IPAddress dns(192, 168, 1, 1);
 IPAddress ip_remote(192, 168, 1, 111);   // local port to listen on
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
@@ -43,10 +44,12 @@ char ReplyBuffer[] = "acknowledged";        // a string to send back
 EthernetUDP Udp;
 int udp_packets_in_counter = 0, udp_packets_out_counter = 0;
 //can hold 12 bytes, for ip sub gateway
-Eeprom_indexes<byte> ip_sub_gate(0, 18);
+
+//holds bytes for ip(4 bytes), sub(4bytes), gateway(4 bytes) in this order
+Eeprom_indexes<byte> ip_sub_gate_config(0, 16);
+Eeprom_indexes<int8_t> thresholds_config(17, 25);
 
 //can hold 4 int8_t for thresholds
-Eeprom_indexes<int8_t> temp_thresholds(20, 30);
 //end Ethernet declarations-------------------------------------------
 
 
@@ -60,7 +63,12 @@ void setup() {
   show_lcd_menu(LCD_HOME);
 
 	Ethernet.init(10);
-	Ethernet.begin(mac, ip);
+  //getting the ip addresses from the eeprom
+  ip=IPAddress(ip_sub_gate_config.get_ith(0),ip_sub_gate_config.get_ith(1),ip_sub_gate_config.get_ith(2),ip_sub_gate_config.get_ith(3));
+  subnet=IPAddress(ip_sub_gate_config.get_ith(4),ip_sub_gate_config.get_ith(5),ip_sub_gate_config.get_ith(6),ip_sub_gate_config.get_ith(7));
+  gateway=IPAddress(ip_sub_gate_config.get_ith(8),ip_sub_gate_config.get_ith(9),ip_sub_gate_config.get_ith(10),ip_sub_gate_config.get_ith(11));
+
+	Ethernet.begin(mac, ip, dns, gateway, subnet);
 
 
 
@@ -82,25 +90,16 @@ void setup() {
 
   Serial.println(F("Enter commands or 'HELP'"));
 
-  for (int i = 0; i < 12; i++) ip_sub_gate.set_ith_data(i, 2);
-  for (int i = 0; i < 4; i++) temp_thresholds.set_ith_data(i, 2);
-  Serial.println(F("-------------"));
-  for (int i = 0; i < 12; i++) {
-    Serial.print(ip_sub_gate.get_ith_data_from_back(i));
-    Serial.print(" ");
-  }
-  Serial.println(F("\n\r-------------"));
-
-  for (int i = 0; i < 4; i++) {
-    Serial.print(temp_thresholds.get_ith_data_from_back(i));
-    Serial.print(" ");
-  }
-  Serial.println(F("\n\r-------------"));
-
+  //getting the temperature thresholds from the eeprom
+  temp_threshold_1 = thresholds_config.get_ith(0);
+  temp_threshold_2 = thresholds_config.get_ith(1);
+  temp_threshold_3 = thresholds_config.get_ith(2);
+  temp_threshold_4 = thresholds_config.get_ith(3);
 }
 
 void loop() {
 	read_temp_hum_loop();
+
 	five_button_read();
   show_lcd_menu(curr_lcd_menu);
 
