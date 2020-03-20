@@ -80,8 +80,7 @@ void sw2func() {//up
   //------------------------------------------------------
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
-    temp_history_ith_element++;
-    if (temp_history_ith_element >= rtc_dht_data_range.get_stored_data_count()) temp_history_ith_element = rtc_dht_data_range.get_stored_data_count() - 1;
+    if (temp_history_ith_element < rtc_dht_data_range.get_stored_data_count()-1) temp_history_ith_element++;
     show_lcd_menu(LCD_HISTORY_IN);
   }
   //------------------------------------------------------
@@ -101,8 +100,8 @@ void sw3func() { // down
   //------------------------------------------------------
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
-    temp_history_ith_element--;
-    if (temp_history_ith_element < 1) temp_history_ith_element = 1;
+
+    if (temp_history_ith_element > 0) temp_history_ith_element--;
     show_lcd_menu(LCD_HISTORY_IN);
   }
   //------------------------------------------------------

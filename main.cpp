@@ -4,7 +4,7 @@ SimpleDHT22 dht22(PINDHT22);
 int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
 
-Adafruit_NeoPixel leds_all(NUM_LEDS, RGB_DATA_PIN_LINK, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel leds_all(NUM_LEDS, RGB_DATA_PIN_ALL, NEO_GRB + NEO_KHZ800);
 
 uint32_t color_maj_und = 0x800080;//purple
 uint32_t color_min_und = 0x000080;//blue
@@ -50,7 +50,7 @@ Eeprom_indexes<int8_t> temp_thresholds(20, 30);
 //end Ethernet declarations-------------------------------------------
 
 
-LiquidCrystal lcd(9, 7, 5, 4, 3, 2);
+LiquidCrystal lcd(6, 7, 5, 4, 3, 2);
 byte curr_lcd_menu = LCD_HOME;
 
 

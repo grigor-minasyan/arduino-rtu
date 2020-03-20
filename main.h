@@ -27,12 +27,10 @@
 #define PINDHT22 8
 #define NUM_LEDS 2
 
-#define RGB_DATA_PIN_TEMP 7
-#define RGB_DATA_PIN_LINK 6
-#define RGB_DATA_PIN_ALL 6
+#define RGB_DATA_PIN_ALL 9
 
 #define dht_read_short_delay 3000
-#define dht_read_long_delay 60000//600000
+#define dht_read_long_delay 30000//600000
 
 
 #define remotePort 54211
