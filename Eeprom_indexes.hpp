@@ -7,7 +7,7 @@ private:
 	int curr_i;
 	int stored_data_count;
 	int actual_start_i;
-	bool is_underflow;
+	byte is_underflow;
 public:
 	int get_start_i();
 	int get_end_i();

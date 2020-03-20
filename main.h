@@ -30,7 +30,7 @@
 #define RGB_DATA_PIN_ALL 9
 
 #define dht_read_short_delay 3000
-#define dht_read_long_delay 30000//600000
+#define dht_read_long_delay 60000//600000
 
 
 #define remotePort 54211
@@ -138,14 +138,16 @@ Eeprom_indexes<T>::Eeprom_indexes(int new_start_i, int new_end_i) {
   start_i = new_start_i;
   end_i = new_end_i;
   int cur, num;
+	byte is_underflow_ret;
   //get current index and the count of data points
   EEPROM.get(new_start_i, cur);
   EEPROM.get(new_start_i+sizeof(int), num);
+  EEPROM.get(new_start_i+2*sizeof(int), is_underflow_ret);
   curr_i = cur;
   stored_data_count = num;
+	is_underflow = is_underflow_ret;
 
-  is_underflow = false;
-  actual_start_i = (new_start_i + (2*sizeof(int)));
+  actual_start_i = (new_start_i + (2*sizeof(int) + sizeof(byte)));
   if (curr_i < actual_start_i) curr_i = actual_start_i;
 }
 
@@ -161,10 +163,11 @@ void Eeprom_indexes<T>::store_data(T data_to_store) {
 
   if (curr_i > (end_i - sizeof(T))) {
     curr_i = actual_start_i;
-    is_underflow = true;
+    is_underflow = 1;
   }
   EEPROM.put(start_i, curr_i);
   EEPROM.put(start_i+sizeof(int), stored_data_count);
+  EEPROM.put(start_i+2*sizeof(int), is_underflow);
 }
 
 template <class T>
@@ -172,7 +175,7 @@ void Eeprom_indexes<T>::init() {
   //initialize the class
   curr_i = actual_start_i;
   stored_data_count = 0;
-  is_underflow = false;
+  is_underflow = 0;
 }
 
 

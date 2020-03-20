@@ -46,8 +46,8 @@ int udp_packets_in_counter = 0, udp_packets_out_counter = 0;
 //can hold 12 bytes, for ip sub gateway
 
 //holds bytes for ip(4 bytes), sub(4bytes), gateway(4 bytes) in this order
-Eeprom_indexes<byte> ip_sub_gate_config(0, 16);
-Eeprom_indexes<int8_t> thresholds_config(17, 25);
+Eeprom_indexes<byte> ip_sub_gate_config(0, 17);
+Eeprom_indexes<int8_t> thresholds_config(18, 27);
 
 //can hold 4 int8_t for thresholds
 //end Ethernet declarations-------------------------------------------
