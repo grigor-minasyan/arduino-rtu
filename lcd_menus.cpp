@@ -1,8 +1,8 @@
 #include "main.h"
 
-int8_t temporaryint8_t1, temporaryint8_t2, temporaryint8_t3, temporaryint8_t4;
-byte temporarybyte1, temporarybyte2, temporarybyte3, temporarybyte4;
-byte cursor_loc = 1;
+byte temp_bytes[4];
+int8_t temp_int8_t[4];
+byte cursor_loc = 0;
 
 int temp_history_ith_element;
 void show_lcd_menu(byte x) {
@@ -49,7 +49,7 @@ void show_lcd_menu(byte x) {
     else if (x == LCD_SETTINGS_IP_OUT) lcd.print(F("Change IP"));
     else if (x == LCD_SETTINGS_SUB_OUT) lcd.print(F("Change subnet"));
     else if (x == LCD_SETTINGS_GATE_OUT) lcd.print(F("Change gateway"));
-    else if (x == LCD_SETTINGS_THRESHOLD_OUT) lcd.print(F("Thresholds"));
+    else if (x == LCD_SETTINGS_THRESHOLD_OUT) lcd.print(F("Thresholds(in C)"));
     else if (x == LCD_SETTINGS_ERASE_OUT) {
       lcd.print(F("Erase temp/hum"));
       lcd.setCursor(0, 1);
@@ -59,17 +59,13 @@ void show_lcd_menu(byte x) {
       lcd.print(F("Erase? back(no)"));
       lcd.setCursor(0, 1);
       lcd.print(F("enter(yes)"));
-    } else if (x == LCD_SETTINGS_THRESHOLD_IN) {
+    } else if (x == LCD_SETTINGS_THRESHOLD_IN || x == LCD_SETTINGS_IP_IN || x == LCD_SETTINGS_SUB_IN || x == LCD_SETTINGS_GATE_IN) {
       lcd.print(F("Enter to save"));
       lcd.setCursor(0, 1);
-      lcd.print((cursor_loc == 1 ? ">" : ""));
-      lcd.print(temporaryint8_t1);
-      lcd.print((cursor_loc == 2 ? " >" : " "));
-      lcd.print(temporaryint8_t2);
-      lcd.print((cursor_loc == 3 ? " >" : " "));
-      lcd.print(temporaryint8_t3);
-      lcd.print((cursor_loc == 4 ? " >" : " "));
-      lcd.print(temporaryint8_t4);
+      for (byte i = 0; i < 4; i++) {
+        lcd.print((cursor_loc == i ? ">" : " "));
+        lcd.print((x == LCD_SETTINGS_THRESHOLD_IN ? temp_int8_t[i] : temp_bytes[i]));
+      }
     }
   }
 }

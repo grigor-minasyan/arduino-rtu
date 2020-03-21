@@ -36,13 +36,21 @@
 #define remotePort 54211
 #define localPort 8888
 
+//-------------------------------
+//lcd pins
+#define RS 6
+#define EN 7
+#define D4 5
+#define D5 4
+#define D6 3
+#define D7 2
+//-------------------------------
 
 extern Adafruit_NeoPixel leds_all;
 
 extern uint32_t color_maj_und, color_min_und, color_comfortable, color_min_ovr, color_maj_ovr;
 
-
-extern int8_t temp_threshold_1, temp_threshold_2, temp_threshold_3, temp_threshold_4;
+extern int8_t temp_threshold__arr[4];
 
 extern void five_button_read();
 extern void take_input();

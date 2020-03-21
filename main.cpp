@@ -30,7 +30,7 @@ int8_t min_temp = INT8_MAX;
 int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
 int8_t current_threshold = 2;
-int8_t temp_threshold_1, temp_threshold_2, temp_threshold_3, temp_threshold_4;
+int8_t temp_threshold__arr[4];
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
@@ -53,7 +53,7 @@ Eeprom_indexes<int8_t> thresholds_config(18, 27);
 //end Ethernet declarations-------------------------------------------
 
 
-LiquidCrystal lcd(6, 7, 5, 4, 3, 2);
+LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 byte curr_lcd_menu = LCD_HOME;
 
 
@@ -63,6 +63,20 @@ void setup() {
   show_lcd_menu(LCD_HOME);
 
 	Ethernet.init(10);
+
+  //setting up dumy addresses
+  // ip_sub_gate_config.set_ith(0, 192);
+  // ip_sub_gate_config.set_ith(1, 168);
+  // ip_sub_gate_config.set_ith(2, 1);
+  // ip_sub_gate_config.set_ith(3, 177);
+  // ip_sub_gate_config.set_ith(4, 255);
+  // ip_sub_gate_config.set_ith(5, 255);
+  // ip_sub_gate_config.set_ith(6, 255);
+  // ip_sub_gate_config.set_ith(7, 0);
+  // ip_sub_gate_config.set_ith(8, 192);
+  // ip_sub_gate_config.set_ith(9, 168);
+  // ip_sub_gate_config.set_ith(10, 1);
+  // ip_sub_gate_config.set_ith(11, 1);
   //getting the ip addresses from the eeprom
   ip=IPAddress(ip_sub_gate_config.get_ith(0),ip_sub_gate_config.get_ith(1),ip_sub_gate_config.get_ith(2),ip_sub_gate_config.get_ith(3));
   subnet=IPAddress(ip_sub_gate_config.get_ith(4),ip_sub_gate_config.get_ith(5),ip_sub_gate_config.get_ith(6),ip_sub_gate_config.get_ith(7));
@@ -88,13 +102,37 @@ void setup() {
 
 	pinMode(13, OUTPUT);
 
-  Serial.println(F("Enter commands or 'HELP'"));
 
+  //setting up dummy addresses
+  // for (byte i = 0; i < 4; i++) thresholds_config.set_ith(i, 10+i);
   //getting the temperature thresholds from the eeprom
-  temp_threshold_1 = thresholds_config.get_ith(0);
-  temp_threshold_2 = thresholds_config.get_ith(1);
-  temp_threshold_3 = thresholds_config.get_ith(2);
-  temp_threshold_4 = thresholds_config.get_ith(3);
+  for (byte i = 0; i < 4; i++) temp_threshold__arr[i] = thresholds_config.get_ith(i);
+
+  Serial.println(F("Current addresses and thresholds"));
+  Serial.print(F("IP:\t\t"));
+  for (byte i = 0; i < 4; i++) {
+    Serial.print(ip_sub_gate_config.get_ith(i));
+    Serial.print((i < 3 ? "." : "\n\r"));
+  }
+  Serial.print(F("Subnet:\t\t"));
+  for (byte i = 0; i < 4; i++) {
+    Serial.print(ip_sub_gate_config.get_ith(i+4));
+    Serial.print((i < 3 ? "." : "\n\r"));
+  }
+  Serial.print(F("Gateway:\t"));
+  for (byte i = 0; i < 4; i++) {
+    Serial.print(ip_sub_gate_config.get_ith(i+8));
+    Serial.print((i < 3 ? "." : "\n\r"));
+  }
+
+  Serial.print(F("Thresholds:\t"));
+  for (byte i = 0; i < 4; i++) {
+    Serial.print(thresholds_config.get_ith(i));
+    Serial.print(" ");
+  }
+
+
+  Serial.println(F("\n\rEnter commands or 'HELP'"));
 }
 
 void loop() {

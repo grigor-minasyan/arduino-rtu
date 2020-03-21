@@ -2,8 +2,8 @@
 #define FIVE_BUTTON_PIN A3
 
 extern int temp_history_ith_element;
-extern int8_t temporaryint8_t1, temporaryint8_t2, temporaryint8_t3, temporaryint8_t4;
-extern byte temporarybyte1, temporarybyte2, temporarybyte3, temporarybyte4;
+extern int8_t temp_int8_t[4];
+extern byte temp_bytes[4];
 extern byte cursor_loc;
 
 
@@ -15,14 +15,14 @@ void sw1func() {//left
             curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT ||
             curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
-  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
-    if (cursor_loc > 1) cursor_loc--;
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN || curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
+    if (cursor_loc > 0) cursor_loc--;
   };
 }
 
 void sw4func() {//right
-  if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
-    if (cursor_loc < 4) cursor_loc++;
+  if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN || curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
+    if (cursor_loc < 3) cursor_loc++;
   };
 }
 
@@ -44,11 +44,11 @@ void sw2func() {//up
     if (temp_history_ith_element > 0) temp_history_ith_element--;
     show_lcd_menu(LCD_HISTORY_IN);
   }
-  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
-    if (cursor_loc == 1 && temporaryint8_t1 < temporaryint8_t2-1) temporaryint8_t1++;
-    else if (cursor_loc == 2 && temporaryint8_t2 < temporaryint8_t3-1) temporaryint8_t2++;
-    else if (cursor_loc == 3 && temporaryint8_t3 < temporaryint8_t4-1) temporaryint8_t3++;
-    else if (cursor_loc == 4 && temporaryint8_t4 < 127) temporaryint8_t4++;
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN && cursor_loc >= 0 && cursor_loc <= 3) {
+    if (cursor_loc == 3 && temp_int8_t[3] < 127) temp_int8_t[3]++;
+    else if (temp_int8_t[cursor_loc] < temp_int8_t[cursor_loc+1]-1) temp_int8_t[cursor_loc]++;
+  } else if ((curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) && cursor_loc >= 0 && cursor_loc <= 3) {
+    if (temp_bytes[cursor_loc] < 255) temp_bytes[cursor_loc]++;
   }
   //------------------------------------------------------
 }
@@ -70,11 +70,11 @@ void sw3func() { // down
     if (temp_history_ith_element < rtc_dht_data_range.get_stored_data_count()-1) temp_history_ith_element++;
     show_lcd_menu(LCD_HISTORY_IN);
   }
-  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
-    if (cursor_loc == 1 && temporaryint8_t1 > -128) temporaryint8_t1--;
-    else if (cursor_loc == 2 && temporaryint8_t2 > temporaryint8_t1+1) temporaryint8_t2--;
-    else if (cursor_loc == 3 && temporaryint8_t3 > temporaryint8_t2+1) temporaryint8_t3--;
-    else if (cursor_loc == 4 && temporaryint8_t4 > temporaryint8_t3+1) temporaryint8_t4--;
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN && cursor_loc >= 0 && cursor_loc <= 3) {
+    if (cursor_loc == 0 && temp_int8_t[0] > -128) temp_int8_t[0]--;
+    else if (temp_int8_t[cursor_loc] > temp_int8_t[cursor_loc-1]+1) temp_int8_t[cursor_loc]--;
+  } else if ((curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) && cursor_loc >= 0 && cursor_loc <= 3) {
+    if (temp_bytes[cursor_loc] > 0) temp_bytes[cursor_loc]--;
   }
   //------------------------------------------------------
 }
@@ -86,23 +86,47 @@ void sw5func() {//enter
     rtc_dht_data_range.init();
     show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
   } else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT) {
-    temporaryint8_t1 = temp_threshold_1;
-    temporaryint8_t2 = temp_threshold_2;
-    temporaryint8_t3 = temp_threshold_3;
-    temporaryint8_t4 = temp_threshold_4;
-    cursor_loc = 1;
+    for (byte i = 0; i < 4; i++) temp_int8_t[i] = temp_threshold__arr[i];
+    cursor_loc = 0;
     show_lcd_menu(LCD_SETTINGS_THRESHOLD_IN);
   } else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
-    temp_threshold_1 = temporaryint8_t1;
-    temp_threshold_2 = temporaryint8_t2;
-    temp_threshold_3 = temporaryint8_t3;
-    temp_threshold_4 = temporaryint8_t4;
-    thresholds_config.set_ith(0, temp_threshold_1);
-    thresholds_config.set_ith(1, temp_threshold_2);
-    thresholds_config.set_ith(2, temp_threshold_3);
-    thresholds_config.set_ith(3, temp_threshold_4);
-    cursor_loc = 1;
+    for (byte i = 0; i < 4; i++) {
+      temp_threshold__arr[i] = temp_int8_t[i];
+      thresholds_config.set_ith(i, temp_threshold__arr[i]);
+    }
+    cursor_loc = 0;
     show_lcd_menu(LCD_SETTINGS_THRESHOLD_OUT);
+  }
+  //entering ip subnet or gateway
+  else if (curr_lcd_menu == LCD_SETTINGS_IP_OUT) {
+    for (byte i = 0; i < 4; i++) temp_bytes[i] = ip[i];
+    cursor_loc = 0;
+    show_lcd_menu(LCD_SETTINGS_IP_IN);
+  } else if (curr_lcd_menu == LCD_SETTINGS_SUB_OUT) {
+    for (byte i = 0; i < 4; i++) temp_bytes[i] = subnet[i];
+    cursor_loc = 0;
+    show_lcd_menu(LCD_SETTINGS_SUB_IN);
+  } else if (curr_lcd_menu == LCD_SETTINGS_GATE_OUT) {
+    for (byte i = 0; i < 4; i++) temp_bytes[i] = gateway[i];
+    cursor_loc = 0;
+    show_lcd_menu(LCD_SETTINGS_GATE_IN);
+  }
+  //saving the ip subnet or gateway
+   else if (curr_lcd_menu == LCD_SETTINGS_IP_IN) {
+    for (byte i = 0; i < 4; i++) ip_sub_gate_config.set_ith(i, temp_bytes[i]);
+    ip = IPAddress(temp_bytes[0], temp_bytes[1], temp_bytes[2], temp_bytes[3]);
+    cursor_loc = 0;
+    show_lcd_menu(LCD_SETTINGS_IP_OUT);
+  } else if (curr_lcd_menu == LCD_SETTINGS_SUB_IN) {
+    for (byte i = 0; i < 4; i++) ip_sub_gate_config.set_ith(i+4, temp_bytes[i]);
+    subnet = IPAddress(temp_bytes[0], temp_bytes[1], temp_bytes[2], temp_bytes[3]);
+    cursor_loc = 0;
+    show_lcd_menu(LCD_SETTINGS_SUB_OUT);
+  } else if (curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
+    for (byte i = 0; i < 4; i++) ip_sub_gate_config.set_ith(i+8, temp_bytes[i]);
+    gateway = IPAddress(temp_bytes[0], temp_bytes[1], temp_bytes[2], temp_bytes[3]);
+    cursor_loc = 0;
+    show_lcd_menu(LCD_SETTINGS_GATE_OUT);
   }
 }
 

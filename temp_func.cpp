@@ -8,10 +8,10 @@ Eeprom_indexes<Data_To_Store> rtc_dht_data_range(28, EEPROM.length()-1);
 // Eeprom_indexes rtc_dht_data_range(21, 60); // for testing purposes
 
 int8_t get_threshold(int8_t t) {
-  if (t < temp_threshold_1) return 0;
-  if (t < temp_threshold_2) return 1;
-  if (t < temp_threshold_3) return 2;
-  if (t < temp_threshold_4) return 3;
+  if (t < temp_threshold__arr[0]) return 0;
+  if (t < temp_threshold__arr[1]) return 1;
+  if (t < temp_threshold__arr[2]) return 2;
+  if (t < temp_threshold__arr[3]) return 3;
   return 4;
 }
 
