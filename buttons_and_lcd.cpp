@@ -7,7 +7,7 @@ extern byte temp_bytes[4];
 extern byte cursor_loc;
 
 
-void sw1func() {//left
+void sw4func() {//left
   if (curr_lcd_menu == LCD_HISTORY_IN) show_lcd_menu(LCD_HISTORY_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_IP_OUT ||
             curr_lcd_menu ==  LCD_SETTINGS_SUB_OUT ||
@@ -20,13 +20,13 @@ void sw1func() {//left
   };
 }
 
-void sw4func() {//right
+void sw1func() {//right
   if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN || curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
     if (cursor_loc < 3) cursor_loc++;
   };
 }
 
-void sw2func() {//up
+void sw3func() {//up
   //------------------------------------------------------
   //main level 1 menu
   if (curr_lcd_menu == LCD_SETTINGS_OUT) show_lcd_menu(LCD_PACKETS);
@@ -52,7 +52,7 @@ void sw2func() {//up
   }
   //------------------------------------------------------
 }
-void sw3func() { // down
+void sw2func() { // down
   //------------------------------------------------------
   //main level 1 menu
   if (curr_lcd_menu == LCD_HOME) show_lcd_menu(LCD_HISTORY_OUT);
