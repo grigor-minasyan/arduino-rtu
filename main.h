@@ -173,6 +173,9 @@ void Eeprom_indexes<T>::init() {
   curr_i = actual_start_i;
   stored_data_count = 0;
   is_underflow = 0;
+  EEPROM.put(start_i, curr_i);
+  EEPROM.put(start_i+sizeof(int), stored_data_count);
+  EEPROM.put(start_i+2*sizeof(int), is_underflow);
 }
 
 template <class T>
