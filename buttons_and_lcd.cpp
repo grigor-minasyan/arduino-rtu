@@ -6,6 +6,11 @@ extern int8_t temp_int8_t[4];
 extern byte temp_bytes[4];
 extern byte cursor_loc;
 
+void sw1func();
+void sw2func();
+void sw3func();
+void sw4func();
+void sw5func();
 
 void sw4func() {//left
   if (curr_lcd_menu == LCD_HISTORY_IN) show_lcd_menu(LCD_HISTORY_OUT);
@@ -17,13 +22,13 @@ void sw4func() {//left
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN || curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
     if (cursor_loc > 0) cursor_loc--;
-  };
+  }
 }
 
 void sw1func() {//right
   if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN || curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
     if (cursor_loc < 3) cursor_loc++;
-  };
+  } else sw5func(); // act like the enter key
 }
 
 void sw3func() {//up

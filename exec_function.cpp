@@ -2,7 +2,9 @@
 
 //function to send an invalid command update to UDP and serial
 void print_invalid_command(byte is_udp) {
-	Serial.println(F("Invalid command, type HELP"));
+	if constexpr (SERIAL_ENABLE) {
+		Serial.println(F("Invalid command, type HELP"));
+	}
 	if (is_udp) {
 		Udp.beginPacket(ip_remote, remotePort);
 		Udp.write("Invalid command");
@@ -12,11 +14,14 @@ void print_invalid_command(byte is_udp) {
 }
 
 void execute_commands(byte is_udp) {
-	Serial.println();
-
+	if constexpr (SERIAL_ENABLE) {
+		Serial.println();
+	}
 
 	if (is_udp) {
-		Serial.println(F("Executing command from UDP."));
+		if constexpr (SERIAL_ENABLE) {
+			Serial.println(F("Executing command from UDP."));
+		}
 	}
 
 	switch (arr[0]) {
@@ -27,8 +32,10 @@ void execute_commands(byte is_udp) {
 				Udp.endPacket();
 				udp_packets_out_counter++;
 			}
-			Serial.print(F("Version: "));
-			Serial.println(CUR_VERSION);
+			if constexpr (SERIAL_ENABLE) {
+				Serial.print(F("Version: "));
+				Serial.println(CUR_VERSION);
+			}
 			break;
 		case M_HELP:
 			if (is_udp) {
@@ -37,12 +44,16 @@ void execute_commands(byte is_udp) {
 				Udp.endPacket();
 	      udp_packets_out_counter++;
 			}
-			Serial.print(F("├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r└── VERSION\n\r"));
+			if constexpr (SERIAL_ENABLE) {
+				Serial.print(F("├── DHT (temperature and humidity sensors)\n\r│   ├── CURRENT\n\r│   ├── EXTREME\n\r│   ├── SAVED X (X is optional, how many data points to print)\n\r│   └── RESET\n\r├── RTC (time clock)\n\r│   ├── READ\n\r│   └── WRITE\n\r└── VERSION\n\r"));
+			}
 			break;
 		case M_RTC:
 			switch (arr[1]) {
 				case M_WRITE:
-					if (!is_udp) Clock.promptForTimeAndDate(Serial);
+					if constexpr (SERIAL_ENABLE) {
+						if (!is_udp) Clock.promptForTimeAndDate(Serial);
+					}
 					else print_invalid_command(is_udp);
 					break;
 				case M_READ:
@@ -69,10 +80,12 @@ void execute_commands(byte is_udp) {
 						Udp.endPacket();
 			      udp_packets_out_counter++;
 					}
-					Clock.printDateTo_YMD(Serial);
-					Serial.print(' ');
-					Clock.printTimeTo_HMS(Serial);
-					Serial.println();
+					if constexpr (SERIAL_ENABLE) {
+						Clock.printDateTo_YMD(Serial);
+						Serial.print(' ');
+						Clock.printTimeTo_HMS(Serial);
+						Serial.println();
+					}
 					break;
 				default:
 					print_invalid_command(is_udp);
@@ -96,13 +109,15 @@ void execute_commands(byte is_udp) {
 						Udp.endPacket();
 			      udp_packets_out_counter++;
 					}
-					Serial.print(F("Current temp / humidity is "));
-					Serial.print(cur_temp);
-					Serial.print(F("C ("));
-					Serial.print(to_farenheit(cur_temp));
-					Serial.print(F("F), "));
-					Serial.print(cur_humidity);
-					Serial.println(F("%"));
+					if constexpr (SERIAL_ENABLE) {
+						Serial.print(F("Current temp / humidity is "));
+						Serial.print(cur_temp);
+						Serial.print(F("C ("));
+						Serial.print(to_farenheit(cur_temp));
+						Serial.print(F("F), "));
+						Serial.print(cur_humidity);
+						Serial.println(F("%"));
+					}
 					break;
 				case M_SAVED:
 					if (arr[2] > 0) rtc_dht_data_range.print_data(arr[2], is_udp);
@@ -134,19 +149,21 @@ void execute_commands(byte is_udp) {
 						Udp.endPacket();
 			      udp_packets_out_counter++;
 					}
-					Serial.print(F("Maximum recorded temp / humidity is "));
-					Serial.print(max_temp);
-					Serial.print(F("C ("));
-					Serial.print(to_farenheit(max_temp));
-					Serial.print(F("F), "));
-					Serial.print(max_humidity);
-					Serial.print(F("%\n\rMinimum recorded temp / humidity is "));
-					Serial.print(min_temp);
-					Serial.print(F("C ("));
-					Serial.print(to_farenheit(min_temp));
-					Serial.print(F("F), "));
-					Serial.print(min_humidity);
-					Serial.println(F("%"));
+					if constexpr (SERIAL_ENABLE) {
+						Serial.print(F("Maximum recorded temp / humidity is "));
+						Serial.print(max_temp);
+						Serial.print(F("C ("));
+						Serial.print(to_farenheit(max_temp));
+						Serial.print(F("F), "));
+						Serial.print(max_humidity);
+						Serial.print(F("%\n\rMinimum recorded temp / humidity is "));
+						Serial.print(min_temp);
+						Serial.print(F("C ("));
+						Serial.print(to_farenheit(min_temp));
+						Serial.print(F("F), "));
+						Serial.print(min_humidity);
+						Serial.println(F("%"));
+					}
 					break;
 				case M_RESET:
 					if (is_udp) {
@@ -155,7 +172,9 @@ void execute_commands(byte is_udp) {
 						Udp.endPacket();
 						udp_packets_out_counter++;
 					}
-					Serial.println(F("DHT reset"));
+					if constexpr (SERIAL_ENABLE) {
+						Serial.println(F("DHT reset"));
+					}
 					rtc_dht_data_range.init();
 					break;
 				default:

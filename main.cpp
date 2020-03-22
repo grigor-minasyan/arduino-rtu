@@ -31,6 +31,8 @@ int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
 int8_t current_threshold = 2;
 int8_t temp_threshold__arr[4];
+
+
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
@@ -52,17 +54,12 @@ Eeprom_indexes<int8_t> thresholds_config(18, 27);
 //can hold 4 int8_t for thresholds
 //end Ethernet declarations-------------------------------------------
 
-
 LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 byte curr_lcd_menu = LCD_HOME;
-
-
 
 void setup() {
   lcd.begin(16, 2);
   show_lcd_menu(LCD_HOME);
-
-	Ethernet.init(10);
 
   //setting up dumy addresses
   // ip_sub_gate_config.set_ith(0, 192);
@@ -82,17 +79,15 @@ void setup() {
   subnet=IPAddress(ip_sub_gate_config.get_ith(4),ip_sub_gate_config.get_ith(5),ip_sub_gate_config.get_ith(6),ip_sub_gate_config.get_ith(7));
   gateway=IPAddress(ip_sub_gate_config.get_ith(8),ip_sub_gate_config.get_ith(9),ip_sub_gate_config.get_ith(10),ip_sub_gate_config.get_ith(11));
 
+	Ethernet.init(10);
 	Ethernet.begin(mac, ip, dns, gateway, subnet);
 
+  if constexpr (SERIAL_ENABLE) {
+  	Serial.begin(BAUD_RATE);
+  	while (!Serial) {;}// wait for serial port to connect. Needed for native USB port only
+  }
 
-
-	Serial.begin(BAUD_RATE);
-	 // wait for serial port to connect. Needed for native USB port only
-	while (!Serial) {;}
-	// Check for Ethernet hardware present
   Udp.begin(localPort);
-
-
 	Clock.begin();
 
   leds_all.begin();
@@ -100,39 +95,36 @@ void setup() {
 	leds_all.show();
 	command[0] = '\0';
 
-	pinMode(13, OUTPUT);
-
 
   //setting up dummy addresses
   // for (byte i = 0; i < 4; i++) thresholds_config.set_ith(i, 10+i);
   //getting the temperature thresholds from the eeprom
   for (byte i = 0; i < 4; i++) temp_threshold__arr[i] = thresholds_config.get_ith(i);
 
-  Serial.println(F("Current addresses and thresholds"));
-  Serial.print(F("IP:\t\t"));
-  for (byte i = 0; i < 4; i++) {
-    Serial.print(ip_sub_gate_config.get_ith(i));
-    Serial.print((i < 3 ? "." : "\n\r"));
+  if constexpr (SERIAL_ENABLE) {
+    Serial.println(F("Current addresses and thresholds"));
+    Serial.print(F("IP:\t\t"));
+    for (byte i = 0; i < 4; i++) {
+      Serial.print(ip_sub_gate_config.get_ith(i));
+      Serial.print((i < 3 ? "." : "\n\r"));
+    }
+    Serial.print(F("Subnet:\t\t"));
+    for (byte i = 0; i < 4; i++) {
+      Serial.print(ip_sub_gate_config.get_ith(i+4));
+      Serial.print((i < 3 ? "." : "\n\r"));
+    }
+    Serial.print(F("Gateway:\t"));
+    for (byte i = 0; i < 4; i++) {
+      Serial.print(ip_sub_gate_config.get_ith(i+8));
+      Serial.print((i < 3 ? "." : "\n\r"));
+    }
+    Serial.print(F("Thresholds:\t"));
+    for (byte i = 0; i < 4; i++) {
+      Serial.print(thresholds_config.get_ith(i));
+      Serial.print(" ");
+    }
+    Serial.println(F("\n\rEnter commands or 'HELP'"));
   }
-  Serial.print(F("Subnet:\t\t"));
-  for (byte i = 0; i < 4; i++) {
-    Serial.print(ip_sub_gate_config.get_ith(i+4));
-    Serial.print((i < 3 ? "." : "\n\r"));
-  }
-  Serial.print(F("Gateway:\t"));
-  for (byte i = 0; i < 4; i++) {
-    Serial.print(ip_sub_gate_config.get_ith(i+8));
-    Serial.print((i < 3 ? "." : "\n\r"));
-  }
-
-  Serial.print(F("Thresholds:\t"));
-  for (byte i = 0; i < 4; i++) {
-    Serial.print(thresholds_config.get_ith(i));
-    Serial.print(" ");
-  }
-
-
-  Serial.println(F("\n\rEnter commands or 'HELP'"));
 }
 
 void loop() {

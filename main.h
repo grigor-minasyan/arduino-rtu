@@ -18,7 +18,8 @@
 #define MAX_STR 12
 #define MAX_CMD_COUNT 5
 #define MIN_DELAY 50
-#define CUR_VERSION 2.3
+#define CUR_VERSION 2.4
+#define SERIAL_ENABLE false
 #define BAUD_RATE 9600
 #define UDP_LISTEN_DELAY 50
 #define UDP_CHECKER_DELAY 2111
@@ -58,7 +59,6 @@ extern void take_input_udp();
 extern void execute_commands(byte is_udp);
 extern void read_temp_hum_loop();
 extern int8_t to_farenheit(int8_t x);
-extern void blink_RGB();
 extern bool is_str_number(char command[], int &ret);
 extern void set_command_flag(char command[], int arr[]);
 
@@ -90,30 +90,25 @@ extern char inByte;
 
 //timekeeping variables
 extern DS3231_Simple Clock;
-extern bool link_status;
 
-extern unsigned int blink_delay3;
-
-
-//keeping current temp and humidity in global
+//temperaure and humidity related variables------------------------
 extern int8_t cur_temp;
 extern int8_t cur_humidity;
 extern int8_t max_temp;
 extern int8_t min_temp;
 extern int8_t max_humidity;
 extern int8_t min_humidity;
-
 extern int8_t current_threshold;
+//end temperaure and humidity related variables------------------------
 
 
 //Ethernet declarations-------------------------------------------
-// The IP address will be dependent on your local network:
 extern byte mac[];
 extern IPAddress ip;
 extern IPAddress subnet;
 extern IPAddress gateway;
 extern IPAddress ip_remote;
-// local port to listen on
+
 // buffers for receiving and sending data
 extern char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming packet,
 extern char ReplyBuffer[];// a string to send back
@@ -123,14 +118,13 @@ extern int udp_packets_in_counter, udp_packets_out_counter;
 //end Ethernet declarations-------------------------------------------
 
 
-
-
+//lcd related functions and declarations-------------------------------------------
 extern LiquidCrystal lcd;
 extern void show_lcd_menu(byte x);
 extern byte curr_lcd_menu;
+//end lcd related functions and declarations-------------------------------------------
 
-
-
+//start Eeprom_indexes class definitions----------------------------------------
 template <class T>
 int Eeprom_indexes<T>::get_start_i(){return start_i;}
 template <class T>
@@ -145,28 +139,23 @@ template <class T>
 Eeprom_indexes<T>::Eeprom_indexes(int new_start_i, int new_end_i) {
   start_i = new_start_i;
   end_i = new_end_i;
-  int cur, num;
-	byte is_underflow_ret;
-  //get current index and the count of data points
-  EEPROM.get(new_start_i, cur);
-  EEPROM.get(new_start_i+sizeof(int), num);
-  EEPROM.get(new_start_i+2*sizeof(int), is_underflow_ret);
-  curr_i = cur;
-  stored_data_count = num;
-	is_underflow = is_underflow_ret;
+  //get current index, the count of data points and the is_underflow value from the eeprom
+  EEPROM.get(new_start_i, curr_i);
+  EEPROM.get(new_start_i+sizeof(int), stored_data_count);
+  EEPROM.get(new_start_i+2*sizeof(int), is_underflow);
 
+	//assign the actual start value so it can keep the critical start and count values in the eeprom
   actual_start_i = (new_start_i + (2*sizeof(int) + sizeof(byte)));
+
+	//should never happen, to not owerwrite the config start count and is_underflow data
   if (curr_i < actual_start_i) curr_i = actual_start_i;
 }
 
-
+//store data appends the data at the end and if overflows, starts overwriting the old data
 template <class T>
 void Eeprom_indexes<T>::store_data(T data_to_store) {
-  // Serial.println("debug for loop runs for delayed temperature recording inn eeprom");
   EEPROM.put(curr_i, data_to_store);
-  if (!is_underflow) {
-    stored_data_count++;
-  }
+  if (!is_underflow) stored_data_count++;
   curr_i += sizeof(T);
 
   if (curr_i > (end_i - sizeof(T))) {
@@ -186,8 +175,7 @@ void Eeprom_indexes<T>::init() {
   is_underflow = 0;
 }
 
-
-template <class T>//fixme gets the item from the back, define the get_ith_data
+template <class T>
 T Eeprom_indexes<T>::get_ith_data_from_curr(int x) {
   if (stored_data_count == 0) return T();
   if (x >= stored_data_count) x = stored_data_count - 1;
@@ -220,16 +208,17 @@ void Eeprom_indexes<T>::set_ith(int x, T data) {
 template <class T>
 void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
   if (stored_data_count == 0) {
-    Serial.println("No data");
-    return;
+		if constexpr (SERIAL_ENABLE) {
+	    Serial.println("No data");
+		}
+		return;
   }
-  Serial.print(stored_data_count);
-  Serial.println(" data points.");
-  Serial.print("Current index is ");
-  Serial.println(curr_i);
-
-
-
+	if constexpr (SERIAL_ENABLE) {
+		Serial.print(stored_data_count);
+		Serial.println(" data points.");
+		Serial.print("Current index is ");
+		Serial.println(curr_i);
+	}
   if (x > stored_data_count) x = stored_data_count;
   for (int i = 0; i < x; i++) {
     //getting the numbers from the bitwise
@@ -243,28 +232,28 @@ void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
     byte ret_hum = get_ith_data_from_curr(i).get_hum();
     //
 
-
-    Serial.print(i+1);
-    Serial.print("\t");
-    Serial.print(ret_year);
-    Serial.print("/");
-    Serial.print(ret_month);
-    Serial.print("/");
-    Serial.print(ret_day);
-    Serial.print(" ");
-    Serial.print(ret_hour);
-    Serial.print(":");
-    Serial.print(ret_minute);
-    Serial.print(":");
-    Serial.print(ret_second);
-    Serial.print(" ");
-    Serial.print(ret_temp);
-    Serial.print("C (");
-    Serial.print(to_farenheit(ret_temp));
-    Serial.print("F), ");
-    Serial.print(ret_hum);
-    Serial.println("%");
-
+		if constexpr (SERIAL_ENABLE) {
+	    Serial.print(i+1);
+	    Serial.print("\t");
+	    Serial.print(ret_year);
+	    Serial.print("/");
+	    Serial.print(ret_month);
+	    Serial.print("/");
+	    Serial.print(ret_day);
+	    Serial.print(" ");
+	    Serial.print(ret_hour);
+	    Serial.print(":");
+	    Serial.print(ret_minute);
+	    Serial.print(":");
+	    Serial.print(ret_second);
+	    Serial.print(" ");
+	    Serial.print(ret_temp);
+	    Serial.print("C (");
+	    Serial.print(to_farenheit(ret_temp));
+	    Serial.print("F), ");
+	    Serial.print(ret_hum);
+	    Serial.println("%");
+		}
     if (is_udp) {
       char buff[8];
       Udp.beginPacket(ip_remote, remotePort);
@@ -298,12 +287,11 @@ void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
       udp_packets_out_counter++;
       Udp.endPacket();
     }
-
   }
-
 }
+//end Eeprom_indexes class definitions----------------------------------------
 
-
+//objct containers for temperature log and config files
 extern Eeprom_indexes<Data_To_Store> rtc_dht_data_range;
 extern Eeprom_indexes<byte> ip_sub_gate_config;
 extern Eeprom_indexes<int8_t> thresholds_config;

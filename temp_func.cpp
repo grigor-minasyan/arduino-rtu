@@ -19,8 +19,10 @@ int8_t get_threshold(int8_t t) {
 void read_temp_hum() {
   int err = SimpleDHTErrSuccess;
   if ((err = dht22.read(&cur_temp, &cur_humidity, NULL)) != SimpleDHTErrSuccess) {
-    Serial.print(F("Read DHT22 failed, err="));
-		Serial.println(err);
+    if constexpr (SERIAL_ENABLE) {
+      Serial.print(F("Read DHT22 failed, err="));
+    	Serial.println(err);
+    }
   }
   if (cur_temp > 127) cur_temp -= 256;
   if (cur_humidity > 127) cur_humidity -= 256;
@@ -39,9 +41,11 @@ void read_temp_hum_loop() {
 
     //check if threshold changed
     if (current_threshold != get_threshold(cur_temp)) {
-      Serial.print(F("\n\rSending an alarm packet to "));
-      Serial.print(ip_remote);
-      Serial.println(F(" for temperature change"));
+      if constexpr (SERIAL_ENABLE) {
+        Serial.print(F("\n\rSending an alarm packet to "));
+        Serial.print(ip_remote);
+        Serial.println(F(" for temperature change"));
+      }
       current_threshold = get_threshold(cur_temp);
       Udp.beginPacket(ip_remote, remotePort);
       Udp.write("ALARM! Temp changed to ");

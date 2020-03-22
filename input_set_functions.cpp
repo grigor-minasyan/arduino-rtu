@@ -13,36 +13,38 @@ bool is_str_number(char command[], int &ret) {
 }
 
 void take_input() {
-	if (Serial.available()) {
-		inByte = toupper(Serial.read());
-		//when space is entered before anything else ignore
-		if (inByte == ' ' && command_size == 0) return;
-		//when backspace is hit
-		if (inByte == 127) {
-			Serial.println();
-			Serial.println(F("Re-enter the command"));
-			command[0] = '\0';
-			command_size = 0;
-			for (int i = 0; i < MAX_CMD_COUNT; i++) arr[i] = 0;
-			command_count = 0;
-			return;
-		}
+	if constexpr (SERIAL_ENABLE) {
+		if (Serial.available()) {
+			inByte = toupper(Serial.read());
+			//when space is entered before anything else ignore
+			if (inByte == ' ' && command_size == 0) return;
+			//when backspace is hit
+			if (inByte == 127) {
+				Serial.println();
+				Serial.println(F("Re-enter the command"));
+				command[0] = '\0';
+				command_size = 0;
+				for (int i = 0; i < MAX_CMD_COUNT; i++) arr[i] = 0;
+				command_count = 0;
+				return;
+			}
 
-		Serial.print(inByte);
-    //when enter or space, add the command to the array
-		if (inByte == ' ' || inByte == 13) {
-			command[command_size] = '\0';
-			set_command_flag(command, arr);
-			//resetting for the next command
-			command[0] = '\0';
-			command_size = 0;
+			Serial.print(inByte);
+	    //when enter or space, add the command to the array
+			if (inByte == ' ' || inByte == 13) {
+				command[command_size] = '\0';
+				set_command_flag(command, arr);
+				//resetting for the next command
+				command[0] = '\0';
+				command_size = 0;
 
-			//if enter key is pressed
-			if (inByte == 13) execute_commands(0);
+				//if enter key is pressed
+				if (inByte == 13) execute_commands(0);
 
-		} else if (command_size < MAX_STR) {
-			command[command_size++] = inByte;
-			command[command_size] = '\0';
+			} else if (command_size < MAX_STR) {
+				command[command_size++] = inByte;
+				command[command_size] = '\0';
+			}
 		}
 	}
 }
@@ -52,7 +54,6 @@ void take_input_udp() {
 	static unsigned long prev_time_udp, prev_time_udp_checker;
 	if ((millis() - prev_time_udp > UDP_LISTEN_DELAY)) {
 		if (millis() - prev_time_udp_checker > UDP_CHECKER_DELAY) {
-			link_status = false;
 			leds_all.setPixelColor(1, 0x1e0000);
 			leds_all.show();
 			prev_time_udp_checker = millis();
@@ -63,7 +64,6 @@ void take_input_udp() {
 			// read the packet into packetBufffer
 			Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
 			if(packetSize == 2 && packetBuffer[0] == 'y') {
-				link_status = true;
 				leds_all.setPixelColor(1, 0x001e00);
 				leds_all.show();
 				prev_time_udp_checker = millis();
