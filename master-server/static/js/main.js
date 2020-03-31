@@ -1,9 +1,9 @@
 // var cur_temp = 15;//{{ cur_temp }};
-const update_delay = 1000
+const update_delay = 2000
 function update_temp() {
   $.getJSON($SCRIPT_ROOT + '/_update_cur_temp', function(data) {
-    $("#cur_temp").text(data.result);
-    console.log(data.result);
+    $("#cur_temp").text(data.cur_temp);
+    $("#cur_hum").text(data.cur_hum);
   });
   return false;
 }

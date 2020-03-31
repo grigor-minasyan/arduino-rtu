@@ -4,7 +4,6 @@
     <meta charset="utf-8">
     <title>RTU master station</title>
     <script type="text/javascript">
-      var cur_temp = "{{ data.cur_temp }}";
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -12,6 +11,7 @@
   </head>
   <body>
     <p> Current temperaure is <span id="cur_temp"></span></p>
+    <p> Current Humidity is <span id="cur_hum"></span></p>
 
 
   </body>
