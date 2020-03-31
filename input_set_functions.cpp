@@ -49,7 +49,7 @@ void take_input() {
 	}
 }
 
-
+//this function is called only if constexpr UDP_OLD_ENABLE
 void take_input_udp() {
 	static unsigned long prev_time_udp, prev_time_udp_checker;
 	if ((millis() - prev_time_udp > UDP_LISTEN_DELAY)) {

@@ -20,6 +20,7 @@
 #define MIN_DELAY 50
 #define CUR_VERSION 2.4
 #define SERIAL_ENABLE false
+#define UDP_OLD_ENABLE false
 #define BAUD_RATE 9600
 #define UDP_LISTEN_DELAY 50
 #define UDP_CHECKER_DELAY 2111
@@ -99,6 +100,7 @@ extern int8_t min_temp;
 extern int8_t max_humidity;
 extern int8_t min_humidity;
 extern int8_t current_threshold;
+extern byte temp_alarm_binary; // 0b0000 alarms clear, mj under, mn under, mn over mj over in order if bit is set
 //end temperaure and humidity related variables------------------------
 
 
@@ -257,39 +259,41 @@ void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
 	    Serial.print(ret_hum);
 	    Serial.println("%");
 		}
-    if (is_udp) {
-      char buff[8];
-      Udp.beginPacket(ip_remote, remotePort);
-      itoa(ret_year, buff, 10);
-      Udp.write(buff);
-      Udp.write("/");
-      itoa(ret_month, buff, 10);
-      Udp.write(buff);
-      Udp.write("/");
-      itoa(ret_day, buff, 10);
-      Udp.write(buff);
-      Udp.write(" ");
-      itoa(ret_hour, buff, 10);
-      Udp.write(buff);
-      Udp.write(":");
-      itoa(ret_minute, buff, 10);
-      Udp.write(buff);
-      Udp.write(":");
-      itoa(ret_second, buff, 10);
-      Udp.write(buff);
-      Udp.write(" ");
-      itoa(ret_temp, buff, 10);
-      Udp.write(buff);
-      Udp.write("C (");
-      itoa(to_farenheit(ret_temp), buff, 10);
-      Udp.write(buff);
-      Udp.write("F), ");
-      itoa(ret_hum, buff, 10);
-      Udp.write(buff);
-      Udp.write("%");
-      udp_packets_out_counter++;
-      Udp.endPacket();
-    }
+		if constexpr (UDP_OLD_ENABLE) {
+	    if (is_udp) {
+	      char buff[8];
+	      Udp.beginPacket(ip_remote, remotePort);
+	      itoa(ret_year, buff, 10);
+	      Udp.write(buff);
+	      Udp.write("/");
+	      itoa(ret_month, buff, 10);
+	      Udp.write(buff);
+	      Udp.write("/");
+	      itoa(ret_day, buff, 10);
+	      Udp.write(buff);
+	      Udp.write(" ");
+	      itoa(ret_hour, buff, 10);
+	      Udp.write(buff);
+	      Udp.write(":");
+	      itoa(ret_minute, buff, 10);
+	      Udp.write(buff);
+	      Udp.write(":");
+	      itoa(ret_second, buff, 10);
+	      Udp.write(buff);
+	      Udp.write(" ");
+	      itoa(ret_temp, buff, 10);
+	      Udp.write(buff);
+	      Udp.write("C (");
+	      itoa(to_farenheit(ret_temp), buff, 10);
+	      Udp.write(buff);
+	      Udp.write("F), ");
+	      itoa(ret_hum, buff, 10);
+	      Udp.write(buff);
+	      Udp.write("%");
+	      udp_packets_out_counter++;
+	      Udp.endPacket();
+	    }
+		}
   }
 }
 //end Eeprom_indexes class definitions----------------------------------------

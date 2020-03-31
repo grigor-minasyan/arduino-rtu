@@ -5,7 +5,8 @@ void print_invalid_command(byte is_udp) {
 	if constexpr (SERIAL_ENABLE) {
 		Serial.println(F("Invalid command, type HELP"));
 	}
-	if (is_udp) {
+
+	if (is_udp && UDP_OLD_ENABLE) {
 		Udp.beginPacket(ip_remote, remotePort);
 		Udp.write("Invalid command");
 		Udp.endPacket();
@@ -26,7 +27,7 @@ void execute_commands(byte is_udp) {
 
 	switch (arr[0]) {
 		case M_VERSION:
-			if (is_udp) {
+			if (is_udp&& UDP_OLD_ENABLE) {
 				Udp.beginPacket(ip_remote, remotePort);
 				Udp.write(CUR_VERSION);
 				Udp.endPacket();
@@ -38,7 +39,7 @@ void execute_commands(byte is_udp) {
 			}
 			break;
 		case M_HELP:
-			if (is_udp) {
+			if (is_udp&& UDP_OLD_ENABLE) {
 				Udp.beginPacket(ip_remote, remotePort);
 				Udp.write("DHT CURRENT | DHT EXTREME | DHT SAVED | RTC READ");
 				Udp.endPacket();
@@ -57,7 +58,7 @@ void execute_commands(byte is_udp) {
 					else print_invalid_command(is_udp);
 					break;
 				case M_READ:
-					if (is_udp) {
+					if (is_udp&& UDP_OLD_ENABLE) {
 						char buff[5];
 						Udp.beginPacket(ip_remote, remotePort);
 						itoa(Clock.read().Year, buff, 10);
@@ -94,7 +95,7 @@ void execute_commands(byte is_udp) {
 		case M_DHT:
 			switch (arr[1]) {
 				case M_CURRENT:
-					if (is_udp) {
+					if (is_udp&& UDP_OLD_ENABLE) {
 						char buff[5];
 						Udp.beginPacket(ip_remote, remotePort);
 						itoa(cur_temp, buff, 10);
@@ -124,7 +125,7 @@ void execute_commands(byte is_udp) {
 					else rtc_dht_data_range.print_data(10, is_udp);//default printing lines
 					break;
 				case M_EXTREME:
-					if (is_udp) {
+					if (is_udp&& UDP_OLD_ENABLE) {
 						char buff[5];
 						Udp.beginPacket(ip_remote, remotePort);
 						Udp.write("Max temp / humidity ");
@@ -166,7 +167,7 @@ void execute_commands(byte is_udp) {
 					}
 					break;
 				case M_RESET:
-					if (is_udp) {
+					if (is_udp&& UDP_OLD_ENABLE) {
 						Udp.beginPacket(ip_remote, remotePort);
 						Udp.write("DHT reset");
 						Udp.endPacket();

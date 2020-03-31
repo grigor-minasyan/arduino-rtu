@@ -29,7 +29,6 @@ int8_t max_temp = INT8_MIN;
 int8_t min_temp = INT8_MAX;
 int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
-int8_t current_threshold = 2;
 int8_t temp_threshold__arr[4];
 
 
@@ -135,5 +134,5 @@ void loop() {
 
 	//calls set flags and execute
 	take_input();
-	take_input_udp();
+  if constexpr (UDP_OLD_ENABLE) take_input_udp();
 }
