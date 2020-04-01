@@ -34,7 +34,7 @@ def check_incoming_traffic():
             global cur_temp_from_udp
             cur_temp_from_udp = data
             sent = sock.sendto(data, address)
-            sent = sock.sendto(bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.UPDR))), address)
+            sent = sock.sendto(bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.FUDR))), address)
             print('sent %s bytes back to %s' % (sent, address))
 
 
@@ -45,10 +45,10 @@ def main():
 # responding to JSON request
 @app.route('/_update_cur_temp')
 def update_cur_temp():
-    buff = bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.UPDR)))
+    buff = bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.FUDR)))
     DCP_compress_AA_byte(buff)
     sent = sock.sendto(buff, RTU_address)
-    print(' '.join(hex(i) for i in bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.UPDR))))),
+    print(' '.join(hex(i) for i in bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.FUDR))))),
     print('sent to RTU at %s:%s' % RTU_address)
 
     """

@@ -7,7 +7,7 @@ void print_invalid_command(byte is_udp) {
 	}
 
 	if (is_udp && UDP_OLD_ENABLE) {
-		Udp.beginPacket(ip_remote, remotePort);
+		Udp.beginPacket(ip_remote, REMOTEPORT);
 		Udp.write("Invalid command");
 		Udp.endPacket();
 		udp_packets_out_counter++;
@@ -28,7 +28,7 @@ void execute_commands(byte is_udp) {
 	switch (arr[0]) {
 		case M_VERSION:
 			if (is_udp&& UDP_OLD_ENABLE) {
-				Udp.beginPacket(ip_remote, remotePort);
+				Udp.beginPacket(ip_remote, REMOTEPORT);
 				Udp.write(CUR_VERSION);
 				Udp.endPacket();
 				udp_packets_out_counter++;
@@ -40,7 +40,7 @@ void execute_commands(byte is_udp) {
 			break;
 		case M_HELP:
 			if (is_udp&& UDP_OLD_ENABLE) {
-				Udp.beginPacket(ip_remote, remotePort);
+				Udp.beginPacket(ip_remote, REMOTEPORT);
 				Udp.write("DHT CURRENT | DHT EXTREME | DHT SAVED | RTC READ");
 				Udp.endPacket();
 	      udp_packets_out_counter++;
@@ -60,7 +60,7 @@ void execute_commands(byte is_udp) {
 				case M_READ:
 					if (is_udp&& UDP_OLD_ENABLE) {
 						char buff[5];
-						Udp.beginPacket(ip_remote, remotePort);
+						Udp.beginPacket(ip_remote, REMOTEPORT);
 						itoa(Clock.read().Year, buff, 10);
 						Udp.write(buff);
 						Udp.write("/");
@@ -97,7 +97,7 @@ void execute_commands(byte is_udp) {
 				case M_CURRENT:
 					if (is_udp&& UDP_OLD_ENABLE) {
 						char buff[5];
-						Udp.beginPacket(ip_remote, remotePort);
+						Udp.beginPacket(ip_remote, REMOTEPORT);
 						itoa(cur_temp, buff, 10);
 						Udp.write(buff);
 						Udp.write("C (");
@@ -127,7 +127,7 @@ void execute_commands(byte is_udp) {
 				case M_EXTREME:
 					if (is_udp&& UDP_OLD_ENABLE) {
 						char buff[5];
-						Udp.beginPacket(ip_remote, remotePort);
+						Udp.beginPacket(ip_remote, REMOTEPORT);
 						Udp.write("Max temp / humidity ");
 						itoa(max_temp, buff, 10);
 						Udp.write(buff);
@@ -168,7 +168,7 @@ void execute_commands(byte is_udp) {
 					break;
 				case M_RESET:
 					if (is_udp&& UDP_OLD_ENABLE) {
-						Udp.beginPacket(ip_remote, remotePort);
+						Udp.beginPacket(ip_remote, REMOTEPORT);
 						Udp.write("DHT reset");
 						Udp.endPacket();
 						udp_packets_out_counter++;

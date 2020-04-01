@@ -35,7 +35,7 @@
 #define dht_read_long_delay 60000//600000
 
 
-#define remotePort 54211
+#define REMOTEPORT 54211
 #define localPort 8888
 
 //-------------------------------
@@ -57,6 +57,7 @@ extern int8_t temp_threshold__arr[4];
 extern void five_button_read();
 extern void take_input();
 extern void take_input_udp();
+extern void take_input_udp_dcpx();
 extern void execute_commands(byte is_udp);
 extern void read_temp_hum_loop();
 extern int8_t to_farenheit(int8_t x);
@@ -262,7 +263,7 @@ void Eeprom_indexes<T>::print_data(int x, int8_t is_udp) {
 		if constexpr (UDP_OLD_ENABLE) {
 	    if (is_udp) {
 	      char buff[8];
-	      Udp.beginPacket(ip_remote, remotePort);
+	      Udp.beginPacket(ip_remote, REMOTEPORT);
 	      itoa(ret_year, buff, 10);
 	      Udp.write(buff);
 	      Udp.write("/");

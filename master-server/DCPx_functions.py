@@ -1,5 +1,5 @@
 class DCP_op_name:
-    UPDR = 1
+    FUDR = 1
 
 
 class DCP_op_entry:
@@ -12,7 +12,7 @@ class DCP_op_entry:
         self.len = len
 
 DCP_op_table = []
-DCP_op_table.append(DCP_op_entry('UPDR', DCP_op_name.UPDR, 2))
+DCP_op_table.append(DCP_op_entry('FUDR', DCP_op_name.FUDR, 2))
 
 def DCP_op_lookup(op):
     for x in DCP_op_table:

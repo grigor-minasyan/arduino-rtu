@@ -135,4 +135,5 @@ void loop() {
 	//calls set flags and execute
 	take_input();
   if constexpr (UDP_OLD_ENABLE) take_input_udp();
+  take_input_udp_dcpx();
 }

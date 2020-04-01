@@ -63,7 +63,7 @@ void read_temp_hum_loop() {
       }
       current_threshold = get_threshold(cur_temp);
       if constexpr (UDP_OLD_ENABLE) {
-        Udp.beginPacket(ip_remote, remotePort);
+        Udp.beginPacket(ip_remote, REMOTEPORT);
         Udp.write("ALARM! Temp changed to ");
         if (current_threshold == MJ_UNDER) Udp.write("major under");
         else if (current_threshold == MN_UNDER) Udp.write("minor under");
