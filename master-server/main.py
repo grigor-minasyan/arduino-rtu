@@ -1,12 +1,33 @@
 # Importing flask module in the project is mandatory
 # An object of Flask class is our WSGI application.
 from flask import Flask, render_template, jsonify, request
-import threading, time, socket, sys
+from json import JSONEncoder
+import threading, time, socket, sys, json
 from DCPx_functions import *
+from RTU_data import *
+
+# class RTU_data_Encoder(JSONEncoder):
+#     def default(self, o):
+#         return o.__dict__
+
+class RTU_data_Encoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, set):
+            return list(obj)
+        if isinstance(obj, Dttimetemphum):
+            return [obj.year, obj.month, obj.day, obj.hour, obj.minute, obj.second, obj.temp, obj.hum]
+        if isinstance(obj, RTU_data):
+            return [obj.id, obj.thresholds, obj.current_data, list(obj.history)]
+        return json.JSONEncoder.default(self, obj)
 
 # CONSTANTS
 RTU_id = 2
-
+RTU_list = [RTU_data(id=RTU_id)]
+def get_id_index_RTU_list(id):
+    for i in range(len(RTU_list)):
+        if RTU_list[i].id == id:
+            return i
+    return -1
 
 # Flask constructor takes the name of
 # current module (__name__) as argument.
@@ -25,17 +46,21 @@ print('starting up on %s port %s' % server_address)
 sock.bind(server_address)
 def check_incoming_traffic():
     while True:
-        print('\nwaiting to receive message')
+        # print('\nwaiting to receive message')
         data, address = sock.recvfrom(4096)
-
-        print('received %s bytes from %s' % (len(data), address))
-        print(':'.join(x.encode('hex') for x in data))
+        data_list = bytearray(data)
+        # print('received %s bytes from %s' % (len(data), address))
+        # print(':'.join(x.encode('hex') for x in data))
         if data:
-            global cur_temp_from_udp
-            cur_temp_from_udp = data
-            sent = sock.sendto(data, address)
-            sent = sock.sendto(bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.FUDR))), address)
-            print('sent %s bytes back to %s' % (sent, address))
+            if DCP_is_valid_response(data_list):
+                if (get_id_index_RTU_list(data_list[2]) != -1):
+                    DCP_process_response(data_list, RTU_list[get_id_index_RTU_list(data_list[2])])
+                    #print(RTU_list[get_id_index_RTU_list(data_list[2])])
+                # global cur_temp_from_udp
+                # cur_temp_from_udp = data
+                # sent = sock.sendto(data, address)
+                # sent = sock.sendto(bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.FUDR))), address)
+                # print('sent %s bytes back to %s' % (sent, address))
 
 
 @app.route('/')
@@ -43,12 +68,16 @@ def main():
     return render_template("home.html")
 
 # responding to JSON request
-@app.route('/_update_cur_temp')
-def update_cur_temp():
-    buff = bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.FUDR)))
+@app.route('/_update_cur_temp/<rtu_id>')
+def update_cur_temp(rtu_id):
+    # sending a request to RTU
+    if get_id_index_RTU_list(int(rtu_id)) == -1:
+        print("no rtu found with id of %s" % rtu_id)
+        return
+    buff = bytearray(DCP_buildPoll(int(rtu_id), DCP_op_lookup(DCP_op_name.FUDR)))
     DCP_compress_AA_byte(buff)
     sent = sock.sendto(buff, RTU_address)
-    print(' '.join(hex(i) for i in bytearray(DCP_buildPoll(RTU_id, DCP_op_lookup(DCP_op_name.FUDR))))),
+    print(' '.join(hex(i) for i in bytearray(DCP_buildPoll(int(rtu_id), DCP_op_lookup(DCP_op_name.FUDR))))),
     print('sent to RTU at %s:%s' % RTU_address)
 
     """
@@ -68,8 +97,8 @@ def update_cur_temp():
     DCP_expand_AA_byte(testlist2)
     print(':'.join(hex(i)[2:] for i in testlist2))
     """
-    return jsonify(cur_temp = cur_temp_from_udp, cur_hum = cur_hum_from_udp)
-
+    # return jsonify(cur_temp = cur_temp_from_udp, cur_hum = cur_hum_from_udp, whole_data = RTU_list[get_id_index_RTU_list(int(rtu_id))])
+    return json.dumps(RTU_list[get_id_index_RTU_list(int(rtu_id))], indent=4, cls=RTU_data_Encoder)
 # main driver function
 if __name__ == '__main__':
     t1 = threading.Thread(target=app.run)

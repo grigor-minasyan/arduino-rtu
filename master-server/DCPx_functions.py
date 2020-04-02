@@ -1,3 +1,6 @@
+
+from RTU_data import *
+
 class DCP_op_name:
     FUDR = 1
 
@@ -13,6 +16,9 @@ class DCP_op_entry:
 
 DCP_op_table = []
 DCP_op_table.append(DCP_op_entry('FUDR', DCP_op_name.FUDR, 2))
+
+def to_int8_t(x):
+    return (x if x < 128 else x - 256)
 
 def DCP_op_lookup(op):
     for x in DCP_op_table:
@@ -83,3 +89,24 @@ def DCP_buildPoll(address, command):
     buff.append(command.code)
     buff.append(DCP_genCmndBCH(buff, len(buff)))
     return buff
+
+def DCP_is_valid_response(buffer):
+    return (buffer[len(buffer)-1] == DCP_genCmndBCH(buffer, len(buffer)-1) and buffer[0] == 0xaa and buffer[1] == 0xfa)
+
+def DCP_process_response(buffer, rtu_data):
+    """
+    response packet to this is going to look like this
+    [aa][fa][addr][opcode][00][val1][val2][val3][val4][bch] - means sending the threshold in C
+    [aa][fa][addr][opcode][01][dt1][dt2][dt3][dt4][dt5][dt6][temp][hum][bch] - current temp
+    [aa][fa][addr][opcode][02][dt1][dt2][dt3][dt4][dt5][dt6][temp][hum][bch] - year month sent in bitwise with temp and humidity
+    """
+    if buffer[3] == DCP_op_name.FUDR: #get the command to process
+        if buffer[4] == 0:#updating the thresholds
+            rtu_data.set_thresholds([to_int8_t(buffer[5]), to_int8_t(buffer[6]), to_int8_t(buffer[7]), to_int8_t(buffer[8])])
+        if buffer[4] == 1:#updating the current
+            rtu_data.set_current_data(Dttimetemphum(buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], to_int8_t(buffer[11]), buffer[12]))
+        if (buffer[4] == 2):#updating the history
+            temp_data = Dttimetemphum(buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], to_int8_t(buffer[11]), buffer[12])
+            rtu_data.add_hist(temp_data)
+
+    pass

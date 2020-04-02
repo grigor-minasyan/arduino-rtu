@@ -36,6 +36,7 @@
 
 
 #define REMOTEPORT 54211
+#define REMOTEPORT_SERVER 10000
 #define localPort 8888
 
 //-------------------------------
@@ -117,7 +118,7 @@ extern char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; // buffer to hold incoming pac
 extern char ReplyBuffer[];// a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 extern EthernetUDP Udp;
-extern int udp_packets_in_counter, udp_packets_out_counter;
+extern long udp_packets_in_counter, udp_packets_out_counter;
 //end Ethernet declarations-------------------------------------------
 
 

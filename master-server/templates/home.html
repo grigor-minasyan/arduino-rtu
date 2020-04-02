@@ -8,11 +8,18 @@
     </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery-3.4.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   </head>
   <body>
     <p> Current temperaure is <span id="cur_temp"></span></p>
     <p> Current Humidity is <span id="cur_hum"></span></p>
-
+    <p>History</p>
+    <div class="container"><div class="col-sm-auto">
+      <table class="table table-striped">
+        <tbody id = "history"></tbody>
+      </table>
+    </div></div>
 
   </body>
 </html>

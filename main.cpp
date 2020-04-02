@@ -43,7 +43,7 @@ char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
 char ReplyBuffer[] = "acknowledged";        // a string to send back
 // An EthernetUDP instance to let us send and receive packets over UDP
 EthernetUDP Udp;
-int udp_packets_in_counter = 0, udp_packets_out_counter = 0;
+long udp_packets_in_counter = 0, udp_packets_out_counter = 0;
 //can hold 12 bytes, for ip sub gateway
 
 //holds bytes for ip(4 bytes), sub(4bytes), gateway(4 bytes) in this order
