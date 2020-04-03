@@ -3,6 +3,10 @@ let update_delay = 2000;
 let RTU_id = 2;
 let RTU2_id = 3;
 
+function to_f(c) {
+  return 1.8*c+32;
+}
+
 var RTU_obj;
 function update_temp(id) {
   $.getJSON($SCRIPT_ROOT + '/_update_cur_temp/' + id.toString(), function(data) {
@@ -31,6 +35,23 @@ function update_temp(id) {
       RTU_obj[4][i][7].toString() + "%" +"</td></tr>";
     }
     $("#history"+id.toString()).html(str);
+    $("#temp"+id.toString()).html(to_f(RTU_obj[3][6]).toFixed(1));
+    $("#hum"+id.toString()).html(RTU_obj[3][7]);
+    if(RTU_obj[2] == 3) {
+      //major over
+      $("#alarm"+id.toString()).html("Alarm MJ OVER!");
+    } else if (RTU_obj[2] == 2) {
+      //minor over
+      $("#alarm"+id.toString()).html("Alarm MN OVER!");
+    } else if (RTU_obj[2] == 4) {
+      // minor under
+      $("#alarm"+id.toString()).html("Alarm MN UNDER!");
+    } else if (RTU_obj[2] == 12) {
+      //major under
+      $("#alarm"+id.toString()).html("Alarm MJ UNDER!");
+    } else {
+      $("#alarm"+id.toString()).html("No alarm, everything clear");
+    }
   });
   return false;
 }

@@ -127,6 +127,7 @@ extern long udp_packets_in_counter, udp_packets_out_counter;
 extern LiquidCrystal lcd;
 extern void show_lcd_menu(byte x);
 extern byte curr_lcd_menu;
+extern void show_wrong_bch_lcd(byte wrong, byte correct);
 //end lcd related functions and declarations-------------------------------------------
 
 //start Eeprom_indexes class definitions----------------------------------------

@@ -35,9 +35,9 @@ byte DCP_genCmndBCH(byte buff[], int count) {
 }
 
 //todo make lcd show if not valid BCH
-bool DCP_validate_BCH(byte buff[], int count) {
-  return buff[count-1] == DCP_genCmndBCH(buff, count-1);
-}
+// bool DCP_validate_BCH(byte buff[], int count) {
+//   return buff[count-1] == DCP_genCmndBCH(buff, count-1);
+// }
 int remove_element(byte array[], int index, int *array_length){
   int retval = array[index];
   for(int i = index; i < *array_length - 1; i++) array[i] = array[i + 1];
@@ -220,8 +220,12 @@ void take_input_udp_dcpx() {
 			udp_packets_in_counter++;
 
       //if BCH is valid and device id mathces
-      if (DCP_validate_BCH(packetBuffer, packetSize) && packetBuffer[2] == RTU_DEVICE_ID) {
-        DCP_respond(packetBuffer[3]);//packetbuffer[3] is the command to respond with
+      if (packetBuffer[packetSize-1] == (char)DCP_genCmndBCH(packetBuffer, packetSize-1)) {
+        if (packetBuffer[2] == RTU_DEVICE_ID) {
+          DCP_respond(packetBuffer[3]);//packetbuffer[3] is the command to respond with
+        }
+      } else {
+        show_wrong_bch_lcd(packetBuffer[packetSize-1], DCP_genCmndBCH(packetBuffer, packetSize-1));
       }
 
 		}

@@ -62,6 +62,7 @@ class RTU_data:
     port = 0
     server_socket = 0
     server_address = 0
+    prev_alarm_state = 0
     def __init__(self, id = 0, thresholds = [0,0,0,0], alarms_binary = 0, current_data = Dttimetemphum(), history = set(), ip = '', port = 0, server_socket = 0, server_address = 0):
         self.id = id
         self.thresholds = thresholds
@@ -84,6 +85,8 @@ class RTU_data:
         # sorted(self.history, key=functools.cmp_to_key(compare_Dttimetemphum))
     def set_current_data(self, dttimetemphum):
         self.current_data = dttimetemphum
+    def set_prev_alarm_state(self, a):
+        self.prev_alarm_state = a
     def __str__(self):
         ret = ""
         ret += 'ID: '+str(self.id) + '\n'

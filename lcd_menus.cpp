@@ -4,6 +4,25 @@ byte temp_bytes[4];
 int8_t temp_int8_t[4];
 byte cursor_loc = 0;
 
+
+void show_wrong_bch_lcd(byte wrong, byte correct) {
+  unsigned long prev_time = millis();
+  byte prev_menu = curr_lcd_menu;
+  curr_lcd_menu = -1;
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(F("Bad checksum"));
+  lcd.setCursor(0, 1);
+  lcd.print(F("EXP "));
+  lcd.print(correct);
+  lcd.print(F(" GOT "));
+  lcd.print(wrong);
+  while (millis() - prev_time < 3000) {
+    continue;
+  }
+  show_lcd_menu(prev_menu);
+}
+
 int temp_history_ith_element;
 void show_lcd_menu(byte x) {
   //fixme does not update the lcd

@@ -52,7 +52,7 @@ void read_temp_hum_loop() {
     if (cur_humidity <  min_humidity) min_humidity = cur_humidity;
     if (cur_humidity > max_humidity) max_humidity = cur_humidity;
 
-    temp_alarm_binary == get_threshold(cur_temp);
+    temp_alarm_binary = get_threshold(cur_temp);
 
     //check if threshold changed
     if (current_threshold != get_threshold(cur_temp)) {

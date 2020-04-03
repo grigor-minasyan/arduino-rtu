@@ -12,18 +12,23 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   </head>
   <body>
-    <p> Current temperaure is <span id="cur_temp"></span></p>
-    <p> Current Humidity is <span id="cur_hum"></span></p>
-    <p>History</p>
     <div class="container">
       <div class="row">
         <div class="col">
+          <h4>Current temperature is <span id="temp2"></span>F</h4>
+          <h4>Current humidity is <span id="hum2"></span></h4>
+          <h4><span id="alarm2"></span></h4>
+          <p>History</p>
           <table class="table table-striped">
             <tbody id = "history2">
             </tbody>
           </table>
         </div>
         <div class="col">
+          <h4>Current temperature is <span id="temp3"></span>F</h4>
+          <h4>Current humidity is <span id="hum3"></span></h4>
+          <h4><span id="alarm3"></span></h4>
+          <p>History</p>
           <table class="table table-striped">
             <tbody id = "history3">
             </tbody>

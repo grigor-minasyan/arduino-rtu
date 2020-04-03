@@ -34,8 +34,10 @@ int8_t temp_threshold__arr[4];
 
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
-byte mac[] = {0xAA, 0xAA, 0xAA, 0xEF, 0xFE, 0xED};
+byte mac[] = {0xBB, 0xAA, 0xAA, 0xEF, 0xFE, 0xED};
 IPAddress ip, subnet, gateway;
+// IPAddress dns(192, 168, 1, 1);
+// IPAddress ip_remote(192, 168, 1, 111);   // local port to listen on
 IPAddress dns(192, 168, 2, 1);
 IPAddress ip_remote(192, 168, 2, 111);   // local port to listen on
 // buffers for receiving and sending data
