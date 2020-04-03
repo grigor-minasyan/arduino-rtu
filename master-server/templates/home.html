@@ -6,8 +6,8 @@
     <script type="text/javascript">
       $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
     </script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/jquery-3.4.1.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   </head>

@@ -55,18 +55,26 @@ class Dttimetemphum:
 class RTU_data:
     id = 0
     thresholds = [0, 0, 0, 0]
+    alarms_binary = 0
     current_data = Dttimetemphum()
     history = set()
-    def __init__(self, id = 0, thresholds = [0,0,0,0], current_data = Dttimetemphum(), history = set()):
+    ip = ''
+    port = 0
+    def __init__(self, id = 0, thresholds = [0,0,0,0], alarms_binary = 0, current_data = Dttimetemphum(), history = set(), ip = '', port = 0):
         self.id = id
         self.thresholds = thresholds
+        self.alarms_binary = alarms_binary
         self.current_data = current_data
         self.history = history
+        self.ip = ip
+        self.port = port
     def set_id(self, id):
         self.id = id
     def set_thresholds(self, list):
         for i in range(4):
             self.thresholds[i] = list[i]
+    def set_alarms_binary(self, a):
+        self.alarms_binary = a
     def add_hist(self, new_data):
         self.history.add(new_data)
         # sorted(self.history, key=functools.cmp_to_key(compare_Dttimetemphum))

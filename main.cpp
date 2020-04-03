@@ -34,10 +34,10 @@ int8_t temp_threshold__arr[4];
 
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
-byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
+byte mac[] = {0xAA, 0xAA, 0xAA, 0xEF, 0xFE, 0xED};
 IPAddress ip, subnet, gateway;
-IPAddress dns(192, 168, 1, 1);
-IPAddress ip_remote(192, 168, 1, 111);   // local port to listen on
+IPAddress dns(192, 168, 2, 1);
+IPAddress ip_remote(192, 168, 2, 111);   // local port to listen on
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
 char ReplyBuffer[] = "acknowledged";        // a string to send back
@@ -57,6 +57,13 @@ LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 byte curr_lcd_menu = LCD_HOME;
 
 void setup() {
+  if constexpr (SERIAL_ENABLE || SERIAL_DEBUG_ENABLE) {
+  	Serial.begin(BAUD_RATE);
+  	while (!Serial) {;}// wait for serial port to connect. Needed for native USB port only
+  }
+  if constexpr (SERIAL_DEBUG_ENABLE) {
+    Serial.print(F("inside setup"));
+  }
   lcd.begin(16, 2);
   show_lcd_menu(LCD_HOME);
 
@@ -64,7 +71,7 @@ void setup() {
   // ip_sub_gate_config.set_ith(0, 192);
   // ip_sub_gate_config.set_ith(1, 168);
   // ip_sub_gate_config.set_ith(2, 1);
-  // ip_sub_gate_config.set_ith(3, 177);
+  // ip_sub_gate_config.set_ith(3, 178);
   // ip_sub_gate_config.set_ith(4, 255);
   // ip_sub_gate_config.set_ith(5, 255);
   // ip_sub_gate_config.set_ith(6, 255);
@@ -78,15 +85,14 @@ void setup() {
   subnet=IPAddress(ip_sub_gate_config.get_ith(4),ip_sub_gate_config.get_ith(5),ip_sub_gate_config.get_ith(6),ip_sub_gate_config.get_ith(7));
   gateway=IPAddress(ip_sub_gate_config.get_ith(8),ip_sub_gate_config.get_ith(9),ip_sub_gate_config.get_ith(10),ip_sub_gate_config.get_ith(11));
 
+
+
 	Ethernet.init(10);
 	Ethernet.begin(mac, ip, dns, gateway, subnet);
 
-  if constexpr (SERIAL_ENABLE) {
-  	Serial.begin(BAUD_RATE);
-  	while (!Serial) {;}// wait for serial port to connect. Needed for native USB port only
-  }
-
   Udp.begin(localPort);
+
+
 	Clock.begin();
 
   leds_all.begin();
@@ -99,8 +105,9 @@ void setup() {
   // for (byte i = 0; i < 4; i++) thresholds_config.set_ith(i, 10+i);
   //getting the temperature thresholds from the eeprom
   for (byte i = 0; i < 4; i++) temp_threshold__arr[i] = thresholds_config.get_ith(i);
+  // rtc_dht_data_range.init(); // do this to reset for the first time
 
-  if constexpr (SERIAL_ENABLE) {
+  if constexpr (SERIAL_ENABLE || SERIAL_DEBUG_ENABLE) {
     Serial.println(F("Current addresses and thresholds"));
     Serial.print(F("IP:\t\t"));
     for (byte i = 0; i < 4; i++) {

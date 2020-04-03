@@ -20,6 +20,7 @@
 #define MIN_DELAY 50
 #define CUR_VERSION 2.4
 #define SERIAL_ENABLE false
+#define SERIAL_DEBUG_ENABLE false
 #define UDP_OLD_ENABLE false
 #define BAUD_RATE 9600
 #define UDP_LISTEN_DELAY 50
@@ -32,7 +33,7 @@
 #define RGB_DATA_PIN_ALL 9
 
 #define dht_read_short_delay 3000
-#define dht_read_long_delay 60000//600000
+#define dht_read_long_delay 5000//600000
 
 
 #define REMOTEPORT 54211

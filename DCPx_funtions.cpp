@@ -106,13 +106,13 @@ void DCP_respond(byte command) {
   switch (command_entry->code) {
     case DCP_FUDRop:
       /*response packet to this is going to look like this
-      [aa][fa][addr][opcode][00][val1][val2][val3][val4][bch] - means sending the threshold in C
+      [aa][fa][addr][opcode][00][val1][val2][val3][val4][alarms][bch] - means sending the threshold in C
       [aa][fa][addr][opcode][01][dt1][dt2][dt3][dt4][dt5][dt6][temp][hum][bch] - current temp
       [aa][fa][addr][opcode][02][dt1][dt2][dt3][dt4][dt5][dt6][temp][hum][bch] - year month sent in bitwise with temp and humidity
       */
       //sending information about thresholds
-      int size_dcp_thresholds = 10;
-      byte dcp_thresholds[size_dcp_thresholds] = {0xaa, 0xfa, RTU_DEVICE_ID, DCP_FUDRop, 0x00, temp_threshold__arr[0], temp_threshold__arr[1], temp_threshold__arr[2], temp_threshold__arr[3]};
+      int size_dcp_thresholds = 11;
+      byte dcp_thresholds[size_dcp_thresholds] = {0xaa, 0xfa, RTU_DEVICE_ID, DCP_FUDRop, 0x00, temp_threshold__arr[0], temp_threshold__arr[1], temp_threshold__arr[2], temp_threshold__arr[3], temp_alarm_binary};
       dcp_thresholds[size_dcp_thresholds-1] = DCP_genCmndBCH(dcp_thresholds, size_dcp_thresholds-1);
       byte dcp_thresholds_big[2*size_dcp_thresholds];
 
@@ -120,7 +120,7 @@ void DCP_respond(byte command) {
       size_dcp_thresholds = DCP_compress_AA_byte(dcp_thresholds, dcp_thresholds_big, size_dcp_thresholds);
 			Udp.beginPacket(ip_remote, REMOTEPORT_SERVER);
 			Udp.write(dcp_thresholds_big, size_dcp_thresholds);
-			udp_packets_out_counter++;Udp.endPacket();
+			Udp.endPacket();
 
       //sending information about current temp
       int size_dcp_cur = 14;
@@ -135,7 +135,7 @@ void DCP_respond(byte command) {
       size_dcp_cur = DCP_compress_AA_byte(dcp_cur, dcp_cur_big, size_dcp_cur);
 			Udp.beginPacket(ip_remote, REMOTEPORT_SERVER);
 			Udp.write(dcp_cur_big, size_dcp_cur);
-			udp_packets_out_counter++;Udp.endPacket();
+			Udp.endPacket();
 
       //sending the stored data packets
       for (int i = 0; i < rtc_dht_data_range.get_stored_data_count(); i++) {
@@ -161,8 +161,9 @@ void DCP_respond(byte command) {
         size_dcp_hist = DCP_compress_AA_byte(dcp_hist, dcp_hist_big, size_dcp_hist);
   			Udp.beginPacket(ip_remote, REMOTEPORT_SERVER);
   			Udp.write(dcp_hist_big, size_dcp_hist);
-  			udp_packets_out_counter++;Udp.endPacket();
+  			Udp.endPacket();
       }
+      udp_packets_out_counter++;
 
 
       /*
@@ -203,6 +204,9 @@ void take_input_udp_dcpx() {
 		prev_time_udp = millis();
 		int packetSize = Udp.parsePacket();
 		if (packetSize) {
+      if constexpr (SERIAL_DEBUG_ENABLE) {
+        Serial.print(F("received a packet"));
+      }
 			// read the packet into packetBuffer
 			Udp.read(packetBuffer, UDP_TX_PACKET_MAX_SIZE);
 
