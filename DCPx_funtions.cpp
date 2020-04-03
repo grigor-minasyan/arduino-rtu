@@ -1,7 +1,8 @@
 #include "main.h"
 
 #define DCP_FUDRop 1
-#define RTU_DEVICE_ID 2
+// #define RTU_DEVICE_ID 2
+#define RTU_DEVICE_ID 3
 
 typedef struct _DCP_OP_NTRY {
   byte text[5];
@@ -137,8 +138,16 @@ void DCP_respond(byte command) {
 			Udp.write(dcp_cur_big, size_dcp_cur);
 			Udp.endPacket();
 
+      unsigned long prev_time = millis();
       //sending the stored data packets
-      for (int i = 0; i < rtc_dht_data_range.get_stored_data_count(); i++) {
+      for (int i = 0; i < rtc_dht_data_range.get_stored_data_count(); ) {
+
+        //delay between sending the data
+        if (millis() - prev_time < 5) continue;
+        prev_time = millis();
+        i++;
+
+
         //getting the numbers from the bitwise
         byte ret_year = rtc_dht_data_range.get_ith_data_from_curr(i).get_year();
         byte ret_month = rtc_dht_data_range.get_ith_data_from_curr(i).get_month();

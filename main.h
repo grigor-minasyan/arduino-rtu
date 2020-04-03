@@ -37,8 +37,10 @@
 
 
 #define REMOTEPORT 54211
-#define REMOTEPORT_SERVER 20000
-#define localPort 9999
+// #define REMOTEPORT_SERVER 20000
+// #define localPort 9999
+#define REMOTEPORT_SERVER 10000
+#define localPort 8888
 
 //-------------------------------
 //lcd pins
