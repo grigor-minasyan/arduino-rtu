@@ -1,11 +1,11 @@
 // var cur_temp = 15;//{{ cur_temp }};
 let update_delay = 2000;
-const RTU_id = 2;
-const RTU2_id = 3;
+let RTU_id = 2;
+let RTU2_id = 3;
 
 var RTU_obj;
-function update_temp() {
-  $.getJSON($SCRIPT_ROOT + '/_update_cur_temp/' + RTU2_id.toString(), function(data) {
+function update_temp(id) {
+  $.getJSON($SCRIPT_ROOT + '/_update_cur_temp/' + id.toString(), function(data) {
     // $("#cur_temp").text(data.cur_temp);
     // $("#cur_hum").text(data.cur_hum);
     RTU_obj = data;
@@ -30,11 +30,18 @@ function update_temp() {
       RTU_obj[4][i][6].toString() + "C " +
       RTU_obj[4][i][7].toString() + "%" +"</td></tr>";
     }
-    $("#history").html(str);
+    $("#history"+id.toString()).html(str);
   });
   return false;
 }
-update_temp();
 window.setInterval(function(){
-  update_temp()
+  update_temp(RTU_id);
+  update_temp(RTU2_id);
 }, update_delay);
+
+// window.onload = function() {
+//   setTimeout(function(){update_temp(RTU_id); }, 1000);
+//   setTimeout(function(){update_temp(RTU2_id); }, 2000);
+//   setTimeout(function(){update_temp(RTU_id); }, 3000);
+//   setTimeout(function(){update_temp(RTU2_id); }, 4000);
+// };

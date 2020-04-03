@@ -60,7 +60,9 @@ class RTU_data:
     history = set()
     ip = ''
     port = 0
-    def __init__(self, id = 0, thresholds = [0,0,0,0], alarms_binary = 0, current_data = Dttimetemphum(), history = set(), ip = '', port = 0):
+    server_socket = 0
+    server_address = 0
+    def __init__(self, id = 0, thresholds = [0,0,0,0], alarms_binary = 0, current_data = Dttimetemphum(), history = set(), ip = '', port = 0, server_socket = 0, server_address = 0):
         self.id = id
         self.thresholds = thresholds
         self.alarms_binary = alarms_binary
@@ -68,6 +70,8 @@ class RTU_data:
         self.history = history
         self.ip = ip
         self.port = port
+        self.server_socket = server_socket
+        self.server_address = server_address
     def set_id(self, id):
         self.id = id
     def set_thresholds(self, list):

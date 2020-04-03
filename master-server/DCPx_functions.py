@@ -90,8 +90,8 @@ def DCP_buildPoll(address, command):
     buff.append(DCP_genCmndBCH(buff, len(buff)))
     return buff
 
-def DCP_is_valid_response(buffer):
-    return (buffer[len(buffer)-1] == DCP_genCmndBCH(buffer, len(buffer)-1) and buffer[0] == 0xaa and buffer[1] == 0xfa)
+def DCP_is_valid_response(buffer, rtu):
+    return (buffer[len(buffer)-1] == DCP_genCmndBCH(buffer, len(buffer)-1) and buffer[0] == 0xaa and buffer[1] == 0xfa and buffer[2] == rtu.id)
 
 def DCP_process_response(buffer, rtu_data):
     """
@@ -109,5 +109,3 @@ def DCP_process_response(buffer, rtu_data):
         if (buffer[4] == 2):#updating the history
             temp_data = Dttimetemphum(buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], to_int8_t(buffer[11]), buffer[12])
             rtu_data.add_hist(temp_data)
-
-    pass
