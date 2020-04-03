@@ -102,10 +102,10 @@ def DCP_process_response(buffer, rtu_data):
     """
     if buffer[3] == DCP_op_name.FUDR: #get the command to process
         if buffer[4] == 0:#updating the thresholds
-            rtu_data.set_thresholds([to_int8_t(buffer[5]), to_int8_t(buffer[6]), to_int8_t(buffer[7]), to_int8_t(buffer[8])])
-            rtu_data.set_alarms_binary(buffer[9])
+            rtu_data.set_thresholds([to_int8_t(buffer[5]), to_int8_t(buffer[6]), to_int8_t(buffer[7]), to_int8_t(buffer[8])], buffer[2])
+            rtu_data.set_alarms_binary(buffer[9], buffer[2])
         if buffer[4] == 1:#updating the current
-            rtu_data.set_current_data(Dttimetemphum(buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], to_int8_t(buffer[11]), buffer[12]))
+            rtu_data.set_current_data(Dttimetemphum(buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], to_int8_t(buffer[11]), buffer[12]), buffer[2])
         if (buffer[4] == 2):#updating the history
             temp_data = Dttimetemphum(buffer[5], buffer[6], buffer[7], buffer[8], buffer[9], buffer[10], to_int8_t(buffer[11]), buffer[12])
-            rtu_data.add_hist(temp_data)
+            rtu_data.add_hist(temp_data, buffer[2])

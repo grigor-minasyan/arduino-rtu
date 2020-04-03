@@ -19,7 +19,7 @@ class RTU_data_Encoder(JSONEncoder):
 
 # CONSTANTS
 RTU_list = []
-RTU_list.append(RTU_data(id=2, ip='192.168.2.177', port=8888, server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM), server_address = ('192.168.2.111', 10000)))
+RTU_list.append(RTU_data(id=2, ip='192.168.2.177', port=9999, server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM), server_address = ('192.168.2.111', 20000)))
 RTU_list.append(RTU_data(id=3, ip='192.168.1.178', port=8888, server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM), server_address = ('192.168.1.111', 10000)))
 # RTU_list.append(RTU_data(id=2, ip='192.168.2.177', port=8888, server_address = ('192.168.2.111', 10000)))
 # RTU_list.append(RTU_data(id=3, ip='192.168.1.178', port=8888, server_address = ('192.168.1.111', 10000)))
@@ -71,7 +71,7 @@ def listening_thread(rtu):
             if DCP_is_valid_response(data_list, rtu):
                 DCP_process_response(data_list, rtu)
                 if rtu.alarms_binary != rtu.prev_alarm_state:
-                    rtu.set_prev_alarm_state(rtu.alarms_binary)
+                    rtu.set_prev_alarm_state(rtu.alarms_binary, rtu.id)
                     smtplib.SMTP('localhost').sendmail('RTU'+str(rtu.id)+'@master.com', ['master@master.com'], get_arlm_message(rtu.alarms_binary))
 
 

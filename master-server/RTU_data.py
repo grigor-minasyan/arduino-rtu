@@ -75,18 +75,23 @@ class RTU_data:
         self.server_address = server_address
     def set_id(self, id):
         self.id = id
-    def set_thresholds(self, list):
-        for i in range(4):
-            self.thresholds[i] = list[i]
-    def set_alarms_binary(self, a):
-        self.alarms_binary = a
-    def add_hist(self, new_data):
-        self.history.add(new_data)
+    def set_thresholds(self, list, id_to_check):
+        if id_to_check == self.id:
+            for i in range(4):
+                self.thresholds[i] = list[i]
+    def set_alarms_binary(self, a, id_to_check):
+        if id_to_check == self.id:
+            self.alarms_binary = a
+    def add_hist(self, new_data, id_to_check):
+        if id_to_check == self.id:
+            self.history.add(new_data)
         # sorted(self.history, key=functools.cmp_to_key(compare_Dttimetemphum))
-    def set_current_data(self, dttimetemphum):
-        self.current_data = dttimetemphum
-    def set_prev_alarm_state(self, a):
-        self.prev_alarm_state = a
+    def set_current_data(self, dttimetemphum, id_to_check):
+        if id_to_check == self.id:
+            self.current_data = dttimetemphum
+    def set_prev_alarm_state(self, a, id_to_check):
+        if id_to_check == self.id:
+            self.prev_alarm_state = a
     def __str__(self):
         ret = ""
         ret += 'ID: '+str(self.id) + '\n'
