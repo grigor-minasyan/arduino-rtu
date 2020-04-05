@@ -1,9 +1,10 @@
 #include "main.h"
+#define LCD_TEMP_SHOW_DELAY 2000
 
 byte temp_bytes[4];
 int8_t temp_int8_t[4];
 byte cursor_loc = 0;
-
+byte temp_device_id;
 
 void show_wrong_bch_lcd(byte wrong, byte correct) {
   unsigned long prev_time = millis();
@@ -17,9 +18,21 @@ void show_wrong_bch_lcd(byte wrong, byte correct) {
   lcd.print(correct);
   lcd.print(F(" GOT "));
   lcd.print(wrong);
-  while (millis() - prev_time < 3000) {
+  while (millis() - prev_time < LCD_TEMP_SHOW_DELAY) {
     continue;
   }
+  show_lcd_menu(prev_menu);
+}
+
+void show_saved_lcd(byte is_reboot) {
+  unsigned long prev_time = millis();
+  byte prev_menu = curr_lcd_menu;
+  curr_lcd_menu = -1;
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  if (is_reboot) lcd.print(F("Reboot to save"));
+  else lcd.print(F("Values saved"));
+  while (millis() - prev_time < LCD_TEMP_SHOW_DELAY) {;}
   show_lcd_menu(prev_menu);
 }
 
@@ -85,6 +98,12 @@ void show_lcd_menu(byte x) {
         lcd.print((cursor_loc == i ? ">" : " "));
         lcd.print((x == LCD_SETTINGS_THRESHOLD_IN ? temp_int8_t[i] : temp_bytes[i]));
       }
+    } else if (x == LCD_SETTINGS_ID_OUT) lcd.print(F("Change DCP ID"));
+    else if (x == LCD_SETTINGS_ID_IN) {
+      lcd.print(F("Use up/down"));
+      lcd.setCursor(0, 1);
+      lcd.print(F("to change: "));
+      lcd.print(temp_device_id);
     }
   }
 }

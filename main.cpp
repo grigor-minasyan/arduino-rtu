@@ -31,15 +31,12 @@ int8_t max_humidity = INT8_MIN;
 int8_t min_humidity = INT8_MAX;
 int8_t temp_threshold__arr[4];
 
-
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
 byte mac[] = {0xBB, 0xAA, 0xAA, 0xEF, 0xFE, 0xED};
 IPAddress ip, subnet, gateway;
 IPAddress dns(192, 168, 1, 1);
-IPAddress ip_remote(192, 168, 1, 111);   // local port to listen on
-// IPAddress dns(192, 168, 2, 1);
-// IPAddress ip_remote(192, 168, 2, 111);   // local port to listen on
+IPAddress ip_remote(192, 168, 1, 101);   // local port to listen on
 // buffers for receiving and sending data
 char packetBuffer[UDP_TX_PACKET_MAX_SIZE];  // buffer to hold incoming packet,
 char ReplyBuffer[] = "acknowledged";        // a string to send back
@@ -50,7 +47,9 @@ long udp_packets_in_counter = 0, udp_packets_out_counter = 0;
 
 //holds bytes for ip(4 bytes), sub(4bytes), gateway(4 bytes) in this order
 Eeprom_indexes<byte> ip_sub_gate_config(0, 17);
-Eeprom_indexes<int8_t> thresholds_config(18, 27);
+Eeprom_indexes<int8_t> thresholds_config(18, 28);
+Eeprom_indexes<Data_To_Store> rtc_dht_data_range(29, EEPROM.length()-1);
+// Eeprom_indexes rtc_dht_data_range(21, 60); // for testing purposes
 
 //can hold 4 int8_t for thresholds
 //end Ethernet declarations-------------------------------------------
@@ -63,51 +62,52 @@ void setup() {
   	Serial.begin(BAUD_RATE);
   	while (!Serial) {;}// wait for serial port to connect. Needed for native USB port only
   }
-  if constexpr (SERIAL_DEBUG_ENABLE) {
-    Serial.print(F("inside setup"));
-  }
-  lcd.begin(16, 2);
-  show_lcd_menu(LCD_HOME);
 
-  //setting up dumy addresses
-  // ip_sub_gate_config.set_ith(0, 192);
-  // ip_sub_gate_config.set_ith(1, 168);
-  // ip_sub_gate_config.set_ith(2, 1);
-  // ip_sub_gate_config.set_ith(3, 178);
-  // ip_sub_gate_config.set_ith(4, 255);
-  // ip_sub_gate_config.set_ith(5, 255);
-  // ip_sub_gate_config.set_ith(6, 255);
-  // ip_sub_gate_config.set_ith(7, 0);
-  // ip_sub_gate_config.set_ith(8, 192);
-  // ip_sub_gate_config.set_ith(9, 168);
-  // ip_sub_gate_config.set_ith(10, 1);
-  // ip_sub_gate_config.set_ith(11, 1);
+  /*
+  //setting up default addresses, thresholds and initializing the history
+  ip_sub_gate_config.init();
+  thresholds_config.init();
+  rtc_dht_data_range.init(); // do this to reset for the first time
+  ip_sub_gate_config.set_ith(0, 192);
+  ip_sub_gate_config.set_ith(1, 168);
+  ip_sub_gate_config.set_ith(2, 1);
+  ip_sub_gate_config.set_ith(3, 102);
+  ip_sub_gate_config.set_ith(4, 255);
+  ip_sub_gate_config.set_ith(5, 255);
+  ip_sub_gate_config.set_ith(6, 255);
+  ip_sub_gate_config.set_ith(7, 0);
+  ip_sub_gate_config.set_ith(8, 192);
+  ip_sub_gate_config.set_ith(9, 168);
+  ip_sub_gate_config.set_ith(10, 1);
+  ip_sub_gate_config.set_ith(11, 1);
+  for (byte i = 0; i < 4; i++) thresholds_config.set_ith(i, 10+i); // setting the thresholds
+  thresholds_config.set_ith(4, RTU_DEVICE_ID); // use the last byte to store the device id
+  */
+
+
+
   //getting the ip addresses from the eeprom
   ip=IPAddress(ip_sub_gate_config.get_ith(0),ip_sub_gate_config.get_ith(1),ip_sub_gate_config.get_ith(2),ip_sub_gate_config.get_ith(3));
   subnet=IPAddress(ip_sub_gate_config.get_ith(4),ip_sub_gate_config.get_ith(5),ip_sub_gate_config.get_ith(6),ip_sub_gate_config.get_ith(7));
   gateway=IPAddress(ip_sub_gate_config.get_ith(8),ip_sub_gate_config.get_ith(9),ip_sub_gate_config.get_ith(10),ip_sub_gate_config.get_ith(11));
 
+  //getting the temperature thresholds from the eeprom
+  for (byte i = 0; i < 4; i++) temp_threshold__arr[i] = thresholds_config.get_ith(i);
+  RTU_DEVICE_ID = thresholds_config.get_ith(4);
 
 
+  lcd.begin(16, 2);
+  show_lcd_menu(LCD_HOME);
 	Ethernet.init(10);
 	Ethernet.begin(mac, ip, dns, gateway, subnet);
-
   Udp.begin(localPort);
-
-
 	Clock.begin();
-
   leds_all.begin();
 	leds_all.setPixelColor(0, color_comfortable);
 	leds_all.show();
 	command[0] = '\0';
 
 
-  //setting up dummy addresses
-  // for (byte i = 0; i < 4; i++) thresholds_config.set_ith(i, 10+i);
-  //getting the temperature thresholds from the eeprom
-  for (byte i = 0; i < 4; i++) temp_threshold__arr[i] = thresholds_config.get_ith(i);
-  // rtc_dht_data_range.init(); // do this to reset for the first time
 
   if constexpr (SERIAL_ENABLE || SERIAL_DEBUG_ENABLE) {
     Serial.println(F("Current addresses and thresholds"));
@@ -129,7 +129,7 @@ void setup() {
     Serial.print(F("Thresholds:\t"));
     for (byte i = 0; i < 4; i++) {
       Serial.print(thresholds_config.get_ith(i));
-      Serial.print(" ");
+      Serial.print((i < 3 ? " " : "\n\r"));
     }
     Serial.println(F("\n\rEnter commands or 'HELP'"));
   }
@@ -137,12 +137,9 @@ void setup() {
 
 void loop() {
 	read_temp_hum_loop();
-
 	five_button_read();
   show_lcd_menu(curr_lcd_menu);
-
-	//calls set flags and execute
-	take_input();
+	if constexpr (SERIAL_ENABLE) take_input();
   if constexpr (UDP_OLD_ENABLE) take_input_udp();
   take_input_udp_dcpx();
 }

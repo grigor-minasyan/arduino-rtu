@@ -1,10 +1,11 @@
 #include "main.h"
-#define FIVE_BUTTON_PIN A3
+#define FIVE_BUTTON_PIN A1
 
 extern int temp_history_ith_element;
 extern int8_t temp_int8_t[4];
 extern byte temp_bytes[4];
 extern byte cursor_loc;
+extern byte temp_device_id;
 
 void sw1func();
 void sw2func();
@@ -14,11 +15,9 @@ void sw5func();
 
 void sw4func() {//left
   if (curr_lcd_menu == LCD_HISTORY_IN) show_lcd_menu(LCD_HISTORY_OUT);
-  else if (curr_lcd_menu == LCD_SETTINGS_IP_OUT ||
-            curr_lcd_menu ==  LCD_SETTINGS_SUB_OUT ||
-            curr_lcd_menu ==  LCD_SETTINGS_GATE_OUT ||
-            curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT ||
-            curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_IP_OUT || curr_lcd_menu ==  LCD_SETTINGS_SUB_OUT ||
+            curr_lcd_menu ==  LCD_SETTINGS_GATE_OUT || curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT ||
+            curr_lcd_menu == LCD_SETTINGS_ERASE_OUT || curr_lcd_menu == LCD_SETTINGS_ID_OUT) show_lcd_menu(LCD_SETTINGS_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN || curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
     if (cursor_loc > 0) cursor_loc--;
@@ -43,6 +42,8 @@ void sw3func() {//up
   else if (curr_lcd_menu == LCD_SETTINGS_GATE_OUT) show_lcd_menu(LCD_SETTINGS_SUB_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT) show_lcd_menu(LCD_SETTINGS_GATE_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_THRESHOLD_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_ID_OUT) show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_ID_IN) temp_device_id++;
   //------------------------------------------------------
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
@@ -69,6 +70,8 @@ void sw2func() { // down
   else if (curr_lcd_menu == LCD_SETTINGS_SUB_OUT) show_lcd_menu(LCD_SETTINGS_GATE_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_GATE_OUT) show_lcd_menu(LCD_SETTINGS_THRESHOLD_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT) show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_ID_OUT);
+  else if (curr_lcd_menu == LCD_SETTINGS_ID_IN) temp_device_id--;
   //------------------------------------------------------
   //level 3 temp history data
   else if (curr_lcd_menu == LCD_HISTORY_IN) {
@@ -89,20 +92,33 @@ void sw5func() {//enter
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_OUT) show_lcd_menu(LCD_SETTINGS_ERASE_IN);
   else if (curr_lcd_menu == LCD_SETTINGS_ERASE_IN) {
     rtc_dht_data_range.init();
+    show_saved_lcd(0);
     show_lcd_menu(LCD_SETTINGS_ERASE_OUT);
-  } else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT) {
+  } //enter into threshold settings
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT) {
     for (byte i = 0; i < 4; i++) temp_int8_t[i] = temp_threshold__arr[i];
     cursor_loc = 0;
     show_lcd_menu(LCD_SETTINGS_THRESHOLD_IN);
-  } else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
+  } //leaving threshold settings
+  else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN) {
     for (byte i = 0; i < 4; i++) {
       temp_threshold__arr[i] = temp_int8_t[i];
       thresholds_config.set_ith(i, temp_threshold__arr[i]);
     }
     cursor_loc = 0;
+    show_saved_lcd(0);
     show_lcd_menu(LCD_SETTINGS_THRESHOLD_OUT);
-  }
-  //entering ip subnet or gateway
+  } // entering into ID Settings
+  else if (curr_lcd_menu == LCD_SETTINGS_ID_OUT) {
+    temp_device_id = RTU_DEVICE_ID;
+    show_lcd_menu(LCD_SETTINGS_ID_IN);
+  }//leading the id settings menu
+  else if (curr_lcd_menu == LCD_SETTINGS_ID_IN) {
+    RTU_DEVICE_ID = temp_device_id;
+    thresholds_config.set_ith(4, RTU_DEVICE_ID);
+    show_saved_lcd(0);
+    show_lcd_menu(LCD_SETTINGS_ID_OUT);
+  }//entering ip subnet or gateway
   else if (curr_lcd_menu == LCD_SETTINGS_IP_OUT) {
     for (byte i = 0; i < 4; i++) temp_bytes[i] = ip[i];
     cursor_loc = 0;
@@ -121,16 +137,19 @@ void sw5func() {//enter
     for (byte i = 0; i < 4; i++) ip_sub_gate_config.set_ith(i, temp_bytes[i]);
     ip = IPAddress(temp_bytes[0], temp_bytes[1], temp_bytes[2], temp_bytes[3]);
     cursor_loc = 0;
+    show_saved_lcd(1);
     show_lcd_menu(LCD_SETTINGS_IP_OUT);
   } else if (curr_lcd_menu == LCD_SETTINGS_SUB_IN) {
     for (byte i = 0; i < 4; i++) ip_sub_gate_config.set_ith(i+4, temp_bytes[i]);
     subnet = IPAddress(temp_bytes[0], temp_bytes[1], temp_bytes[2], temp_bytes[3]);
     cursor_loc = 0;
+    show_saved_lcd(1);
     show_lcd_menu(LCD_SETTINGS_SUB_OUT);
   } else if (curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
     for (byte i = 0; i < 4; i++) ip_sub_gate_config.set_ith(i+8, temp_bytes[i]);
     gateway = IPAddress(temp_bytes[0], temp_bytes[1], temp_bytes[2], temp_bytes[3]);
     cursor_loc = 0;
+    show_saved_lcd(1);
     show_lcd_menu(LCD_SETTINGS_GATE_OUT);
   }
 }

@@ -37,8 +37,6 @@
 
 
 #define REMOTEPORT 54211
-// #define REMOTEPORT_SERVER 20000
-// #define localPort 9999
 #define REMOTEPORT_SERVER 10000
 #define localPort 8888
 
@@ -81,6 +79,7 @@ typedef enum  {LCD_HOME = 0, LCD_HISTORY_OUT, LCD_HISTORY_IN, LCD_PACKETS, LCD_S
   LCD_SETTINGS_SUB_OUT, LCD_SETTINGS_SUB_IN,
   LCD_SETTINGS_THRESHOLD_OUT, LCD_SETTINGS_THRESHOLD_IN,
   LCD_SETTINGS_ERASE_OUT, LCD_SETTINGS_ERASE_IN,
+  LCD_SETTINGS_ID_OUT, LCD_SETTINGS_ID_IN,
   } LCD_SCREEN_MENU;
 extern LCD_SCREEN_MENU lcd_screen_menu;
 
@@ -123,13 +122,14 @@ extern char ReplyBuffer[];// a string to send back
 extern EthernetUDP Udp;
 extern long udp_packets_in_counter, udp_packets_out_counter;
 //end Ethernet declarations-------------------------------------------
-
+extern byte RTU_DEVICE_ID;
 
 //lcd related functions and declarations-------------------------------------------
 extern LiquidCrystal lcd;
 extern void show_lcd_menu(byte x);
 extern byte curr_lcd_menu;
 extern void show_wrong_bch_lcd(byte wrong, byte correct);
+extern void show_saved_lcd(byte is_reboot);
 //end lcd related functions and declarations-------------------------------------------
 
 //start Eeprom_indexes class definitions----------------------------------------
