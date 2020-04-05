@@ -14,10 +14,10 @@ void show_wrong_bch_lcd(byte wrong, byte correct) {
   lcd.setCursor(0, 0);
   lcd.print(F("Bad checksum"));
   lcd.setCursor(0, 1);
-  lcd.print(F("EXP "));
-  lcd.print(correct);
-  lcd.print(F(" GOT "));
-  lcd.print(wrong);
+  lcd.print(F("EXP:"));
+  lcd.print(correct, HEX);
+  lcd.print(F(" GOT:"));
+  lcd.print(wrong, HEX);
   while (millis() - prev_time < LCD_TEMP_SHOW_DELAY) {
     continue;
   }

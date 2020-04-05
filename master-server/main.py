@@ -2,7 +2,7 @@
 # An object of Flask class is our WSGI application.
 from flask import Flask, render_template, jsonify, request
 from json import JSONEncoder
-import threading, time, socket, sys, json
+import threading, time, socket, sys, json, pickle
 from DCPx_functions import *
 from RTU_data import *
 import smtplib
@@ -17,14 +17,18 @@ class RTU_data_Encoder(JSONEncoder):
             return [obj.id, obj.thresholds, obj.alarms_binary, obj.current_data, list(obj.history)]
         return json.JSONEncoder.default(self, obj)
 
-# CONSTANTS
+
+
 RTU_list = []
-RTU_list.append(RTU_data(id=2, ip='192.168.2.177', port=9999, server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM), server_address = ('192.168.2.111', 20000)))
-RTU_list.append(RTU_data(id=3, ip='192.168.1.178', port=8888, server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM), server_address = ('192.168.1.111', 10000)))
-# RTU_list.append(RTU_data(id=2, ip='192.168.2.177', port=8888, server_address = ('192.168.2.111', 10000)))
-# RTU_list.append(RTU_data(id=3, ip='192.168.1.178', port=8888, server_address = ('192.168.1.111', 10000)))
-# sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM);
-# sock.setsockopt( socket.SOL_SOCKET, socket.SO_REUSEADDR, 1 )
+RTU_list = pickle.load(open('./master-server/stored_RTUs.pkl', 'rb'))
+
+# RTU_list.append(RTU_data(id=2, ip='192.168.1.102', port=8888))
+# RTU_list.append(RTU_data(id=3, ip='192.168.1.103', port=8888))
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_address = ('192.168.1.101', 10000)
+sock.bind(server_address)
+
 def get_RTU_i(id):
     for i in range(len(RTU_list)):
         if RTU_list[i].id == id:
@@ -51,28 +55,25 @@ def get_arlm_message(num):
     if num == 0b0000:
         return 'Subject: {}\n\n{}'.format("Alarms clear, comfortable", "Alarms clear, comfortable")
 
-def listening_thread(rtu):
+def listening_thread():
     # function to continuously check for UDP
-    server_address = rtu.server_address
-    print('starting up RTU id # %i on port %s' % (rtu.id, server_address))
-
-    # sock.shutdown(2)
-    rtu.server_socket.bind(server_address)
-    # sock.listen(1)
-    # def check_incoming_traffic():
     while True:
         # print('\nwaiting to receive message')
-        data, address = rtu.server_socket.recvfrom(4096)
+        data, address = sock.recvfrom(1024)
         data_list = bytearray(data)
         # print('received %s bytes from %s' % (len(data), address))
         # print(':'.join(x.encode('hex') for x in data))
         if len(data_list) > 3:
             # print(' '.join(hex(i)[2:] for i in bytearray(data_list)))
-            if DCP_is_valid_response(data_list, rtu):
-                DCP_process_response(data_list, rtu)
-                if rtu.alarms_binary != rtu.prev_alarm_state:
-                    rtu.set_prev_alarm_state(rtu.alarms_binary, rtu.id)
-                    smtplib.SMTP('localhost').sendmail('RTU'+str(rtu.id)+'@master.com', ['master@master.com'], get_arlm_message(rtu.alarms_binary))
+            if DCP_is_valid_response(data_list):
+                if get_RTU_i(data_list[2])  == -1:
+                    print("No RTU found with an id of %s" % data_list[2])
+                else:
+                    rtu = RTU_list[get_RTU_i(data_list[2])]
+                    DCP_process_response(data_list,rtu)
+                    if rtu.alarms_binary != rtu.prev_alarm_state:
+                        rtu.set_prev_alarm_state(rtu.alarms_binary)
+                        smtplib.SMTP('localhost').sendmail('RTU'+str(rtu.id)+'@master.com', ['master@master.com'], get_arlm_message(rtu.alarms_binary))
 
 
 
@@ -83,31 +84,27 @@ def main():
 # responding to JSON request
 @app.route('/_update_cur_temp/<rtu_id>')
 def update_cur_temp(rtu_id):
+    pickle.dump(RTU_list, open('./master-server/stored_RTUs.pkl', 'wb')) #change the location of this line
     # sending a request to RTU
     if get_RTU_i(int(rtu_id)) == -1:
         print("no rtu found with id of %s" % rtu_id)
         return
+    rtu = RTU_list[get_RTU_i(int(rtu_id))]
     buff = bytearray(DCP_buildPoll(int(rtu_id), DCP_op_lookup(DCP_op_name.FUDR)))
     DCP_compress_AA_byte(buff)
-    sent = RTU_list[get_RTU_i(int(rtu_id))].server_socket.sendto(buff, (RTU_list[get_RTU_i(int(rtu_id))].ip, RTU_list[get_RTU_i(int(rtu_id))].port))
-    print("sending data for RTU %s with array size of %i" %(rtu_id, len(RTU_list[get_RTU_i(int(rtu_id))].history)))
-    return json.dumps(RTU_list[get_RTU_i(int(rtu_id))], indent=4, cls=RTU_data_Encoder)
+    sent = sock.sendto(buff, (rtu.ip, rtu.port))
+    print("sending data for RTU %s with array size of %i" %(rtu_id, len(rtu.history)))
+    return json.dumps(rtu, indent=4, cls=RTU_data_Encoder)
+
 
 # main driver function
 if __name__ == '__main__':
     t1 = threading.Thread(target=app.run)
+    listen = threading.Thread(target=listening_thread)
     t1.setDaemon(True)
-
-    rtu1 = threading.Thread(target=listening_thread, args=(RTU_list[0],))
-    rtu1.setDaemon(True)
-
-    rtu2 = threading.Thread(target=listening_thread, args=(RTU_list[1],))
-    rtu2.setDaemon(True)
-
+    listen.setDaemon(True)
     t1.start()
-    rtu1.start()
-    rtu2.start()
-
+    listen.start()
 
     try:
         while True:

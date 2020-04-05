@@ -1,10 +1,36 @@
 // var cur_temp = 15;//{{ cur_temp }};
-let update_delay = 2000;
+let update_delay = 4000;
 let RTU_id = 2;
 let RTU2_id = 3;
 
 function to_f(c) {
   return 1.8*c+32;
+}
+
+function validate_form(ipaddress, port, id){
+  if (!(/^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/.test(ipaddress))){
+    alert("You have entered an invalid IP address!");
+    return (false);
+  }
+  if (isNaN(port) || port < 1 || port % 1 != 0) {
+    alert("Port number is invalid")
+    return false;
+  }
+  if (isNaN(id) || id < 1 || id % 1 != 0) {
+    alert("ID number is invalid")
+    return false;
+  }
+  return true;
+}
+
+function submit_rtu_data() {
+  let ip_address = document.getElementById("ip_address").value;
+  var port = document.getElementById("port").value;
+  var device_id = document.getElementById("device_id").value;
+  if (validate_form(ip_address, port, device_id)) {
+    alert("\nip_address: " + ip_address + "\nport: " + port + "\ndevice_id: " + device_id + "\nForm Submitted Successfully......");
+    $('input[type="text"], textarea').val('');
+  }
 }
 
 var RTU_obj;

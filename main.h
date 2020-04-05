@@ -33,7 +33,7 @@
 #define RGB_DATA_PIN_ALL 9
 
 #define dht_read_short_delay 3000
-#define dht_read_long_delay 5000//600000
+#define dht_read_long_delay 600000
 
 
 #define REMOTEPORT 54211

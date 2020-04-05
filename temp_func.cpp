@@ -14,11 +14,11 @@ int8_t current_threshold = 0;
 byte temp_alarm_binary = 0b0000;
 
 int8_t get_threshold(int8_t t) {
-  if (t < temp_threshold__arr[0]) return MJ_UNDER;//mj under
-  if (t < temp_threshold__arr[1]) return MN_UNDER;//mn under
-  if (t > temp_threshold__arr[2]) return MN_OVER;//mn over
-  if (t > temp_threshold__arr[3]) return MJ_OVER;//mj over
-  return COMFORTABLE;//no alarms
+  if (t < temp_threshold__arr[0]) return MJ_UNDER;
+  if (t < temp_threshold__arr[1]) return MN_UNDER;
+  if (t < temp_threshold__arr[2]) return COMFORTABLE;
+  if (t < temp_threshold__arr[3]) return MN_OVER;
+  return MJ_OVER;
 }
 
 //not to be called from outside, only by the looper, limited to 0.5hz maximum
@@ -82,7 +82,7 @@ void read_temp_hum_loop() {
       else if (current_threshold == MN_UNDER) leds_all.setPixelColor(0, color_min_und);
       else if (current_threshold == COMFORTABLE) leds_all.setPixelColor(0, color_comfortable);
       else if (current_threshold == MN_OVER) leds_all.setPixelColor(0, color_min_ovr);
-      else leds_all.setPixelColor(1, color_maj_ovr);
+      else leds_all.setPixelColor(0, color_maj_ovr);
     }
 
   }

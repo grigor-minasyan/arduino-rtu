@@ -12,7 +12,40 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
   </head>
   <body>
+
+    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
+      <a class="navbar-brand" href="#">Alarm Master</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0" id = "new_rtu"  onsubmit="submit_rtu_data()">
+          <input type="text" class="form-control mr-sm-2" id="ip_address" placeholder="IP address">
+          <input type="text" class="form-control mr-sm-2" id="port" placeholder="Port">
+          <input type="text" class="form-control mr-sm-2" id="device_id" placeholder="Device id">
+          <button type="submit" class="btn btn-success my-2 my-sm-0">Submit</button>
+        </form>
+      </div>
+    </nav>
+
+
     <div class="container">
+      <div class="row justify-content-md-center">
+        <div class="col-sm-auto">
+          <h1>Welcome to the Master monitoring station!</h1>
+          <h3>To add new remote units to monitor, please fill out the ip address, port and the id of the unit to monitor</h3>
+        </div>
+      </div>
+      <div class="row">
       <div class="row">
         <div class="col">
           <h4>Current temperature is <span id="temp2"></span>F</h4>
