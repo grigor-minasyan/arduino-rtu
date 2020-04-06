@@ -4,7 +4,7 @@ let RTU_id = 2;
 let RTU2_id = 3;
 
 function to_f(c) {
-  return 1.8*c+32;
+  return (1.8*c+32);
 }
 
 var RTU_id_list = [];
@@ -15,6 +15,60 @@ var max_hist = 200;
 function topFunction() {
   document.body.scrollTop = 0; // For Safari
   document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+}
+
+function draw_threshold(id, t1, t2, t3, t4, cur) {
+  t1 = parseInt(t1);
+  t2 = parseInt(t2);
+  t3 = parseInt(t3);
+  t4 = parseInt(t4);
+  cur = parseInt(cur);
+  if (!is_celcius) {
+    t1 = to_f(t1);
+    t2 = to_f(t2);
+    t3 = to_f(t3);
+    t4 = to_f(t4);
+    cur = to_f(cur);
+  }
+  var canvas = document.getElementById("threshold_canvas_" + id.toString());
+	var width = canvas.offsetWidth;
+	var height = canvas.offsetHeight;
+  var ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, width, height);
+  var range = t4-t1;
+  var start = t1 - 0.2*range;
+  var end = t4 + 0.2*range;
+  ctx.font = "15px Arial";
+
+
+  ctx.fillStyle = "#6a0dad";
+  ctx.fillRect(0,15,width*(t1-start)/(end-start),height/2);
+
+  ctx.fillStyle = "#2731e6";
+  ctx.fillRect(width*(t1-start)/(end-start),15,width*(t2-t1)/(end-start),height/2);
+  ctx.fillText(t1.toFixed(1).toString(), width*(t1-start)/(end-start)-9, 12);
+
+  ctx.fillStyle = "#2cbf40";
+  ctx.fillRect(width*(t2-start)/(end-start),15,width*(t3-t2)/(end-start),height/2);
+  ctx.fillText(t2.toFixed(1).toString(), width*(t2-start)/(end-start)-9, 12);
+
+  ctx.fillStyle = "#a19600";
+  ctx.fillRect(width*(t3-start)/(end-start),15,width*(t4-t3)/(end-start),height/2);
+  ctx.fillText(t3.toFixed(1).toString(), width*(t3-start)/(end-start)-9, 12);
+
+  ctx.fillStyle = "#cf2115";
+  ctx.fillRect(width*(t4-start)/(end-start),15,width*(end-t4)/(end-start),height/2);
+  ctx.fillText(t4.toFixed(1).toString(), width*(t4-start)/(end-start)-9, 12);
+
+  var cur_pos = cur;
+  if (cur_pos < start+5*range/100) {
+    cur_pos = start+5*range/100;
+  } else if (cur_pos > end-5*range/100) {
+    cur_pos = end-5*range/100;
+  }
+  ctx.fillStyle = "#222222";
+  ctx.fillRect(width*(cur_pos-start)/(end-start),15,2,height/2+10);
+  ctx.fillText(cur.toFixed(1).toString(), width*(cur_pos-start)/(end-start)-8, height/2+40);
 }
 
 function validate_form(ipaddress, port, id){
@@ -88,7 +142,11 @@ function get_id_list() {
       str2 += RTU_id_list[i].toString();
       str2 += "\"></span>" + "</h4><h4>Current humidity is <span id=\"hum";
       str2 += RTU_id_list[i].toString();
-      str2 += "\"></span>%</h4><h4><span id=\"alarm";
+      str2 += "\"></span>%</h4>";
+      str2 += "<canvas id=\"threshold_canvas_";
+      str2 += RTU_id_list[i].toString();
+      str2 += "\" width=\"500\" height=\"100\">Your browser does not support the canvas element.</canvas>";
+      str2 += "<h4><span id=\"alarm";
       str2 += RTU_id_list[i].toString();
       str2 += "\"></span></h4><p>History</p><table class=\"table table-striped\">";
       str2 += "<thead><tr><th scope=\"col\">#</th><th scope=\"col\">Date</th><th scope=\"col\">Time</th><th scope=\"col\">Temperature</th><th scope=\"col\">Humidity</th></tr></thead>";
@@ -167,6 +225,9 @@ function update_temp(id) {
     $("#history"+id.toString()).html(str);
     $("#temp"+id.toString()).html((is_celcius ? RTU_obj[3][6] : to_f(RTU_obj[3][6]).toFixed(1)).toString() + (is_celcius ? "C" : "F"));
     $("#hum"+id.toString()).html(RTU_obj[3][7]);
+
+
+    draw_threshold(id, RTU_obj[1][0], RTU_obj[1][1], RTU_obj[1][2], RTU_obj[1][3], RTU_obj[3][6]);
     if(RTU_obj[2] == 3) {
       //major over
       $("#alarm"+id.toString()).html("Alarm MJ OVER!");
