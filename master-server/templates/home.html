@@ -13,61 +13,83 @@
   </head>
   <body>
 
-    <nav class="navbar sticky-top navbar-expand-lg navbar-dark bg-primary">
-      <a class="navbar-brand" href="#">Alarm Master</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <div class="pos-f-t sticky-top">
+      <div class="collapse" id="navbarToggleExternalContent">
+        <div class="bg-light p-4">
+          <div class="row">
 
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0" id = "new_rtu"  onsubmit="submit_rtu_data()">
-          <input type="text" class="form-control mr-sm-2" id="ip_address" placeholder="IP address">
-          <input type="text" class="form-control mr-sm-2" id="port" placeholder="Port">
-          <input type="text" class="form-control mr-sm-2" id="device_id" placeholder="Device id">
-          <button type="submit" class="btn btn-success my-2 my-sm-0">Submit</button>
-        </form>
+            <div class="col-sm">
+              <h4 class="text-primary">Fill out this form and submit to add a new device to monitor</h4>
+              <form class="form-group my-2 my-lg-0" onsubmit="submit_rtu_data()">
+                <div class="form-group">
+                  <input type="text" class="form-control mr-sm-2" id="ip_address" placeholder="IP address">
+                </div>
+                <div class="form-group">
+                  <input type="text" class="form-control mr-sm-2" id="port" placeholder="Port">
+                </div>
+                <div class="form-group">
+                  <input type="text" class="form-control mr-sm-2" id="device_id" placeholder="Device id">
+                </div>
+                <button type="submit" class="btn btn-primary my-2 my-sm-0">Submit</button>
+              </form>
+            </div>
+
+            <div class="col-sm">
+              <h4 class="text-primary">Fill out this form and submit to remove a device from monitoring</h4>
+              <form class="form-group my-2 my-lg-0" onsubmit="id_to_remove()">
+                <div class="form-group">
+                  <input type="text" class="form-control mr-sm-2" id="device_id_to_remove" placeholder="Device id">
+                </div>
+                <button type="submit" class="btn btn-primary my-2 my-sm-0">Submit</button>
+              </form>
+            </div>
+
+
+            <div class="col-sm">
+              <h4 class="text-primary">Max number of items in history page</h4>
+              <form class="form-group my-2 my-lg-0" onsubmit="change_hisory_count()">
+                <div class="form-group">
+                  <input type="text" class="form-control mr-sm-2" id="new_history_count" placeholder="History count">
+                </div>
+                <button type="submit" class="btn btn-primary my-2 my-sm-0">Change</button>
+              </form>
+            </div>
+
+            <div class = "col-sm">
+              <h4 class="text-primary">Click this to toggle between Celcius and Fahrenheit</h4>
+              <button type="button" class="btn btn-primary btn-lg btn-block" onclick="temp_toggle()" id="temp_toggle">F</button>
+            </div>
+
+          </div>
+        </div>
       </div>
-    </nav>
+      <nav class="navbar navbar-dark bg-primary">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <button type="button" class="btn btn-light" href="#" onclick="topFunction()">Home</button>
+      </nav>
+    </div>
 
 
     <div class="container">
-      <div class="row justify-content-md-center">
-        <div class="col-sm-auto">
+      <div class="row mt-4 justify-content-md-center">
+        <div class="col-lg-auto">
           <h1>Welcome to the Master monitoring station!</h1>
-          <h3>To add new remote units to monitor, please fill out the ip address, port and the id of the unit to monitor</h3>
+          <p>To add or remove remote units to monitor, please click the top menu button and fill out the appropriate form</p>
+          <p>You can also change units of temperature in the top menu and how many items show in the history page</p>
         </div>
       </div>
-      <div class="row">
-      <div class="row">
-        <div class="col">
-          <h4>Current temperature is <span id="temp2"></span>F</h4>
-          <h4>Current humidity is <span id="hum2"></span></h4>
-          <h4><span id="alarm2"></span></h4>
-          <p>History</p>
-          <table class="table table-striped">
-            <tbody id = "history2">
-            </tbody>
-          </table>
+
+      <div class="row mt-4">
+        <div class="col-4">
+          <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical"></div>
         </div>
-        <div class="col">
-          <h4>Current temperature is <span id="temp3"></span>F</h4>
-          <h4>Current humidity is <span id="hum3"></span></h4>
-          <h4><span id="alarm3"></span></h4>
-          <p>History</p>
-          <table class="table table-striped">
-            <tbody id = "history3">
-            </tbody>
-          </table>
+        <div class = "col-8">
+          <div class="tab-content" id="v-pills-tabContent"></div>
         </div>
       </div>
     </div>
+
   </body>
 </html>

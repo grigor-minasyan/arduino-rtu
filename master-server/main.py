@@ -96,6 +96,29 @@ def update_cur_temp(rtu_id):
     print("sending data for RTU %s with array size of %i" %(rtu_id, len(rtu.history)))
     return json.dumps(rtu, indent=4, cls=RTU_data_Encoder)
 
+@app.route('/_monitor_new_rtu/<ip>/<port>/<rtu_id>')
+def monitor_new_rtu(ip, port, rtu_id):
+    if len([x for x in RTU_list if (x.ip == ip or x.id == rtu_id)]) > 0:
+        return jsonify(success = False, message = 'Failed, an RTU with the same IP or ID exists')
+    RTU_list.append(RTU_data(int(rtu_id), ip, int(port)))
+    pickle.dump(RTU_list, open('./master-server/stored_RTUs.pkl', 'wb'))
+    return jsonify(success = True, message = 'RTU added Successfully')
+
+@app.route('/_remove_device/<rtu_id>')
+def remove_device(rtu_id):
+    if get_RTU_i(int(rtu_id)) == -1:
+        print("no rtu found with id of %s" % rtu_id)
+        return jsonify(success = False, message = 'Failed, no RTU found with an ID of %s' %rtu_id)
+    RTU_list.pop(get_RTU_i(int(rtu_id)))
+    pickle.dump(RTU_list, open('./master-server/stored_RTUs.pkl', 'wb'))
+    return jsonify(success = True, message = 'Successfully removed the RTU with an ID of %s' %rtu_id)
+
+@app.route('/_get_id_list/')
+def get_id_list():
+    temp_arr = []
+    for rtu in RTU_list:
+        temp_arr.append(rtu.id)
+    return json.dumps(temp_arr)
 
 # main driver function
 if __name__ == '__main__':
