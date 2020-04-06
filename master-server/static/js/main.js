@@ -193,6 +193,7 @@ function change_hisory_count() {
     return false;
   } else {
     max_hist = new_h;
+    return false;
   }
 }
 
