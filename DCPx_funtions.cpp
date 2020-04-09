@@ -1,6 +1,6 @@
 #include "main.h"
 
-#define DCP_FUDRop 1
+#define DCP_FUDRop 3
 byte RTU_DEVICE_ID = 2;
 
 typedef struct _DCP_OP_NTRY {
