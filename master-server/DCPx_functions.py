@@ -2,7 +2,7 @@
 from RTU_data import *
 
 class DCP_op_name:
-    FUDR = 1
+    FUDR = 3
 
 
 class DCP_op_entry:
