@@ -137,6 +137,8 @@ void DCP_respond(byte command, IPAddress remote_ip, unsigned int remote_port) {
 			Udp.write(dcp_cur_big, size_dcp_cur);
 			Udp.endPacket();
 
+
+      /*
       //sending the stored data packets
       for (int i = 0; i < rtc_dht_data_range.get_stored_data_count(); i++) {
         //getting the numbers from the bitwise
@@ -164,6 +166,7 @@ void DCP_respond(byte command, IPAddress remote_ip, unsigned int remote_port) {
   			Udp.endPacket();
       }
       udp_packets_out_counter++;
+      */
 
 
       /*
