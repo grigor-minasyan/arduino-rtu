@@ -100,7 +100,7 @@ int DCP_expand_AA_byte(byte buffer[], byte buffer_big[], int count){
   return count;
 }
 
-void DCP_respond(byte command) {
+void DCP_respond(byte command, IPAddress remote_ip, unsigned int remote_port) {
   PDCP_OP_NTRY command_entry = DCP_op_lookup(command);
 
   switch (command_entry->code) {
@@ -118,7 +118,7 @@ void DCP_respond(byte command) {
 
       //compress the array and send it over
       size_dcp_thresholds = DCP_compress_AA_byte(dcp_thresholds, dcp_thresholds_big, size_dcp_thresholds);
-			Udp.beginPacket(ip_remote, REMOTEPORT_SERVER);
+			Udp.beginPacket(remote_ip, remote_port);
 			Udp.write(dcp_thresholds_big, size_dcp_thresholds);
 			Udp.endPacket();
 
@@ -133,7 +133,7 @@ void DCP_respond(byte command) {
 
       //compress the array and send it over
       size_dcp_cur = DCP_compress_AA_byte(dcp_cur, dcp_cur_big, size_dcp_cur);
-			Udp.beginPacket(ip_remote, REMOTEPORT_SERVER);
+			Udp.beginPacket(remote_ip, remote_port);
 			Udp.write(dcp_cur_big, size_dcp_cur);
 			Udp.endPacket();
 
@@ -159,7 +159,7 @@ void DCP_respond(byte command) {
 
         //compress the array and send it over
         size_dcp_hist = DCP_compress_AA_byte(dcp_hist, dcp_hist_big, size_dcp_hist);
-  			Udp.beginPacket(ip_remote, REMOTEPORT_SERVER);
+  			Udp.beginPacket(remote_ip, remote_port);
   			Udp.write(dcp_hist_big, size_dcp_hist);
   			Udp.endPacket();
       }
@@ -222,7 +222,7 @@ void take_input_udp_dcpx() {
       //if BCH is valid and device id mathces
       if (packetBuffer[packetSize-1] == (char)DCP_genCmndBCH(packetBuffer, packetSize-1)) {
         if (packetBuffer[2] == RTU_DEVICE_ID) {
-          DCP_respond(packetBuffer[3]);//packetbuffer[3] is the command to respond with
+          DCP_respond(packetBuffer[3], Udp.remoteIP(), Udp.remotePort());//packetbuffer[3] is the command to respond with
         }
       } else {
         show_wrong_bch_lcd(packetBuffer[packetSize-1], DCP_genCmndBCH(packetBuffer, packetSize-1));
