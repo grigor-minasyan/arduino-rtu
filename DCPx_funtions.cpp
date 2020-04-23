@@ -23,7 +23,7 @@ PDCP_OP_NTRY DCP_op_lookup(byte op) {
 
 byte DCP_genCmndBCH(byte buff[], int count) {
   byte bch = 0, nBCHpoly = 0xb8, fBCHpoly = 0xff;
-  for (byte i = 2; i < count; i++) {
+  for (byte i = 0; i < count; i++) {
     bch ^= buff[i];
     for (byte j = 0; j < 8; j++) {
         if ((bch & 1) == 1) bch = (bch >> 1) ^ nBCHpoly;
