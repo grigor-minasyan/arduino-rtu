@@ -1,19 +1,24 @@
 #include "main.h"
 #define FIVE_BUTTON_PIN A1
 
-extern int temp_history_ith_element;
-extern int8_t temp_int8_t[4];
-extern byte temp_bytes[4];
-extern byte cursor_loc;
-extern byte temp_device_id;
+// The funcitons here control how the analong 5 button interact with the liquid crystal LCD.
 
+extern int temp_history_ith_element;
+extern int8_t temp_int8_t[4]; // used to show and control the thresholds for analog alarms (major under, minor under, minor over, major over)
+extern byte temp_bytes[4]; // used to show and control the bytes for internet configuration on the LCD (ip, subnet, gateway)
+extern byte cursor_loc; // since using a 5 button to control the lcd, we need a curson to change the numbers on the LCD.
+extern byte temp_device_id; // to change the device ID for remote monitoring.
+
+
+//5 buttons, right down up left, enter.
 void sw1func();
 void sw2func();
 void sw3func();
 void sw4func();
 void sw5func();
 
-void sw4func() {//left
+//left
+void sw4func() {
   if (curr_lcd_menu == LCD_HISTORY_IN) show_lcd_menu(LCD_HISTORY_OUT);
   else if (curr_lcd_menu == LCD_SETTINGS_IP_OUT || curr_lcd_menu ==  LCD_SETTINGS_SUB_OUT ||
             curr_lcd_menu ==  LCD_SETTINGS_GATE_OUT || curr_lcd_menu == LCD_SETTINGS_THRESHOLD_OUT ||
@@ -24,9 +29,13 @@ void sw4func() {//left
   }
 }
 
-void sw1func() {//right
-  if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN || curr_lcd_menu == LCD_SETTINGS_IP_IN || curr_lcd_menu == LCD_SETTINGS_SUB_IN || curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
-    if (cursor_loc < 3) cursor_loc++;
+//right, acts like the enter key unless in a page where you can move the cursor to change values.
+void sw1func() {
+  if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN ||
+      curr_lcd_menu == LCD_SETTINGS_IP_IN ||
+      curr_lcd_menu == LCD_SETTINGS_SUB_IN ||
+      curr_lcd_menu == LCD_SETTINGS_GATE_IN) {
+    if (cursor_loc < 3) cursor_loc++; // move the cursor to the right
   } else sw5func(); // act like the enter key
 }
 
@@ -50,6 +59,8 @@ void sw3func() {//up
     if (temp_history_ith_element > 0) temp_history_ith_element--;
     show_lcd_menu(LCD_HISTORY_IN);
   }
+  //------------------------------------------------------
+  //update the values of alarm thresholds or the network settings
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN && cursor_loc >= 0 && cursor_loc <= 3) {
     if (cursor_loc == 3 && temp_int8_t[3] < 127) temp_int8_t[3]++;
     else if (temp_int8_t[cursor_loc] < temp_int8_t[cursor_loc+1]-1) temp_int8_t[cursor_loc]++;
@@ -78,6 +89,8 @@ void sw2func() { // down
     if (temp_history_ith_element < rtc_dht_data_range.get_stored_data_count()-1) temp_history_ith_element++;
     show_lcd_menu(LCD_HISTORY_IN);
   }
+  //------------------------------------------------------
+  //update the values of alarm thresholds or the network settings
   else if (curr_lcd_menu == LCD_SETTINGS_THRESHOLD_IN && cursor_loc >= 0 && cursor_loc <= 3) {
     if (cursor_loc == 0 && temp_int8_t[0] > -128) temp_int8_t[0]--;
     else if (temp_int8_t[cursor_loc] > temp_int8_t[cursor_loc-1]+1) temp_int8_t[cursor_loc]--;
@@ -154,12 +167,16 @@ void sw5func() {//enter
   }
 }
 
+// read the analog values from the 5 button input
 void five_button_read() {
+   // used to calculate the time from arduino's millis() function
   static unsigned long prev_time = 0;
   static unsigned long prev_time_2 = 0;
-  const int hold_timeout_1 = 100;
-  const int hold_timeout_2 = 400;
-  static int val;
+
+  const int hold_timeout_1 = 100; //used to not take duplicate inputs when the button is held
+  const int hold_timeout_2 = 400; //used to take duplicate input when the button is held for longer for faster data access and update.
+  
+  static int val; // raw value in millivolts (i think 0-1500) 
   static bool is_released;
   if ((millis() - prev_time > 20 && is_released) || millis() - prev_time > hold_timeout_1) {
     prev_time = millis();
