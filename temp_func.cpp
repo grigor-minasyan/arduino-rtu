@@ -1,17 +1,20 @@
 #include "main.h"
 
+
+//keeping the alarms as a binary number
 #define MJ_UNDER 0b1100
 #define MN_UNDER 0b0100
 #define MN_OVER 0b0010
 #define MJ_OVER 0b0011
 #define COMFORTABLE 0
 
+//self explanatory
 int8_t to_farenheit(int8_t x)  {
   return x * 1.8 + 32;
 }
 
 int8_t current_threshold = 0;
-byte temp_alarm_binary = 0b0000;
+byte temp_alarm_binary = 0b0000; // 0 is clear
 
 int8_t get_threshold(int8_t t) {
   if (t < temp_threshold__arr[0]) return MJ_UNDER;
@@ -34,6 +37,7 @@ void read_temp_hum() {
   if (cur_humidity > 127) cur_humidity -= 256;
 }
 
+// this takes care of the maximum frequency, reads the data, sets the alarms, sets min max.
 void read_temp_hum_loop() {
   static unsigned long prev_time_dht_short, prev_time_dht_long;
 	if (millis() - prev_time_dht_short >= dht_read_short_delay) {
@@ -86,8 +90,11 @@ void read_temp_hum_loop() {
     }
 
   }
+
+  //store the data into the eeprom
 	if (((millis() - prev_time_dht_long) >= dht_read_long_delay) || millis() < prev_time_dht_long) {
 
+    //create the data to be stored.
     Data_To_Store time_and_data;
     time_and_data.set_year((byte)Clock.read().Year);
     time_and_data.set_month((byte)Clock.read().Month);
@@ -99,8 +106,8 @@ void read_temp_hum_loop() {
     time_and_data.set_hum(cur_humidity);
     time_and_data.set_temp(cur_temp);
 
-
+    //store the data.
     rtc_dht_data_range.store_data(time_and_data);
-    prev_time_dht_long = millis();
+    prev_time_dht_long = millis(); // reset the timer.
 	}
 }

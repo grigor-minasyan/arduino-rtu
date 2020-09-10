@@ -1,6 +1,11 @@
 #include "main.h"
 #define LCD_TEMP_SHOW_DELAY 2000
 
+
+/*
+LCD functions, the main loop will keep updating the LCD screen.
+*/
+
 byte temp_bytes[4];
 int8_t temp_int8_t[4];
 byte cursor_loc = 0;

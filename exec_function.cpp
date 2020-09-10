@@ -14,6 +14,9 @@ void print_invalid_command(byte is_udp) {
 	}
 }
 
+
+//execute commands, from arr array, i know not ideal
+//it executed based on if serial is enable or not, or old udp responder enabled or not.
 void execute_commands(byte is_udp) {
 	if constexpr (SERIAL_ENABLE) {
 		Serial.println();
@@ -79,7 +82,7 @@ void execute_commands(byte is_udp) {
 						itoa(Clock.read().Second, buff, 10);
 						Udp.write(buff);
 						Udp.endPacket();
-			      udp_packets_out_counter++;
+						udp_packets_out_counter++;
 					}
 					if constexpr (SERIAL_ENABLE) {
 						Clock.printDateTo_YMD(Serial);

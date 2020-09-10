@@ -12,6 +12,8 @@ bool is_str_number(char command[], int &ret) {
 	return true;
 }
 
+
+//takes input from serial, if enabled.
 void take_input() {
 	if constexpr (SERIAL_ENABLE) {
 		if (Serial.available()) {

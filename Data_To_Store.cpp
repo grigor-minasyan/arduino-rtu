@@ -5,7 +5,11 @@ void Data_To_Store::write_everything(byte shift_to_left, byte size_in_bits, byte
   byte flag = 1 << size_in_bits;
   flag--;
   num = (num & flag);
+
+  //make an unsigned long copy for the num since the num is only 8 bit long.
   unsigned long num_copy = num;
+
+  // shift to left
   num_copy = num_copy << shift_to_left;
   //storing the num in the date time
   date_time_temp = date_time_temp | num_copy;
@@ -19,10 +23,14 @@ byte Data_To_Store::read_everything(byte shift_to_left, byte size_in_bits) {
   retval = retval & flag;
   return retval;
 }
+
+// getters and setters
 void Data_To_Store::set_hum(int8_t h) {humidity = h;}
 int8_t Data_To_Store::get_hum() {return humidity;}
 void Data_To_Store::set_temp(int8_t t) {temp = t;}
 int8_t Data_To_Store::get_temp() {return temp;}
+
+// those use internal function to store the date and time
 byte Data_To_Store::get_year(){return read_everything(26, 6);}
 byte Data_To_Store::get_month(){return read_everything(22, 4);}
 byte Data_To_Store::get_day(){return read_everything(17, 5);}

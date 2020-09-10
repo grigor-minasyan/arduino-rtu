@@ -1,3 +1,5 @@
+// including all the required libraries.
+
 #include <Arduino.h>
 #include <DS3231_Simple.h>
 #include <Wire.h>
@@ -15,16 +17,16 @@
 #ifndef MY_GLOBALS_H
 
 
-#define MAX_STR 12
-#define MAX_CMD_COUNT 5
+#define MAX_STR 12 // string max char count
+#define MAX_CMD_COUNT 5 // max commands count
 #define MIN_DELAY 50
-#define CUR_VERSION 2.4
-#define SERIAL_ENABLE false
-#define SERIAL_DEBUG_ENABLE false
-#define UDP_OLD_ENABLE false
-#define BAUD_RATE 9600
-#define UDP_LISTEN_DELAY 50
-#define UDP_CHECKER_DELAY 2111
+#define CUR_VERSION 0.24
+#define SERIAL_ENABLE false // set to false to save memory
+#define SERIAL_DEBUG_ENABLE false // set to false to save memory
+#define UDP_OLD_ENABLE false // set to false to save memory
+#define BAUD_RATE 9600 // for serial
+#define UDP_LISTEN_DELAY 50 // delay between listening to UDP commands, to wait for the commands to fully get received.
+#define UDP_CHECKER_DELAY 2111 // used for the internet status lcd, would be better to use ping instead.
 
 //pin and setup for the DHT
 #define PINDHT22 8
@@ -32,10 +34,12 @@
 
 #define RGB_DATA_PIN_ALL 9
 
+// short delay to read every 3 second, the most frquent is 2 second, more frequent can lock up the sensor
+// long one to store the data on the eeprom, both in milliseconds
 #define dht_read_short_delay 3000
 #define dht_read_long_delay 600000
 
-
+// UDP ports
 #define REMOTEPORT 54211
 #define REMOTEPORT_SERVER 10000
 #define localPort 8888
@@ -56,6 +60,7 @@ extern uint32_t color_maj_und, color_min_und, color_comfortable, color_min_ovr, 
 
 extern int8_t temp_threshold__arr[4];
 
+//functions declarations
 extern void five_button_read();
 extern void take_input();
 extern void take_input_udp();

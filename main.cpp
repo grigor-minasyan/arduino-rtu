@@ -1,16 +1,22 @@
 #include "main.h"
+
+//humidity temperature sensor instance declaration.
 SimpleDHT22 dht22(PINDHT22);
-//for buffer
+
+//for command buffer
 int arr[MAX_CMD_COUNT];
 char command[MAX_STR+1];
 
+//rgb leds stip declaration
 Adafruit_NeoPixel leds_all(NUM_LEDS, RGB_DATA_PIN_ALL, NEO_GRB + NEO_KHZ800);
 
+//colors for temperature alarms.
 uint32_t color_maj_und = 0x800080;//purple
 uint32_t color_min_und = 0x000080;//blue
 uint32_t color_comfortable = 0x008000;//green
 uint32_t color_min_ovr = 0xc87800;//orange
 uint32_t color_maj_ovr = 0xc80000;//red
+
 //input processing variables
 byte command_size = 0;
 byte command_count = 0;
@@ -33,7 +39,7 @@ int8_t temp_threshold__arr[4];
 
 //Ethernet declarations-------------------------------------------
 // The IP address will be dependent on your local network:
-byte mac[] = {0xBB, 0xAA, 0xAA, 0xEF, 0xFE, 0xED};
+byte mac[] = {0xBB, 0xAA, 0xAA, 0xEF, 0xFE, 0xED}; // a mac address will likely be unique lol, better to have a random one.
 IPAddress ip, subnet, gateway;
 IPAddress dns(192, 168, 1, 1);
 IPAddress ip_remote(192, 168, 1, 101);   // local port to listen on
@@ -47,12 +53,13 @@ long udp_packets_in_counter = 0, udp_packets_out_counter = 0;
 
 //holds bytes for ip(4 bytes), sub(4bytes), gateway(4 bytes) in this order
 Eeprom_indexes<byte> ip_sub_gate_config(0, 17);
-Eeprom_indexes<int8_t> thresholds_config(18, 28);
-Eeprom_indexes<Data_To_Store> rtc_dht_data_range(29, EEPROM.length()-1);
-// Eeprom_indexes rtc_dht_data_range(21, 60); // for testing purposes
 
 //can hold 4 int8_t for thresholds
-//end Ethernet declarations-------------------------------------------
+Eeprom_indexes<int8_t> thresholds_config(18, 28);
+
+//stores the history of the recorded data.
+Eeprom_indexes<Data_To_Store> rtc_dht_data_range(29, EEPROM.length()-1);
+// Eeprom_indexes rtc_dht_data_range(21, 60); // for testing purposes to see how overfow is handled.
 
 LiquidCrystal lcd(RS, EN, D4, D5, D6, D7);
 byte curr_lcd_menu = LCD_HOME;
@@ -64,7 +71,7 @@ void setup() {
   }
 
   /*
-  //setting up default addresses, thresholds and initializing the history
+  //setting up default addresses, thresholds and initializing the history, not needed after the LCD.
   ip_sub_gate_config.init();
   thresholds_config.init();
   rtc_dht_data_range.init(); // do this to reset for the first time
@@ -135,11 +142,13 @@ void setup() {
   }
 }
 
+
+//main loop where it runs and calls everything.
 void loop() {
-	read_temp_hum_loop();
-	five_button_read();
-  show_lcd_menu(curr_lcd_menu);
-	if constexpr (SERIAL_ENABLE) take_input();
-  if constexpr (UDP_OLD_ENABLE) take_input_udp();
-  take_input_udp_dcpx();
+	read_temp_hum_loop(); // keeps reading the data from the sensor, takes care of sotring the data too.
+	five_button_read(); // reads the input from the buttons and acts accordingly
+  show_lcd_menu(curr_lcd_menu); // updates menus on LCD.
+	if constexpr (SERIAL_ENABLE) take_input(); // listens on serial
+  if constexpr (UDP_OLD_ENABLE) take_input_udp(); // listens on UDP, the old ways
+  take_input_udp_dcpx(); // listens on UPD thru DCPx protocol
 }
